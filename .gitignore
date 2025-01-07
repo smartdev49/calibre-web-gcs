@@ -1,0 +1,52 @@
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+.python-version
+env/
+venv/
+eggs/
+dist/
+executable/
+build/
+vendor/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg
+.pylint.d
+
+# calibre-web
+*.db
+*.log
+cps/cache
+
+.idea/
+*.bak
+*.log.*
+.key
+
+settings.yaml
+gcp_config.json
+gdrive_credentials
+client_secrets.json
+gmail.json
+/.key
+.env
+library/
+
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+/venv
+/.git
+/library
+
+1.py

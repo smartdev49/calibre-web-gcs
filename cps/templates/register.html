@@ -1,0 +1,94 @@
+{% extends "layout.html" %} {% block body %}
+<div class="well col-sm-6 col-sm-offset-2">
+  <h2 style="margin-top: 0">{{_('Register New Account')}}</h2>
+  <form method="POST" role="form" id="registerForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+    <div class="form-group required">
+      <label for="name">{{_('Username')}}</label>
+      <input
+        type="text"
+        class="form-control"
+        id="name"
+        name="name"
+        placeholder="{{_('Choose a username')}}"
+        required
+      />
+    </div>
+    <div class="form-group required">
+      <label for="email">{{_('Email')}}</label>
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        name="email"
+        placeholder="{{_('Your Email')}}"
+        required
+      />
+    </div>
+    <div class="form-group required">
+      <label for="phone">{{_('Phone')}}</label>
+      <input
+        type="tel"
+        class="form-control"
+        id="phone"
+        name="phone"
+        placeholder="{{_('e.g. +123 456 7890')}}"
+        required
+      />
+      <div id="hint" class="hint">
+        Please enter a valid phone number. Example: +123 (456) 789-0123.
+      </div>
+    </div>
+    <div class="form-group required">
+      <label for="birthday">{{_('Birthday')}}</label>
+      <input
+        type="date"
+        class="form-control"
+        id="birthday"
+        name="birthday"
+        placeholder="{{_('Your birthday')}}"
+        required
+      />
+    </div>
+    <div class="form-group">
+      <label
+        for="password"
+        style="display: flex; justify-content: space-between"
+        ><span>{{_('Password')}}</span>
+        <p><input type="checkbox" id="isPwdVisible" /> Show Password</p></label
+      >
+      <input
+        type="password"
+        class="form-control"
+        name="password"
+        id="password"
+        data-lang="{{ current_user.locale }}"
+        data-verify="{{ True }}"
+        data-min="8"
+        data-word="{{ True }}"
+        data-special="{{ True }}"
+        data-upper="{{ True }}"
+        data-lower="{{ True }}"
+        data-number="{{ True }}"
+        value=""
+        autocomplete="off"
+      />
+    </div>
+    <button type="submit" id="submit" class="btn btn-primary">
+      {{_('Register')}}
+    </button>
+  </form>
+</div>
+{% if error %}
+<div class="col-sm-6 col-sm-offset-2">
+  <div class="alert alert-danger">{{error}}</div>
+</div>
+{% endif %} {% endblock %} {% block js %}
+<script src="{{ url_for('static', filename='js/libs/pwstrength/i18next.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/libs/pwstrength/i18nextHttpBackend.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/libs/pwstrength/pwstrength-bootstrap.js') }}"></script>
+<script src="{{ url_for('static', filename='js/libs/phoneValid.js') }}"></script>
+<script src="{{ url_for('static', filename='js/password.js') }}"></script>
+<script src="{{ url_for('static', filename='js/registerUX.js') }}"></script>
+
+{% endblock %}

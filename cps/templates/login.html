@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="well col-sm-6 col-sm-offset-2">
+  <h2 style="margin-top: 0">{{_('Login')}}</h2>
+  <form method="POST" role="form">
+     
+    <input type="hidden" name="next" value="{{next_url}}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group">
+      <label for="username">{{_('Username')}}</label>
+      <input type="text" class="form-control" id="username" name="username" autocapitalize="off" placeholder="{{_('Username')}}" value="{{ username }}">
+    </div>
+    <div class="form-group">
+      <label for="password">{{_('Password')}}</label>
+      <input type="password" class="form-control" id="password" name="password" placeholder="{{_('Password')}}" value="{{ password }}">
+    </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" name="remember_me" checked> {{_('Remember Me')}}
+      </label>
+    </div>
+    <button type="submit" name="submit" class="btn btn-default">{{_('Login')}}</button>    
+
+    {% if config.config_login_type == 0 and mail%}
+    <button type="submit" name="forgot" value="forgot" class="btn btn-default">{{_('Forgot Password?')}}</button>
+    {% endif %}
+    {% if g.current_theme == 1 %}
+      {% if g.allow_registration %}
+      <a class="btn btn-default" id="register" href="{{url_for('web.register')}}"><span class="glyphicon glyphicon-user"></span> {{_('Register')}}</a>
+      {% endif %}
+      {% if g.allow_anonymous %}
+      <a class="btn btn-default" href="{{url_for('web.index')}}">{{ _('Home') }}</a>
+      {% endif %}
+    {%endif%}
+
+    <input type="hidden" id='otp_url' name="next" value="{{url_for('web.serve_otp')}}">
+    <div id='divsendotp' style="display: none; margin-top: 10px;" >
+      <div class="form-group">
+        <label for="phone_number">{{_('Phone Number')}}</label>
+        <input type="text" class="form-control" id="phone_number" name="phone_number" autocapitalize="off" placeholder="{{_('input your phone number')}}" value="{{ phonenumber }}">
+      </div>
+      <button type="button" name="submit" id='sendOTP' class="btn btn-default" style="width: 100%;">{{_('Send OTP')}}</button>
+    </div>
+
+    <div id='divverifyotp' style="display: none;" >
+      <div class="form-group">
+        <label for="input_otp">{{_('OTP + Phone')}}</label>
+        <input type="text" class="form-control" id="input_otp" name="input_otp" autocapitalize="off" placeholder="{{_('input received otp')}}" value="{{ otp }}">
+        </div>
+      <button type="button" name="submit" id='verifyOTP' class="btn btn-default" style="width: 100%;">{{_('Login')}}</button>
+    </div>
+    <div id='opt_msg_info' style="color: red;"></div>
+
+    
+    
+    <div class="form-group" style="padding-top:15px; display: flex; justify-content: flex-end; gap: 10px;">
+      {% if config.config_remote_login %}
+      <a href="{{url_for('remotelogin.remote_login')}}" id="remote_login" class="pull-right">{{_('Log in with Magic Link')}}</a>
+      {% endif %}
+      {% if config.config_login_type == 2 %}
+        {% if 1 in oauth_check %}
+          <a href="{{url_for('oauth.github_login')}}" class="pull-right github">          
+            <img src="{{ url_for('static', filename='github.png') }}" style="width: 40px; height: 40px;"/>  
+          </a>
+        {% endif %}
+        {% if 2 in oauth_check %}
+          <a href="{{url_for('oauth.google_login')}}" class="pull-right google">
+            <img src="{{ url_for('static', filename='google.png') }}" style="width: 40px; height: 40px;"/>  
+          </a>
+        {% endif %}
+        {% if 3 in oauth_check %}
+          <a href="{{url_for('oauth.facebook_login')}}" class="pull-right facebook">
+            <img src="{{ url_for('static', filename='facebook.png') }}" style="width: 40px; height: 40px;"/>    
+          </a>
+        {% endif %}
+      {% endif %}
+      
+      <a class="pull-right otp" id='login_otp'>
+        <img src="{{ url_for('static', filename='otp_icon.png') }}" style="width: 40px; height: 40px;"/>  
+      </a>
+    </div>
+  </form>
+</div>
+  {% if error %}
+  <div class="col-sm-6 col-sm-offset-2">
+    <div class="alert alert-danger">{{error}}</div>
+  </div>
+  {% endif %}
+{% endblock %}
