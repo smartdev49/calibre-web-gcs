@@ -48,7 +48,7 @@ from .redirect import get_redirect_location
 from .file_helper import validate_mime_type
 from .usermanagement import user_login_required, login_required_if_no_ano
 from .string_helper import strip_whitespaces
-import hashlib
+
 
 from . import cloud_file_helper
 from . import hash_unicode_utils
@@ -531,11 +531,20 @@ def do_edit_book(book_id, upload_formats=None):
         # handle book publisher
         modify_date |= edit_book_publisher(to_save.get('publisher'), book)
         
-        # handle book languages
+        # handle book languages change
+        # here 
         try:
             invalid = []
+            langs = to_save.get('languages')
             modify_date |= edit_book_languages(to_save.get('languages'), book, upload_mode=upload_formats,
                                                invalid=invalid)
+            if langs:
+                bookinfos = book.path.split('/')
+                langdir = cloud_file_helper.get_language_code(langs.split(', ')[0])
+                bookinfos[1] = langdir
+                fullpath = "/".join(bookinfos)
+                cloud_file_helper.rename_folder(book.path, fullpath)
+                book.path = fullpath
             if invalid:
                 for lang in invalid:
                     flash(_("'%(langname)s' is not a valid language", langname=lang), category="warning")

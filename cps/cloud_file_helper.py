@@ -249,3 +249,11 @@ def pdf_first_page_to_image(pdf_path, output_image_path):
         print(f"\npdf_first_page_to_image An error occurred: {e}\n")
         return False
     return True
+import langcodes
+
+def get_language_code(language_name):
+    language = langcodes.find(language_name)
+    if language:
+        return language.language
+    else:
+        return None

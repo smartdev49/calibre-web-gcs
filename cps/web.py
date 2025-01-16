@@ -1382,6 +1382,8 @@ def register_post():
 
 @web.route('/register', methods=['GET'])
 def register():
+    return redirect(url_for('web.index'))
+    # Make Register disable
     if not config.config_public_reg:
         abort(404)
     if current_user is not None and current_user.is_authenticated:
