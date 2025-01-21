@@ -1286,6 +1286,12 @@ def upload_book_formats(requested_files, book, book_id, no_cover=True):
                 # This for Local Storage
                 # requested_file.move(saved_filename)
                 # End
+                print('\n$$$$$$$$$$$$$$$$$$$$$$$$')                
+                print('\n')
+                print(cloud_file_helper.detect_language_from_uploaded_file(requested_file), '\n')
+                print('\n')
+                print('\n')
+                print('\n########################')
                 cloud_file_helper.upload_from_file(requested_file, saved_filename)
             except OSError:
                 flash(_("Failed to store file %(file)s.", file=saved_filename), category="error")

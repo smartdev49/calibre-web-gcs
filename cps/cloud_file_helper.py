@@ -258,4 +258,53 @@ def get_language_code(language_name):
     else:
         return None
     
-# def auto_langdetect_from_book():
+import os
+import PyPDF2
+import docx
+from ebooklib import epub
+from bs4 import BeautifulSoup
+from langdetect import detect
+
+def extract_text(file_path, target):
+    _, file_extension = os.path.splitext(target)
+    file_extension = file_extension.lower()
+    if file_extension == '.pdf':
+        return extract_text_from_pdf(file_path)
+    elif file_extension == '.epub':
+        return extract_text_from_epub(file_path)
+    elif file_extension in ['.doc', '.docx']:
+        return extract_text_from_docx(file_path)
+    else:
+        raise ValueError("Unsupported file type")
+
+def extract_text_from_pdf(file_path):
+    with open(file_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        text = ''
+        for page in reader.pages:
+            text += page.extract_text()
+    return text
+
+def extract_text_from_epub(file_path):
+    book = epub.read_epub(file_path)
+    text = ''
+    for item in book.get_items():
+        if item.get_type() == epub.ITEM_DOCUMENT:
+            soup = BeautifulSoup(item.get_body_content(), 'html.parser')
+            text += soup.get_text()
+    return text
+
+def extract_text_from_docx(file_path):
+    doc = docx.Document(file_path)
+    text = ''
+    for para in doc.paragraphs:
+        text += para.text
+    return text
+
+def detect_language_from_file(file_path, target):
+    text = extract_text(file_path, target)
+    try:
+        language = detect(text)
+    except:
+        language = "Unknown"
+    return language

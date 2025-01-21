@@ -553,6 +553,13 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
     full_path = localbook.path
     try:
         if original_filepath:
+            print('\n$$$$$$$$$$$$$$$$$$$$$$$$')                
+            print('\n')
+            dir_lang = cloud_file_helper.detect_language_from_file(original_filepath, full_path + "/" + db_filename)
+            print(dir_lang)
+            print('\n')
+            print('\n')
+            print('\n########################')
             if type == 0:                
                 dir_hash = hash_unicode_utils.file_hash(open(original_filepath, "rb"))
                 last_prefix = hash_unicode_utils.generate_document_string(dir_title, dir_author, dir_hash)
@@ -560,7 +567,7 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
                                          dir_lang, 
                                          dir_orig, 
                                          last_prefix).replace('\\', '/')
-                
+                print('fullpath : ', full_path)
 
                 if cloud_file_helper.pdf_first_page_to_image(original_filepath, original_filepath + '_cover.jpg'):
                     cloud_file_helper.upload_from_filename(original_filepath + '_cover.jpg', full_path + "/cover.jpg")
