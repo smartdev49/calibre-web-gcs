@@ -401,7 +401,7 @@ class Books(Base):
     publishers = relationship(Publishers, secondary=books_publishers_link, backref='books')
     identifiers = relationship(Identifiers, backref='books')
     # user = relationship
-    price = Column(Integer, default = 0)
+    # price = Column(Integer, default = 0)
     def __init__(self, title, sort, author_sort, timestamp, pubdate, series_index, last_modified, path, has_cover,
                  authors, tags, languages=None):
         super().__init__()

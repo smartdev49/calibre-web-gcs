@@ -257,3 +257,5 @@ def get_language_code(language_name):
         return language.language
     else:
         return None
+    
+# def auto_langdetect_from_book():

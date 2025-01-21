@@ -569,8 +569,7 @@ def do_edit_book(book_id, upload_formats=None):
             book.last_modified = datetime.now(timezone.utc)
             kobo_sync_status.remove_synced_book(edited_books_id, all=True)
             calibre_db.set_metadata_dirty(book.id)
-        if to_save['price'] != book.price:
-            book.price = to_save['price']
+        
         calibre_db.session.merge(book)
         calibre_db.session.commit()
         if config.config_use_google_drive:

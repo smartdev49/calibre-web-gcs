@@ -1809,7 +1809,7 @@ def show_book(book_id):
         read_book = entries[1]
         archived_book = entries[2]
         entry = entries[0]
-        wasPaid = (calibre_db.get_book_payment(book_id=book_id) | calibre_db.get_user_is_paid() | (int( entry.price*100 )== 0 ))
+        # wasPaid = (calibre_db.get_book_payment(book_id=book_id) | calibre_db.get_user_is_paid() | (int( entry.price*100 )== 0 ))
         entry.read_status = read_book == ub.ReadBook.STATUS_FINISHED
         entry.is_archived = archived_book
         for lang_index in range(0, len(entry.languages)):
@@ -1838,7 +1838,7 @@ def show_book(book_id):
                                      is_xhr=request.headers.get('X-Requested-With') == 'XMLHttpRequest',
                                      title=entry.title,
                                      books_shelfs=book_in_shelves,
-                                     wasPaid = wasPaid,
+                                    #  wasPaid = wasPaid,
                                      book_id = book_id,
                                      page="book")
     else:
