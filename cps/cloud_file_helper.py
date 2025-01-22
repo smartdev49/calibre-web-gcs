@@ -275,7 +275,7 @@ def extract_text(file_path, target):
     elif file_extension in ['.doc', '.docx']:
         return extract_text_from_docx(file_path)
     else:
-        raise ValueError("Unsupported file type")
+        return ("Unsupported file type")
 
 def extract_text_from_pdf(file_path):
     with open(file_path, 'rb') as file:
@@ -289,7 +289,7 @@ def extract_text_from_epub(file_path):
     book = epub.read_epub(file_path)
     text = ''
     for item in book.get_items():
-        if item.get_type() == epub.ITEM_DOCUMENT:
+        if item.get_type() == epub.EpubHtml:
             soup = BeautifulSoup(item.get_body_content(), 'html.parser')
             text += soup.get_text()
     return text

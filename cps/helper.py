@@ -553,13 +553,7 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
     full_path = localbook.path
     try:
         if original_filepath:
-            print('\n$$$$$$$$$$$$$$$$$$$$$$$$')                
-            print('\n')
             dir_lang = cloud_file_helper.detect_language_from_file(original_filepath, full_path + "/" + db_filename)
-            print(dir_lang)
-            print('\n')
-            print('\n')
-            print('\n########################')
             if type == 0:                
                 dir_hash = hash_unicode_utils.file_hash(open(original_filepath, "rb"))
                 last_prefix = hash_unicode_utils.generate_document_string(dir_title, dir_author, dir_hash)
