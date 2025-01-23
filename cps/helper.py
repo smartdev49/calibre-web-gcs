@@ -561,7 +561,6 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
                                          dir_lang, 
                                          dir_orig, 
                                          last_prefix).replace('\\', '/')
-                print('fullpath : ', full_path)
 
                 if cloud_file_helper.pdf_first_page_to_image(original_filepath, original_filepath + '_cover.jpg'):
                     cloud_file_helper.upload_from_filename(original_filepath + '_cover.jpg', full_path + "/cover.jpg")

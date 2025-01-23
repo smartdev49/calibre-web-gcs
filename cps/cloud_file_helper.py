@@ -270,7 +270,7 @@ def extract_text(file_path, target):
     file_extension = file_extension.lower()
     if file_extension == '.pdf':
         return extract_text_from_pdf(file_path)
-    elif file_extension == '.epub':
+    elif file_extension in ['.epub', '.EPUB', '.KEPUB', 'kepub']:   
         return extract_text_from_epub(file_path)
     elif file_extension in ['.doc', '.docx']:
         return extract_text_from_docx(file_path)
@@ -289,7 +289,7 @@ def extract_text_from_epub(file_path):
     book = epub.read_epub(file_path)
     text = ''
     for item in book.get_items():
-        if item.get_type() == epub.EpubHtml:
+        if isinstance(item, epub.EpubHtml):
             soup = BeautifulSoup(item.get_body_content(), 'html.parser')
             text += soup.get_text()
     return text
@@ -308,3 +308,10 @@ def detect_language_from_file(file_path, target):
     except:
         language = "Unknown"
     return language
+
+def get_full_language_name(language_code):
+    try:
+        language = langcodes.Language.get(language_code)
+        return language.display_name()
+    except LookupError:
+        return "Unknown"

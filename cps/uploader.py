@@ -105,6 +105,10 @@ def process(tmp_file_path, original_file_name, original_file_extension, rar_exec
         meta = meta._replace(title=original_file_name)
     if not strip_whitespaces(meta.author) or meta.author.lower() == 'unknown':
         meta = meta._replace(author=_('Unknown'))
+    if extension_upper in [".KEPUB", ".EPUB"]:
+        from . import cloud_file_helper
+        lang = cloud_file_helper.detect_language_from_file(tmp_file_path, (original_file_name+original_file_extension).lower())
+        meta = meta._replace(languages = isoLanguages.get_lang3(lang))
     return meta
 
 

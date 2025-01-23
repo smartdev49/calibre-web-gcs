@@ -153,7 +153,7 @@ tr:hover {
     flex-direction: column;
     flex-grow: 1;
     padding-left: 18px;
-    gap: 10px;
+    gap: 3px;
 }
 
 .sm2-book-info .sm2-bookmeta-infos .title {
@@ -164,11 +164,17 @@ tr:hover {
 .sm2-book-info .sm2-bookmeta-infos .author {
     font-size: 14px;
     color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .sm2-book-info .sm2-bookmeta-infos .duration {
     font-size: 14px;
     color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .sm2-book-info .sm2-close {
@@ -184,13 +190,21 @@ tr:hover {
     right: 16px;
     bottom: 70px;
     gap: 10px;
-    align-items: end;
-    text-align: end;
+    align-items: center;
+    text-align: center;
+    padding-right: 16px;
 }
 
 .sm2-control-bar .sm2-control {
     width: 24px;
     height: 24px;
+}
+
+.sm2-control-bar .control-speed {
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sm2-progress-bar {
@@ -204,6 +218,20 @@ tr:hover {
     width: 100%;
     height: 8px;
     background-color: #374151;
+}
+
+.load {
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .sm2-progress-bar .progress-chapter {
@@ -221,7 +249,7 @@ tr:hover {
 .sm2-progress-bar .progress-bar .progress-current {
     height: 8px;
     background-color: #FFF;
-    width: 45%;
+    width: 0%;
 }
 
 .sm2-progress-bar .progress-label {
@@ -230,9 +258,10 @@ tr:hover {
     color: white;
 }
 
-.sm2-progress-bar .progress-label .chapter {
+.sm2-progress-bar .progress-label .chapter-title {
     flex-grow: 1;
     text-align: center;
+    padding: 2px;
 }
 
 .sm2-play-control-bar {
@@ -269,21 +298,26 @@ tr:hover {
         justify-content: start;
         padding: 16px;
         padding-top: 36px;
-        height: calc(100vh - 215px);
+        height: calc(100vh - 160px);
     }
 
     .sm2-player {
+        padding: 0;
+    }
+
+    .sm2-progress-bar {
+        position: absolute;
         bottom: 0;
     }
 
     .sm2-play-control-bar {
-        position: static;
-        margin-bottom: 5px;
+        position: absolute;
+        bottom: 40px;
         gap: 10px;
     }
 
     .sm2-control-bar {
-        bottom: 95px;
+        bottom: 80px;
         gap: 3px;
     }
 }
