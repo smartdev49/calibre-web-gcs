@@ -1,0 +1,289 @@
+body {
+    background-color: #373737;
+    margin: 0;
+    overflow-y: hidden;
+}
+
+.contents {
+    gap: 42px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    overflow-y: scroll;
+    height: calc(100vh - 160px);
+    padding-top: 36px;
+}
+
+.book-metadata {
+    color: #fff;
+}
+
+.book-title {
+    font-size: 30px;
+}
+
+.book-author {
+    font-size: 20px;
+}
+
+.book-metainfo {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.book-metainfo .category {
+    font-size: 14px;
+    color: #ffffff99;
+    min-width: 128px;
+    font-family: 'Source Sans Pro';
+}
+
+.book-metainfo .category-info {
+    font-size: 16px;
+    flex-grow: 1;
+    max-width: 450px;
+    word-wrap: break-word;
+    font-family: 'Source Sans Pro';
+}
+
+.chapter-list {
+    width: 100%;
+}
+
+.chapter-list .chapter-head {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: .5rem 1.5rem;
+    background-color: #232323;
+}
+
+.chapter-list .chapter-head span {
+    padding: .4rem .8rem;
+}
+
+.chapter-list .chapter-head a {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.5s ease;
+    /* Smooth transition */
+}
+
+.chapter-list .chapter-head a:hover {
+    border-radius: 50%;
+    background-color: #474747;
+}
+
+.chapter-list .chapter-head a.active {
+    transform: rotate(180deg);
+}
+
+.chapter-list .chapter-table {
+    border: 1px solid #474747;
+    width: 100%;
+    border-collapse: collapse;
+    transition: transform 0.5s ease;
+    /* Smooth transition */
+}
+
+.chapter-list .chapter-table.hidden {
+    display: none;
+}
+
+.chapter-list .chapter-table .text-center {
+    text-align: center;
+    font-size: 15px;
+}
+
+.chapter-list .chapter-table .text-left {
+    text-align: left;
+    font-size: 15px;
+}
+
+td,
+th {
+    padding: .4rem .8rem;
+}
+
+tr {
+    padding: 8px;
+    background-color: #373838;
+    ;
+}
+
+tr:nth-child(even) {
+    background-color: #2e2e2e;
+}
+
+tr:hover {
+    background-color: #dddddd20;
+}
+
+.sm2-player {
+    height: 160px;
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    background-color: #232323;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-bottom: 16px;
+    align-items: center;
+}
+
+.sm2-book-info {
+    padding: 8px 16px 0 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: calc(100% - 32px);
+}
+
+.sm2-book-info .sm2-bookmeta-infos {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding-left: 18px;
+    gap: 10px;
+}
+
+.sm2-book-info .sm2-bookmeta-infos .title {
+    font-size: 16px;
+    color: #fff;
+}
+
+.sm2-book-info .sm2-bookmeta-infos .author {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.sm2-book-info .sm2-bookmeta-infos .duration {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.sm2-book-info .sm2-close {
+    color: #fff;
+}
+
+.sm2-control-bar {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    color: #fff;
+    right: 16px;
+    bottom: 70px;
+    gap: 10px;
+    align-items: end;
+    text-align: end;
+}
+
+.sm2-control-bar .sm2-control {
+    width: 24px;
+    height: 24px;
+}
+
+.sm2-progress-bar {
+    width: calc(100% - 32px);
+    padding: 0 16px 0 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sm2-progress-bar .progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #374151;
+}
+
+.sm2-progress-bar .progress-chapter {
+    height: 8px;
+    display: flex;
+    flex-direction: row;
+}
+
+.sm2-progress-bar .progress-chapter .chapter {
+    height: 4px;
+    border-left: 1px solid #56647a;
+    width: 10%;
+}
+
+.sm2-progress-bar .progress-bar .progress-current {
+    height: 8px;
+    background-color: #FFF;
+    width: 45%;
+}
+
+.sm2-progress-bar .progress-label {
+    display: flex;
+    flex-direction: row;
+    color: white;
+}
+
+.sm2-progress-bar .progress-label .chapter {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.sm2-play-control-bar {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    bottom: 70px;
+    align-items: center;
+    gap: 15px;
+}
+
+.sm2-play-control-bar .sm2-control {
+    width: 32px;
+    height: 32px;
+    position: relative;
+}
+
+
+.sm2-play-control-bar .control-play {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #1ad691;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (max-width: 750px) {
+    .contents {
+        flex-direction: column;
+        align-items: center;
+        justify-content: start;
+        padding: 16px;
+        padding-top: 36px;
+        height: calc(100vh - 215px);
+    }
+
+    .sm2-player {
+        bottom: 0;
+    }
+
+    .sm2-play-control-bar {
+        position: static;
+        margin-bottom: 5px;
+        gap: 10px;
+    }
+
+    .sm2-control-bar {
+        bottom: 95px;
+        gap: 3px;
+    }
+}

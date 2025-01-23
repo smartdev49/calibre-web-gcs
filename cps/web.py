@@ -1681,7 +1681,7 @@ def read_book(book_id, book_format):
                     # print(entries.read_status)
                     # entries.read_status = entries == ub.ReadBook.STATUS_FINISHED
                     # log.debug("Start mp3 listening for %d", book_id)
-                    return render_title_template('listenmp3.html', 
+                    return render_title_template('listenm4b.html', 
                                                 mp3file=book_id, 
                                                 audioformat=book_format.lower(),
                                                 entry=entry, 
