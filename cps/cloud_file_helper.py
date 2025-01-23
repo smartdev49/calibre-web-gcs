@@ -68,6 +68,8 @@ def upload_from_file(file_source, destination_path):
     return True, None
 
 def rename(old_file_path, new_file_path):
+    if old_file_path == new_file_path:
+        return True
     # Initialize the GCSFileSystem
     fs = gcsfs.GCSFileSystem()
 
@@ -191,6 +193,8 @@ def file_size(file_path):
     return True
 
 def rename_folder(old_prefix, new_prefix):
+    if old_prefix == new_prefix:
+        return True
     # Initialize the GCSFileSystem
     fs = gcsfs.GCSFileSystem()
 
