@@ -15,7 +15,7 @@ def upload_from_filename(local_file_path, destination_path):
         progress = 0
         with open(local_file_path, 'rb') as local_file:
             with fs.open(destination_full_path, 'wb') as gcs_file:
-                while chunk := local_file.read(1024*1024):  # Read in 8KB chunks
+                while chunk := local_file.read(1024*1024):  # Read in 1MB chunks
                     progress += 1
                     print(progress, len(chunk), "uploaded")
                     gcs_file.write(chunk)

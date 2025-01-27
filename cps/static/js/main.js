@@ -20,7 +20,7 @@ function getPath() {
     return jsFileLocation.substr(0, jsFileLocation.search("/static/js/libs/jquery.min.js"));  // the js folder path
 }
 
-function postButton(event, action, location=""){
+function postButton(event, action, location = "") {
     event.preventDefault();
     var newForm = jQuery('<form>', {
         "action": action,
@@ -31,7 +31,7 @@ function postButton(event, action, location=""){
         'value': $("input[name=\'csrf_token\']").val(),
         'type': 'hidden'
     })).appendTo('body')
-    if(location !== "") {
+    if (location !== "") {
         newForm.append(jQuery('<input>', {
             'name': 'location',
             'value': location,
@@ -64,7 +64,7 @@ $(document).on("change", "input[type=\"checkbox\"][data-control]", function () {
 });
 
 // Generic control/related handler to show/hide fields based on a select' value
-$(document).on("change", "select[data-control]", function() {
+$(document).on("change", "select[data-control]", function () {
     var $this = $(this);
     var name = $this.data("control");
     var showOrHide = parseInt($this.val(), 10);
@@ -81,7 +81,7 @@ $(document).on("change", "select[data-control]", function() {
 
 // Generic control/related handler to show/hide fields based on a select' value
 // this one is made to show all values if select value is not 0
-$(document).on("change", "select[data-controlall]", function() {
+$(document).on("change", "select[data-controlall]", function () {
     var $this = $(this);
     var name = $this.data("controlall");
     var showOrHide = parseInt($this.val(), 10);
@@ -101,7 +101,7 @@ $(document).on("click", ".postAction", function (event) {
 
 // Syntax has to be bind not on, otherwise problems with firefox
 $(".container-fluid").bind("dragenter dragover", function () {
-    if($("#btn-upload").length && !$('body').hasClass('shelforder')) {
+    if ($("#btn-upload").length && !$('body').hasClass('shelforder')) {
         $(this).css('background', '#e6e6e6');
     }
     return false;
@@ -109,7 +109,7 @@ $(".container-fluid").bind("dragenter dragover", function () {
 
 // Syntax has to be bind not on, otherwise problems with firefox
 $(".container-fluid").bind("dragleave", function () {
-    if($("#btn-upload").length && !$('body').hasClass('shelforder')) {
+    if ($("#btn-upload").length && !$('body').hasClass('shelforder')) {
         $(this).css('background', '');
     }
     return false;
@@ -119,7 +119,7 @@ $(".container-fluid").bind("dragleave", function () {
 $(".container-fluid").bind('drop', function (e) {
     e.preventDefault()
     e.stopPropagation();
-    if($("#btn-upload").length) {
+    if ($("#btn-upload").length) {
         var files = e.originalEvent.dataTransfer.files;
         var test = $("#btn-upload")[0].accept;
         $(this).css('background', '');
@@ -130,7 +130,7 @@ $(".container-fluid").bind('drop', function (e) {
             }
         });
         if (dt.files.length) {
-            if($("#btn-upload-format").length) {
+            if ($("#btn-upload-format").length) {
                 $("#btn-upload-format")[0].files = dt.files;
                 $("#form-upload-format").submit();
             } else {
@@ -141,12 +141,90 @@ $(".container-fluid").bind('drop', function (e) {
     }
 });
 
-$("#btn-upload").change(function() {
-    $("#form-upload").submit();
+$("#btn-upload").change(async function () {
+    // // $("#form-upload").submit();
+    const $form = $('#form-upload');
+    $form.on('submit', function (event) {
+        event.preventDefault();
+    });
+    const file = this.files[0];
+    if (!file) {
+        return;
+    }
+
+    const chunkSize = 1 * 1024 * 1024;
+    const totalChunks = Math.ceil(file.size / chunkSize);
+
+    for (let i = 0; i < totalChunks; i++) {
+        const start = i * chunkSize;
+        const end = Math.min(start + chunkSize, file.size);
+        const chunk = file.slice(start, end);
+
+        const formData = new FormData();
+        formData.append('chunk', chunk);
+        formData.append('chunkIndex', i);
+        formData.append('totalChunks', totalChunks);
+        formData.append('fileName', file.name);
+        formData.append('type', 'form-upload');
+        formData.append('uuid', '1-2-3-4-5-6');
+
+        console.log($form.attr('action'))
+        try {
+            await $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false
+            });
+        } catch (error) {
+            console.error('Error uploading chunk:', error);
+            return;
+        }
+    }
+    console.log('Upload complete!');
 });
 
-$("#btn-upload-format").change(function() {
-    $("#form-upload-format").submit();
+$("#btn-upload-format").change(async function () {
+    // // $("#form-upload").submit();
+    const $form = $('#form-upload-format');
+    $form.on('submit', function (event) {
+        event.preventDefault();
+    });
+    const file = this.files[0];
+    if (!file) {
+        return;
+    }
+
+    const chunkSize = 1 * 1024 * 1024;
+    const totalChunks = Math.ceil(file.size / chunkSize);
+
+    for (let i = 0; i < totalChunks; i++) {
+        const start = i * chunkSize;
+        const end = Math.min(start + chunkSize, file.size);
+        const chunk = file.slice(start, end);
+
+        const formData = new FormData();
+        formData.append('chunk', chunk);
+        formData.append('chunkIndex', i);
+        formData.append('totalChunks', totalChunks);
+        formData.append('fileName', file.name);
+        formData.append('type', 'form-upload-format')
+        console.log(i)
+        try {
+            await $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false
+            });
+        } catch (error) {
+            console.error('Error uploading chunk:', error);
+            return;
+        }
+    }
+    console.log('Upload complete!');
 });
 
 
@@ -166,7 +244,7 @@ $("#form-upload-format").uploadprogress({
     modalTitleFailed: $("#form-upload-format").data("failed")
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
     var inp = $('#query').first()
     if (inp.length) {
         var val = inp.val()
@@ -176,51 +254,51 @@ $(document).ready(function() {
     }
 });
 
-$(".session").click(function() {
+$(".session").click(function () {
     window.sessionStorage.setItem("back", window.location.pathname);
     window.sessionStorage.setItem("search", window.location.search);
 });
 
-$("#back").click(function() {
-   var loc = sessionStorage.getItem("back");
-   var param = sessionStorage.getItem("search");
-   if (!loc) {
-       loc = $(this).data("back");
-   }
-   sessionStorage.removeItem("back");
-   sessionStorage.removeItem("search");
-   if (param === null) {
-       param = "";
-   }
-   window.location.href = loc + param;
+$("#back").click(function () {
+    var loc = sessionStorage.getItem("back");
+    var param = sessionStorage.getItem("search");
+    if (!loc) {
+        loc = $(this).data("back");
+    }
+    sessionStorage.removeItem("back");
+    sessionStorage.removeItem("search");
+    if (param === null) {
+        param = "";
+    }
+    window.location.href = loc + param;
 
 });
 
 function confirmDialog(id, dialogid, dataValue, yesFn, noFn) {
     var $confirm = $("#" + dialogid);
-    $("#btnConfirmYes-"+ dialogid).off('click').click(function () {
+    $("#btnConfirmYes-" + dialogid).off('click').click(function () {
         yesFn(dataValue);
         $confirm.modal("hide");
     });
-    $("#btnConfirmNo-"+ dialogid).off('click').click(function () {
+    $("#btnConfirmNo-" + dialogid).off('click').click(function () {
         if (typeof noFn !== 'undefined') {
             noFn(dataValue);
         }
         $confirm.modal("hide");
     });
     $.ajax({
-        method:"post",
+        method: "post",
         dataType: "json",
         url: getPath() + "/ajax/loaddialogtexts/" + id,
         success: function success(data) {
-            $("#header-"+ dialogid).html(data.header);
-            $("#text-"+ dialogid).html(data.main);
+            $("#header-" + dialogid).html(data.header);
+            $("#text-" + dialogid).html(data.main);
         }
     });
     $confirm.modal('show');
 }
 
-$("#delete_confirm").click(function(event) {
+$("#delete_confirm").click(function (event) {
     //get data-id attribute of the clicked element
     var deleteId = $(this).data("delete-id");
     var bookFormat = $(this).data("delete-format");
@@ -231,17 +309,17 @@ $("#delete_confirm").click(function(event) {
         if (ajaxResponse) {
             path = getPath() + "/ajax/delete/" + deleteId;
             $.ajax({
-                method:"post",
+                method: "post",
                 url: path,
                 timeout: 10000,
-                success:function(data) {
-                    data.forEach(function(item) {
+                success: function (data) {
+                    data.forEach(function (item) {
                         if (!jQuery.isEmptyObject(item)) {
                             if (item.format != "") {
-                                $("button[data-delete-format='"+item.format+"']").addClass('hidden');
+                                $("button[data-delete-format='" + item.format + "']").addClass('hidden');
                             }
-                            $( ".navbar" ).after( '<div class="row-fluid text-center" >' +
-                                '<div id="flash_'+item.type+'" class="alert alert-'+item.type+'">'+item.message+'</div>' +
+                            $(".navbar").after('<div class="row-fluid text-center" >' +
+                                '<div id="flash_' + item.type + '" class="alert alert-' + item.type + '">' + item.message + '</div>' +
                                 '</div>');
                         }
                     });
@@ -254,13 +332,13 @@ $("#delete_confirm").click(function(event) {
                 loc = $(this).data("back");
             }
             sessionStorage.removeItem("back");
-            postButton(event, getPath() + "/delete/" + deleteId, location=loc);
+            postButton(event, getPath() + "/delete/" + deleteId, location = loc);
         }
     }
 });
 
 //triggered when modal is about to be shown
-$("#deleteModal").on("show.bs.modal", function(e) {
+$("#deleteModal").on("show.bs.modal", function (e) {
     //get data-id attribute of the clicked element and store in button
     var bookId = $(e.relatedTarget).data("delete-id");
     var bookfomat = $(e.relatedTarget).data("delete-format");
@@ -276,7 +354,7 @@ $("#deleteModal").on("show.bs.modal", function(e) {
     $(e.currentTarget).find("#delete_confirm").data("ajax", $(e.relatedTarget).data("ajax"));
 });
 
-$(function() {
+$(function () {
     var updateTimerID;
     var updateText;
 
@@ -288,7 +366,7 @@ $(function() {
     // equip all post requests with csrf_token
     var csrftoken = $("input[name='csrf_token']").val();
     $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
+        beforeSend: function (xhr, settings) {
             if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken)
             }
@@ -348,17 +426,17 @@ $(function() {
             },
             url: getPath() + request_path,
             success: function success(data) {
-                if ($("#element_selected").text() ==="") {
+                if ($("#element_selected").text() === "") {
                     $("#element_selected").text(data.cwd);
                 }
                 $("#file_table > tbody > tr").each(function () {
                     if ($(this).attr("id") !== "parent") {
                         $(this).closest("tr").remove();
                     } else {
-                        if(data.absolute && data.parentdir !== "") {
-                           $(this)[0].attributes['data-path'].value  = data.parentdir;
+                        if (data.absolute && data.parentdir !== "") {
+                            $(this)[0].attributes['data-path'].value = data.parentdir;
                         } else {
-                            $(this)[0].attributes['data-path'].value  = "..";
+                            $(this)[0].attributes['data-path'].value = "..";
                         }
                     }
                 });
@@ -367,12 +445,12 @@ $(function() {
                 } else {
                     $("#parent").addClass('hidden')
                 }
-                data.files.forEach(function(entry) {
-                    if(entry.type === "dir") {
+                data.files.forEach(function (entry) {
+                    if (entry.type === "dir") {
                         var type = "<span class=\"glyphicon glyphicon-folder-close\"></span>";
-                } else {
-                    var type = "";
-                }
+                    } else {
+                        var type = "";
+                    }
                     $("<tr class=\"tr-clickable\" data-type=\"" + entry.type + "\" data-path=\"" +
                         entry.fullpath + "\"><td>" + type + "</td><td>" + entry.name + "</td><td>" +
                         entry.size + "</td></tr>").appendTo($("#file_table"));
@@ -384,27 +462,27 @@ $(function() {
 
     $(".discover .row").isotope({
         // options
-        itemSelector : ".book",
-        layoutMode : "fitRows"
+        itemSelector: ".book",
+        layoutMode: "fitRows"
     });
 
     if ($(".load-more").length && $(".next").length) {
         var $loadMore = $(".load-more .row").infiniteScroll({
             debug: false,
             // selector for the paged navigation (it will be hidden)
-            path : ".next",
+            path: ".next",
             // selector for the NEXT link (to page 2)
-            append : ".load-more .book"
+            append: ".load-more .book"
             //animate      : true, # ToDo: Reenable function
             //extraScrollPx: 300
         });
-        $loadMore.on( "append.infiniteScroll", function( event, response, path, data ) {
+        $loadMore.on("append.infiniteScroll", function (event, response, path, data) {
             $(".pagination").addClass("hidden").html(() => $(response).find(".pagination").html());
             if ($("body").hasClass("blur")) {
                 $(" a:not(.dropdown-toggle) ")
-                  .removeAttr("data-toggle");
+                    .removeAttr("data-toggle");
             }
-            $(".load-more .row").isotope( "appended", $(data), null );
+            $(".load-more .row").isotope("appended", $(data), null);
         });
 
         // fix for infinite scroll on CaliBlur Theme (#981)
@@ -421,32 +499,32 @@ $(function() {
         }
     }
 
-    $("#restart").click(function() {
+    $("#restart").click(function () {
         $.ajax({
-            method:"post",
+            method: "post",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             url: getPath() + "/shutdown",
-            data: JSON.stringify({"parameter":0}),
+            data: JSON.stringify({ "parameter": 0 }),
             success: function success() {
                 $("#spinner").show();
                 setTimeout(restartTimer, 3000);
             }
         });
     });
-    $("#shutdown").click(function() {
+    $("#shutdown").click(function () {
         $.ajax({
-            method:"post",
+            method: "post",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             url: getPath() + "/shutdown",
-            data: JSON.stringify({"parameter":1}),
+            data: JSON.stringify({ "parameter": 1 }),
             success: function success(data) {
                 return alert(data.text);
             }
         });
     });
-    $("#check_for_update").click(function() {
+    $("#check_for_update").click(function () {
         var $this = $(this);
         var buttonText = $this.html();
         $this.html("...");
@@ -473,7 +551,7 @@ $(function() {
                             .removeClass("hidden")
                             .find("span").html(data.commit);
 
-                        data.history.forEach(function(entry) {
+                        data.history.forEach(function (entry) {
                             $("<tr><td>" + entry[0] + "</td><td>" + entry[1] + "</td></tr>").appendTo($("#update_table"));
                         });
                         cssClass = "alert-warning";
@@ -492,10 +570,10 @@ $(function() {
             }
         });
     });
-    $("#admin_refresh_cover_cache").click(function() {
+    $("#admin_refresh_cover_cache").click(function () {
         confirmDialog("admin_refresh_cover_cache", "GeneralChangeModal", 0, function () {
             $.ajax({
-                method:"post",
+                method: "post",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 url: getPath() + "/ajax/updateThumbnails",
@@ -503,17 +581,17 @@ $(function() {
         });
     });
 
-    $("#restart_database").click(function() {
+    $("#restart_database").click(function () {
         $("#DialogHeader").addClass("hidden");
         $("#DialogFinished").addClass("hidden");
         $("#DialogContent").html("");
         $("#spinner2").show();
         $.ajax({
-            method:"post",
+            method: "post",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             url: getPath() + "/shutdown",
-            data: JSON.stringify({"parameter":2}),
+            data: JSON.stringify({ "parameter": 2 }),
             success: function success(data) {
                 $("#spinner2").hide();
                 $("#DialogContent").html(data.text);
@@ -521,7 +599,7 @@ $(function() {
             }
         });
     });
-    $("#metadata_backup").click(function() {
+    $("#metadata_backup").click(function () {
         $("#DialogHeader").addClass("hidden");
         $("#DialogFinished").addClass("hidden");
         $("#DialogContent").html("");
@@ -538,7 +616,7 @@ $(function() {
             }
         });
     });
-    $("#perform_update").click(function() {
+    $("#perform_update").click(function () {
         $("#DialogHeader").removeClass("hidden");
         $("#spinner2").show();
         $.ajax({
@@ -560,52 +638,52 @@ $(function() {
     $("select[data-controlall]").trigger("change");
 
     $("#bookDetailsModal")
-        .on("show.bs.modal", function(e) {
+        .on("show.bs.modal", function (e) {
             $("#flash_danger").remove();
             $("#flash_success").remove();
             var $modalBody = $(this).find(".modal-body");
 
             // Prevent static assets from loading multiple times
-            var useCache = function(options) {
+            var useCache = function (options) {
                 options.async = true;
                 options.cache = true;
             };
             preFilters.add(useCache);
 
-            $.get(e.relatedTarget.href).done(function(content) {
+            $.get(e.relatedTarget.href).done(function (content) {
                 $modalBody.html(content);
                 preFilters.remove(useCache);
                 $("#back").remove();
             });
         })
-        .on("hidden.bs.modal", function() {
+        .on("hidden.bs.modal", function () {
             $(this).find(".modal-body").html("...");
         });
 
     $("#modal_kobo_token")
-        .on("show.bs.modal", function(e) {
-            $(e.relatedTarget).one('focus', function(e){$(this).blur();});
+        .on("show.bs.modal", function (e) {
+            $(e.relatedTarget).one('focus', function (e) { $(this).blur(); });
             var $modalBody = $(this).find(".modal-body");
 
             // Prevent static assets from loading multiple times
-            var useCache = function(options) {
+            var useCache = function (options) {
                 options.async = true;
                 options.cache = true;
             };
             preFilters.add(useCache);
 
-            $.get(e.relatedTarget.href).done(function(content) {
+            $.get(e.relatedTarget.href).done(function (content) {
                 $modalBody.html(content);
                 preFilters.remove(useCache);
             });
         })
-        .on("hidden.bs.modal", function() {
+        .on("hidden.bs.modal", function () {
             $(this).find(".modal-body").html("...");
             $("#config_delete_kobo_token").show();
             $("#kobo_full_sync").show();
         });
 
-    $("#config_delete_kobo_token").click(function() {
+    $("#config_delete_kobo_token").click(function () {
         confirmDialog(
             $(this).attr('id'),
             "GeneralDeleteModal",
@@ -621,7 +699,7 @@ $(function() {
         );
     });
 
-    $("#toggle_order_shelf").click(function() {
+    $("#toggle_order_shelf").click(function () {
         $("#toggle_order_shelf").toggleClass("dummy");
         $("#new").toggleClass("disabled");
         $("#old").toggleClass("disabled");
@@ -639,7 +717,7 @@ $(function() {
         $("#toggle_order_shelf").html(alternative_text);
 
         $.ajax({
-            method:"post",
+            method: "post",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             url: getPath() + "/ajax/view",
@@ -647,14 +725,14 @@ $(function() {
         });
     });
 
-    $("#btndeluser").click(function() {
+    $("#btndeluser").click(function () {
         confirmDialog(
             $(this).attr('id'),
             "GeneralDeleteModal",
             $(this).data('value'),
-            function(value){
+            function (value) {
                 var subform = $('#user_submit').closest("form");
-                subform.submit(function(eventObj) {
+                subform.submit(function (eventObj) {
                     $(this).append('<input type="hidden" name="delete" value="True" />');
                     return true;
                 });
@@ -663,26 +741,26 @@ $(function() {
         );
     });
 
-    $("#kobo_full_sync").click(function() {
+    $("#kobo_full_sync").click(function () {
         confirmDialog(
-           "btnfullsync",
+            "btnfullsync",
             "GeneralDeleteModal",
             $(this).data('value'),
-            function(userid) {
+            function (userid) {
                 if (userid) {
                     path = getPath() + "/ajax/fullsync/" + userid
                 } else {
                     path = getPath() + "/ajax/fullsync"
                 }
                 $.ajax({
-                    method:"post",
+                    method: "post",
                     url: path,
                     timeout: 5000,
-                    success:function(data) {
-                        data.forEach(function(item) {
+                    success: function (data) {
+                        data.forEach(function (item) {
                             if (!jQuery.isEmptyObject(item)) {
-                                $( ".navbar" ).after( '<div class="row-fluid text-center" >' +
-                                    '<div id="flash_'+item.type+'" class="alert alert-'+item.type+'">'+item.message+'</div>' +
+                                $(".navbar").after('<div class="row-fluid text-center" >' +
+                                    '<div id="flash_' + item.type + '" class="alert alert-' + item.type + '">' + item.message + '</div>' +
                                     '</div>');
                             }
                         });
@@ -692,7 +770,7 @@ $(function() {
         );
     });
 
-    $("#user_submit").click(function() {
+    $("#user_submit").click(function () {
         this.closest("form").submit();
     });
 
@@ -706,28 +784,28 @@ $(function() {
         }
     }
 
-    $('.collapse').on('shown.bs.collapse', function(){
+    $('.collapse').on('shown.bs.collapse', function () {
         $(this).parent().find(".glyphicon-plus").removeClass("glyphicon-plus").addClass("glyphicon-minus");
-    }).on('hidden.bs.collapse', function(){
-    $(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
+    }).on('hidden.bs.collapse', function () {
+        $(this).parent().find(".glyphicon-minus").removeClass("glyphicon-minus").addClass("glyphicon-plus");
     });
 
     function changeDbSettings() {
         $("#db_submit").closest('form').submit();
     }
 
-    $("#db_submit").click(function(e) {
+    $("#db_submit").click(function (e) {
         e.preventDefault();
         e.stopPropagation();
         this.blur();
         $.ajax({
-            method:"post",
+            method: "post",
             dataType: "json",
             url: getPath() + "/ajax/simulatedbchange",
-            data: {config_calibre_dir: $("#config_calibre_dir").val(), csrf_token: $("input[name='csrf_token']").val()},
+            data: { config_calibre_dir: $("#config_calibre_dir").val(), csrf_token: $("input[name='csrf_token']").val() },
             success: function success(data) {
-                if ( data.change ) {
-                    if ( data.valid ) {
+                if (data.change) {
+                    if (data.valid) {
                         confirmDialog(
                             "db_submit",
                             "GeneralChangeModal",
@@ -745,21 +823,21 @@ $(function() {
         });
     });
 
-    $("#config_submit").click(function(e) {
+    $("#config_submit").click(function (e) {
         e.preventDefault();
         e.stopPropagation();
         this.blur();
-        window.scrollTo({top: 0, behavior: 'smooth'});
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         var request_path = "/admin/ajaxconfig";
         $("#flash_success").remove();
         $("#flash_danger").remove();
-        $.post(getPath() + request_path, $(this).closest("form").serialize(), function(data) {
+        $.post(getPath() + request_path, $(this).closest("form").serialize(), function (data) {
             $('#config_upload_formats').val(data.config_upload);
-            if(data.reboot) {
+            if (data.reboot) {
                 $("#spinning_success").show();
-                var rebootInterval = setInterval(function(){
+                var rebootInterval = setInterval(function () {
                     $.get({
-                        url:getPath() + "/admin/alive",
+                        url: getPath() + "/admin/alive",
                         success: function (d, statusText, xhr) {
                             if (xhr.status < 400) {
                                 $("#spinning_success").hide();
@@ -778,19 +856,19 @@ $(function() {
         });
     });
 
-    $("#delete_shelf").click(function(event) {
+    $("#delete_shelf").click(function (event) {
         confirmDialog(
             $(this).attr('id'),
             "GeneralDeleteModal",
             $(this).data('value'),
-            function(value){
+            function (value) {
                 postButton(event, $("#delete_shelf").data("action"));
             }
         );
 
     });
 
-    $("#fileModal").on("show.bs.modal", function(e) {
+    $("#fileModal").on("show.bs.modal", function (e) {
         var target = $(e.relatedTarget);
         var path = $("#" + target.data("link"))[0].value;
         var folder = target.data("folderonly");
@@ -800,14 +878,14 @@ $(function() {
         $("#file_confirm").data("folderonly", (typeof folder === 'undefined') ? false : true);
         $("#file_confirm").data("filefilter", (typeof filter === 'undefined') ? "" : filter);
         $("#file_confirm").data("newfile", target.data("newfile"));
-        fillFileTable(path,"dir", folder, filter);
+        fillFileTable(path, "dir", folder, filter);
     });
 
-    $("#file_confirm").click(function() {
+    $("#file_confirm").click(function () {
         $("#" + $(this).data("link"))[0].value = $("#element_selected").text()
     });
 
-    $(document).on("click", ".tr-clickable", function() {
+    $(document).on("click", ".tr-clickable", function () {
         var path = this.attributes["data-path"].value;
         var type = this.attributes["data-type"].value;
         var folder = $(file_confirm).data("folderonly");
@@ -818,22 +896,22 @@ $(function() {
         } else {
             $("#element_selected").text(path);
         }
-        if(type === "dir") {
+        if (type === "dir") {
             fillFileTable(path, type, folder, filter);
         }
     });
 
-    $(window).resize(function() {
+    $(window).resize(function () {
         $(".discover .row").isotope("layout");
     });
 
-    $("#import_ldap_users").click(function() {
+    $("#import_ldap_users").click(function () {
         $("#DialogHeader").addClass("hidden");
         $("#DialogFinished").addClass("hidden");
         $("#DialogContent").html("");
         $("#spinner2").show();
         $.ajax({
-            method:"post",
+            method: "post",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             url: getPath() + "/import_ldap_users",
@@ -845,23 +923,23 @@ $(function() {
         });
     });
 
-    $(".author-expand").click(function() {
+    $(".author-expand").click(function () {
         $(this).parent().find("a.author-name").slice($(this).data("authors-max")).toggle();
         $(this).parent().find("span.author-hidden-divider").toggle();
         $(this).html() === $(this).data("collapse-caption") ? $(this).html("(...)") : $(this).html($(this).data("collapse-caption"));
         $(".discover .row").isotope("layout");
     });
 
-    $(".update-view").click(function(e) {
+    $(".update-view").click(function (e) {
         var view = $(this).data("view");
         e.preventDefault();
         e.stopPropagation();
         $.ajax({
-            method:"post",
+            method: "post",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             url: getPath() + "/ajax/view",
-            data: "{\"series\": {\"series_view\": \""+ view +"\"}}",
+            data: "{\"series\": {\"series_view\": \"" + view + "\"}}",
             success: function success() {
                 location.reload();
             }

@@ -84,6 +84,8 @@ mimetypes.add_type('text/javascript; charset=UTF-8', '.js')
 log = logger.create()
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 50 MB
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',

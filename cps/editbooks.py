@@ -28,7 +28,7 @@ from shutil import copyfile
 from markupsafe import escape, Markup  # dependency of flask
 from functools import wraps
 
-from flask import Blueprint, request, flash, redirect, url_for, abort, Response
+from flask import Blueprint, request, flash, redirect, url_for, abort, Response, jsonify
 from flask_babel import gettext as _
 from flask_babel import lazy_gettext as N_
 from flask_babel import get_locale
@@ -51,7 +51,11 @@ from .string_helper import strip_whitespaces
 
 
 from . import cloud_file_helper
-from . import hash_unicode_utils
+
+
+file_chunks = {}
+CHUNK_FOLDER = 'chunk_uploads'
+os.makedirs(CHUNK_FOLDER, exist_ok=True)
 
 editbook = Blueprint('edit-book', __name__)
 log = logger.create()
@@ -107,6 +111,106 @@ def edit_book(book_id):
 @login_required_if_no_ano
 @upload_required
 def upload():
+    if(len(request.files.getlist('chunk'))):
+        chunk = request.files['chunk']
+        chunk_index = int(request.form['chunkIndex'])
+        total_chunks = int(request.form['totalChunks'])
+        file_name = request.form['fileName']
+        uuid = request.form['uuid']
+        
+        file_chunks_dir = os.path.join(CHUNK_FOLDER, file_name)
+        os.makedirs(file_chunks_dir, exist_ok=True)
+        
+        chunk_path = os.path.join(file_chunks_dir, f'{uuid}_{chunk_index}')
+        with open(chunk_path, 'wb') as f:
+            f.write(chunk.read())
+        if uuid not in file_chunks:
+            file_chunks[uuid] = set()
+        file_chunks[uuid].add(chunk_index)
+        
+        if len(file_chunks[uuid]) == total_chunks:
+             
+            del file_chunks[uuid]
+            for i in range(total_chunks):
+                os.remove(os.path.join(file_chunks_dir, f'{uuid}_{i}'))
+            os.rmdir(file_chunks_dir)
+            print("all file uploaded!!!! :) ")
+            
+            if request.form['type'] == 'btn-upload-format':
+                book_id = request.form.get('book_id', -1)
+                return do_edit_book(book_id, request.files.getlist("btn-upload-format"))
+            elif request.form['type'] == 'btn-upload':
+                try:
+                    modify_date = False
+                    # create the function for sorting...
+                    calibre_db.create_functions(config)
+                    
+                    requested_file_name = requested_file.filename
+                    meta, error = file_handling_on_upload(requested_file)
+                    if error:
+                        return error
+
+                    db_book, input_authors, title_dir = create_book_on_upload(modify_date, meta)
+
+                    # Comments need book id therefore only possible after flush
+                    modify_date |= edit_book_comments(Markup(meta.description).unescape(), db_book)
+
+                    book_id = db_book.id
+                    title = db_book.title
+                    if config.config_use_google_drive:
+                        helper.upload_new_file_gdrive(book_id,
+                                                    input_authors[0],
+                                                    title,
+                                                    title_dir,
+                                                    meta.file_path,
+                                                    meta.extension.lower())
+                        
+                        for file_format in db_book.data:
+                            file_format.name = (helper.get_valid_filename(title, chars=42) + ' - '
+                                                + helper.get_valid_filename(input_authors[0], chars=42))
+                        
+                    else:
+                        error = helper.update_dir_structure(book_id,
+                                                            config.get_book_path(),
+                                                            input_authors[0],
+                                                            meta.file_path,
+                                                            title_dir + meta.extension.lower(),
+                                                            type = 0, uploaded_filename = requested_file_name)
+                    move_coverfile(meta, db_book)
+                    
+                    if modify_date:
+                        calibre_db.set_metadata_dirty(book_id)
+                    # save data to database, reread data
+                    calibre_db.session.commit()
+
+                    if config.config_use_google_drive:
+                        gdriveutils.updateGdriveCalibreFromLocal()
+                    if error:
+                        flash(error, category="error")
+                    link = '<a href="{}">{}</a>'.format(url_for('web.show_book', book_id=book_id), escape(title))
+                    upload_text = N_("File %(file)s uploaded", file=link)
+                    WorkerThread.add(current_user.name, TaskUpload(upload_text, escape(title)))
+                    helper.add_book_to_thumbnail_cache(book_id)
+
+                    if len(request.files.getlist("btn-upload")) < 2:
+                        if current_user.role_edit() or current_user.role_admin():
+                            resp = {"location": url_for('edit-book.show_edit_book', book_id=book_id)}
+                            return Response(json.dumps(resp), mimetype='application/json')
+                        else:
+                            resp = {"location": url_for('web.show_book', book_id=book_id)}
+                            return Response(json.dumps(resp), mimetype='application/json')
+                except (OperationalError, IntegrityError, StaleDataError) as e:
+                    calibre_db.session.rollback()
+                    log.error_or_exception("Database error: {}".format(e))
+                    flash(_("Oops! Database Error: %(error)s.", error=e.orig if hasattr(e, "orig") else e),
+                        category="error")
+            else:
+                return Response(json.dumps({"location": url_for("web.index")}), mimetype='application/json')
+            
+            # return do_edit_book()
+        return jsonify({'message': 'File upload complete'}), 200
+    
+    return jsonify({'message': 'chunk upload complete'}), 200
     if len(request.files.getlist("btn-upload-format")):
         book_id = request.form.get('book_id', -1)
         return do_edit_book(book_id, request.files.getlist("btn-upload-format"))
@@ -458,7 +562,7 @@ def do_edit_book(book_id, upload_formats=None):
               category="error")
         return redirect(url_for("web.index"))
 
-    to_save = request.form.to_dict()    
+    to_save = request.form.to_dict()
     
     try:
         # Update folder of book on local disk
