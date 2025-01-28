@@ -98,8 +98,8 @@ app.config.update(
 def add_csp_header(response):
     # Define the Content Security Policy
     csp = (
-        "script-src-elem 'self' https://js.stripe.com 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval'; "
-        "script-src 'self' https://js.stripe.com 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval'; "
+        "script-src-elem 'self' https://js.stripe.com https://cdnjs.cloudflare.com 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval'; "
+        "script-src 'self' https://js.stripe.com https://cdnjs.cloudflare.com 'unsafe-inline' 'unsafe-hashes' 'unsafe-eval'; "
         # Add other directives as needed
     )
     # Add the CSP header to the response

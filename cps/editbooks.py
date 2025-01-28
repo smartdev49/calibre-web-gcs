@@ -55,7 +55,9 @@ from . import cloud_file_helper
 
 file_chunks = {}
 CHUNK_FOLDER = 'chunk_uploads'
+UPLOAD_FOLDER = 'uploads'
 os.makedirs(CHUNK_FOLDER, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 editbook = Blueprint('edit-book', __name__)
 log = logger.create()
@@ -111,6 +113,9 @@ def edit_book(book_id):
 @login_required_if_no_ano
 @upload_required
 def upload():
+    if len(request.files.getlist("btn-upload-format")):
+        book_id = request.form.get('book_id', -1)
+        return do_edit_book(book_id, request.files.getlist("btn-upload-format"))
     if(len(request.files.getlist('chunk'))):
         chunk = request.files['chunk']
         chunk_index = int(request.form['chunkIndex'])
@@ -118,35 +123,34 @@ def upload():
         file_name = request.form['fileName']
         uuid = request.form['uuid']
         
-        file_chunks_dir = os.path.join(CHUNK_FOLDER, file_name)
+        file_chunks_dir = os.path.join(CHUNK_FOLDER, uuid)
         os.makedirs(file_chunks_dir, exist_ok=True)
         
-        chunk_path = os.path.join(file_chunks_dir, f'{uuid}_{chunk_index}')
+        chunk_path = os.path.join(file_chunks_dir, f'{file_name}_{chunk_index}')
         with open(chunk_path, 'wb') as f:
             f.write(chunk.read())
         if uuid not in file_chunks:
             file_chunks[uuid] = set()
         file_chunks[uuid].add(chunk_index)
         
-        if len(file_chunks[uuid]) == total_chunks:
-             
-            del file_chunks[uuid]
-            for i in range(total_chunks):
-                os.remove(os.path.join(file_chunks_dir, f'{uuid}_{i}'))
-            os.rmdir(file_chunks_dir)
-            print("all file uploaded!!!! :) ")
-            
-            if request.form['type'] == 'btn-upload-format':
-                book_id = request.form.get('book_id', -1)
-                return do_edit_book(book_id, request.files.getlist("btn-upload-format"))
-            elif request.form['type'] == 'btn-upload':
+        if chunk_index == (total_chunks - 1):
+            upload_path = os.path.join(UPLOAD_FOLDER, uuid)
+            with open(upload_path, 'wb') as output_file:
+                del file_chunks[uuid]
+                for i in range(total_chunks):
+                    chunk_path = os.path.join(file_chunks_dir, f'{file_name}_{i}')
+                    with open(chunk_path, 'rb') as chunk_file:
+                        output_file.write(chunk_file.read())
+                    os.remove(os.path.join(file_chunks_dir, f'{file_name}_{i}'))
+                os.rmdir(file_chunks_dir)
+                print("all file uploaded!!!! :) ")
                 try:
                     modify_date = False
                     # create the function for sorting...
                     calibre_db.create_functions(config)
                     
-                    requested_file_name = requested_file.filename
-                    meta, error = file_handling_on_upload(requested_file)
+                    requested_file_name = file_name
+                    meta, error = file_handling_on_upload(os.path.abspath(upload_path), file_name=file_name)
                     if error:
                         return error
 
@@ -192,25 +196,25 @@ def upload():
                     WorkerThread.add(current_user.name, TaskUpload(upload_text, escape(title)))
                     helper.add_book_to_thumbnail_cache(book_id)
 
-                    if len(request.files.getlist("btn-upload")) < 2:
-                        if current_user.role_edit() or current_user.role_admin():
-                            resp = {"location": url_for('edit-book.show_edit_book', book_id=book_id)}
-                            return Response(json.dumps(resp), mimetype='application/json')
-                        else:
-                            resp = {"location": url_for('web.show_book', book_id=book_id)}
-                            return Response(json.dumps(resp), mimetype='application/json')
+                    if current_user.role_edit() or current_user.role_admin():
+                        resp = {"location": url_for('edit-book.show_edit_book', book_id=book_id)}
+                        return Response(json.dumps(resp), mimetype='application/json')
+                    else:
+                        resp = {"location": url_for('web.show_book', book_id=book_id)}
+                        return Response(json.dumps(resp), mimetype='application/json')
+                        
                 except (OperationalError, IntegrityError, StaleDataError) as e:
                     calibre_db.session.rollback()
                     log.error_or_exception("Database error: {}".format(e))
                     flash(_("Oops! Database Error: %(error)s.", error=e.orig if hasattr(e, "orig") else e),
                         category="error")
-            else:
-                return Response(json.dumps({"location": url_for("web.index")}), mimetype='application/json')
-            
+                return Response(json.dumps({"location": url_for("web.index")}), mimetype='application/json')            
             # return do_edit_book()
-        return jsonify({'message': 'File upload complete'}), 200
+            return jsonify({'message': 'All upload complete'}), 200
     
-    return jsonify({'message': 'chunk upload complete'}), 200
+        return jsonify({'message': 'Chunk upload complete'}), 200
+    else:
+         return redirect(url_for("web.index"))
     if len(request.files.getlist("btn-upload-format")):
         book_id = request.form.get('book_id', -1)
         return do_edit_book(book_id, request.files.getlist("btn-upload-format"))
@@ -548,7 +552,7 @@ def table_xchange_author_title():
     return ""
 
 # in editbook page, click save, then point come here
-def do_edit_book(book_id, upload_formats=None):
+def do_edit_book(book_id, upload_formats=None, file_name=None):
     modify_date = False
     edit_error = False
 
@@ -890,16 +894,16 @@ def create_book_on_upload(modify_date, meta):
     return db_book, input_authors, title_dir
 
 
-def file_handling_on_upload(requested_file):
+def file_handling_on_upload(requested_file, file_name):
     # check if file extension is correct
     allowed_extensions = config.config_upload_formats.split(',')
-    if requested_file:
-        if config.config_check_extensions and allowed_extensions != ['']:
-            if not validate_mime_type(requested_file, allowed_extensions):
-                flash(_("File type isn't allowed to be uploaded to this server"), category="error")
-                return None, Response(json.dumps({"location": url_for("web.index")}), mimetype='application/json')
-    if '.' in requested_file.filename:
-        file_ext = requested_file.filename.rsplit('.', 1)[-1].lower()
+    # if requested_file:
+    #     if config.config_check_extensions and allowed_extensions != ['']:
+    #         if not validate_mime_type(requested_file, allowed_extensions):
+    #             flash(_("File type isn't allowed to be uploaded to this server"), category="error")
+    #             return None, Response(json.dumps({"location": url_for("web.index")}), mimetype='application/json')
+    if '.' in file_name:
+        file_ext = file_name.rsplit('.', 1)[-1].lower()
         if file_ext not in allowed_extensions and '' not in allowed_extensions:
             flash(
                 _("File extension '%(ext)s' is not allowed to be uploaded to this server",
@@ -911,11 +915,11 @@ def file_handling_on_upload(requested_file):
 
     # extract metadata from file
     try:
-        meta = uploader.upload(requested_file, config.config_rarfile_location)
+        meta = uploader.upload(requested_file, config.config_rarfile_location, file_name=file_name)
     except (IOError, OSError):
-        log.error("File %s could not saved to temp dir", requested_file.filename)
+        log.error("File %s could not saved to temp dir", file_name)
         flash(_("File %(filename)s could not saved to temp dir",
-                filename=requested_file.filename), category="error")
+                filename=file_name), category="error")
         return None, Response(json.dumps({"location": url_for("web.index")}), mimetype='application/json')
     return meta, None
 

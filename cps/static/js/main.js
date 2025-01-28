@@ -143,6 +143,40 @@ $(".container-fluid").bind('drop', function (e) {
 
 $("#btn-upload").change(async function () {
     // // $("#form-upload").submit();
+
+    var template = "<div class=\"modal fade\" id=\"file-progress-modal\">" +
+        "<div class=\"modal-dialog upload-modal-dialog\">" +
+        "  <div class=\"modal-content\">" +
+        "    <div class=\"modal-header\">" +
+        "      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>" +
+        "      <h4 class=\"modal-title\">Uploading</h4>" +
+        "    </div>" +
+        "    <div class=\"modal-body\">" +
+        "      <div class=\"modal-message\"></div>" +
+        "      <div class=\"progress\">" +
+        "        <div class=\"progress-bar progress-bar-striped active\" role=\"progressbar\" aria-valuenow=\"0\" aria-valuemin=\"0\"" +
+        "             aria-valuemax=\"100\" style=\"width: 0%;min-width: 2em;\">" +
+        "          0%" +
+        "        </div>" +
+        "     </div>" +
+        "   </div>" +
+        "   <div class=\"modal-footer\" style=\"display:none\">" +
+        "     <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>" +
+        "   </div>" +
+        "   </div>" +
+        "  </div>" +
+        "</div>";
+
+    $("body").append(template);
+    var $modal = $("#file-progress-modal");
+    var $progressBar = $modal.find(".progress-bar");
+    var $modalMessage = $modal.find(".modal-message");
+
+    $modal.modal({ backdrop: 'static', keyboard: false });
+    $modal.modal('show');
+
+    $modalMessage.text("Starting upload...");
+
     const $form = $('#form-upload');
     $form.on('submit', function (event) {
         event.preventDefault();
@@ -154,87 +188,108 @@ $("#btn-upload").change(async function () {
 
     const chunkSize = 1 * 1024 * 1024;
     const totalChunks = Math.ceil(file.size / chunkSize);
+    
+    const uniqueId = uuid.v4();
 
     for (let i = 0; i < totalChunks; i++) {
         const start = i * chunkSize;
         const end = Math.min(start + chunkSize, file.size);
         const chunk = file.slice(start, end);
-
         const formData = new FormData();
+
         formData.append('chunk', chunk);
         formData.append('chunkIndex', i);
         formData.append('totalChunks', totalChunks);
         formData.append('fileName', file.name);
         formData.append('type', 'form-upload');
-        formData.append('uuid', '1-2-3-4-5-6');
+        formData.append('uuid', uniqueId);
 
-        console.log($form.attr('action'))
         try {
             await $.ajax({
                 url: $form.attr('action'),
                 type: 'POST',
                 data: formData,
                 processData: false,
-                contentType: false
+                contentType: false,
+                success: function (response) {
+                    if (response.location) location.href = response.location;
+                }
             });
+            const progress = Math.round(((i + 1) / totalChunks) * 100);
+            $progressBar.css('width', progress + '%').attr('aria-valuenow', progress).text(progress + '%');
+            $modalMessage.text(`Uploading chunk ${i + 1} of ${totalChunks}...`);
         } catch (error) {
             console.error('Error uploading chunk:', error);
+            $modalMessage.text('Error uploading chunk. Please try again.');
             return;
         }
     }
-    console.log('Upload complete!');
+
+    $modalMessage.text('Upload complete!');
+    $modal.find(".modal-footer").show();
+    $progressBar.removeClass('active');
+    // const $form = $('#form-upload');
+    // $form.on('submit', function (event) {
+    //     event.preventDefault();
+    // });
+    // const file = this.files[0];
+    // if (!file) {
+    //     return;
+    // }
+
+    // const chunkSize = 1 * 1024 * 1024;
+    // const totalChunks = Math.ceil(file.size / chunkSize);
+    
+    // const uniqueId = uuid.v4();
+    // for (let i = 0; i < totalChunks; i++) {
+    //     const start = i * chunkSize;
+    //     const end = Math.min(start + chunkSize, file.size);
+    //     const chunk = file.slice(start, end);
+    //     const formData = new FormData();
+
+    //     formData.append('chunk', chunk);
+    //     formData.append('chunkIndex', i);
+    //     formData.append('totalChunks', totalChunks);
+    //     formData.append('fileName', file.name);
+    //     formData.append('type', 'form-upload');
+    //     formData.append('uuid', uniqueId);
+
+    //     console.log(`${end} uploaded of ${file.size}`);
+    //     try {
+    //         await $.ajax({
+    //             url: $form.attr('action'),
+    //             type: 'POST',
+    //             data: formData,
+    //             processData: false,
+    //             contentType: false,
+    //             success: function (response) {
+    //                 // console.log('Chunk upload response:', response);
+    //                 // if (i == (totalChunks - 1)) {
+    //                 //     location.href = response.location
+    //                 // }
+    //                 if (response.location) location.href = response.location;
+    //             }
+    //         });
+    //     } catch (error) {
+    //         console.error('Error uploading chunk:', error);
+    //         return;
+    //     }
+    // }
+    // console.log('Upload complete!');
 });
 
 $("#btn-upload-format").change(async function () {
-    // // $("#form-upload").submit();
-    const $form = $('#form-upload-format');
-    $form.on('submit', function (event) {
-        event.preventDefault();
-    });
-    const file = this.files[0];
-    if (!file) {
-        return;
-    }
-
-    const chunkSize = 1 * 1024 * 1024;
-    const totalChunks = Math.ceil(file.size / chunkSize);
-
-    for (let i = 0; i < totalChunks; i++) {
-        const start = i * chunkSize;
-        const end = Math.min(start + chunkSize, file.size);
-        const chunk = file.slice(start, end);
-
-        const formData = new FormData();
-        formData.append('chunk', chunk);
-        formData.append('chunkIndex', i);
-        formData.append('totalChunks', totalChunks);
-        formData.append('fileName', file.name);
-        formData.append('type', 'form-upload-format')
-        console.log(i)
-        try {
-            await $.ajax({
-                url: $form.attr('action'),
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false
-            });
-        } catch (error) {
-            console.error('Error uploading chunk:', error);
-            return;
-        }
-    }
-    console.log('Upload complete!');
+    $("#form-upload").submit();
 });
 
 
-$("#form-upload").uploadprogress({
-    redirect_url: getPath() + "/",
-    uploadedMsg: $("#form-upload").data("message"),
-    modalTitle: $("#form-upload").data("title"),
-    modalFooter: $("#form-upload").data("footer"),
-    modalTitleFailed: $("#form-upload").data("failed")
-});
+// $("#form-upload").uploadprogress({
+//     redirect_url: getPath() + "/",
+//     uploadedMsg: $("#form-upload").data("message"),
+//     modalTitle: $("#form-upload").data("title"),
+//     modalFooter: $("#form-upload").data("footer"),
+//     modalTitleFailed: $("#form-upload").data("failed")
+// });
 
 $("#form-upload-format").uploadprogress({
     redirect_url: getPath() + "/",

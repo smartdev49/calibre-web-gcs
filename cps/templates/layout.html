@@ -30,6 +30,7 @@
           display: none;
       }
   </style>
+  <script src="{{ url_for('static', filename='js/libs/uuid.min.js') }}"></script>
   </head>
   <body class="{{ page }} {{ bodyClass }}{% if g.current_theme == 1 %} blur{% endif %}" data-text="{{_('Home')}}" data-textback="{{_('Back')}}">
     <!-- Static navbar -->

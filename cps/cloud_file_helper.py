@@ -20,13 +20,13 @@ def upload_from_filename(local_file_path, destination_path):
                     print(progress, len(chunk), "uploaded")
                     gcs_file.write(chunk)
 
-        print(f"File {local_file_path} uploaded to {os.getenv('GCS_STORAGE_PREFIX') + destination_full_path}")
+        # print(f"File {local_file_path} uploaded to {os.getenv('GCS_STORAGE_PREFIX') + destination_full_path}")
 
         # Optionally, delete the local file after successful upload
         os.remove(local_file_path)
-        print(f"Local file {local_file_path} has been deleted.")
+        # print(f"Local file {local_file_path} has been deleted.")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        # print(f"An error occurred: {e}")
         return False, f"An error occurred: {e}"
     return True, None
 
@@ -61,9 +61,9 @@ def upload_from_file(file_source, destination_path):
                     gcs_file.write(local_file.read())
                 msg += f"3 "
 
-        print(f"Data uploaded to {destination_full_path}")
+        # print(f"Data uploaded to {destination_full_path}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        # print(f"An error occurred: {e}")
         return False, f"An error occurred: {msg , e}"
     return True, None
 
@@ -79,13 +79,13 @@ def rename(old_file_path, new_file_path):
     try:
         # Copy the file to the new location
         fs.copy(old_full_path, new_full_path)
-        print(f"Copied {os.getenv('GCS_STORAGE_PREFIX') + old_file_path} to {os.getenv('GCS_STORAGE_PREFIX') + new_file_path}")
+        # print(f"Copied {os.getenv('GCS_STORAGE_PREFIX') + old_file_path} to {os.getenv('GCS_STORAGE_PREFIX') + new_file_path}")
 
         # Delete the original file
         fs.rm(old_full_path)
-        print(f"Deleted original file {os.getenv('GCS_STORAGE_PREFIX') + old_file_path}")
+        # print(f"Deleted original file {os.getenv('GCS_STORAGE_PREFIX') + old_file_path}")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        # print(f"An error occurred: {e}")
         return False
     return True
 
@@ -98,10 +98,10 @@ def delete(file_path):
     try:
         # Delete the file
         fs.rm(full_path)
-        print(f"Deleted file {os.getenv('GCS_STORAGE_PREFIX') + full_path}")
+        # print(f"Deleted file {os.getenv('GCS_STORAGE_PREFIX') + full_path}")
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        # print(f"An error occurred: {e}")
         return False
     return True
 
@@ -119,7 +119,7 @@ def download(gcs_file_path, local_file_path):
             with open(local_file_path, 'wb') as local_file:
                 local_file.write(gcs_file.read())
 
-        print(f"Downloaded {os.getenv('GCS_STORAGE_PREFIX') + gcs_file_path} to {local_file_path}")
+        # print(f"Downloaded {os.getenv('GCS_STORAGE_PREFIX') + gcs_file_path} to {local_file_path}")
 
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -139,7 +139,7 @@ def read_as_bytes(gcs_file_path):
         # Open the file in GCS and read its contents as bytes
         with fs.open(full_path, 'rb') as gcs_file:
             file_bytes = gcs_file.read()
-            print(f"Downloaded {os.getenv('GCS_STORAGE_PREFIX') + gcs_file_path} as bytes")
+            # print(f"Downloaded {os.getenv('GCS_STORAGE_PREFIX') + gcs_file_path} as bytes")
             return file_bytes
 
     except Exception as e:
@@ -165,10 +165,10 @@ def delete_folder(folder_prefix):
             fs.rm(file)
             print(f"Deleted {file}")
 
-        print(f"All files under {os.getenv('GCS_STORAGE_PREFIX') + folder_prefix} have been deleted.")
+        # print(f"All files under {os.getenv('GCS_STORAGE_PREFIX') + folder_prefix} have been deleted.")
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        # print(f"An error occurred: {e}")
         return False
     return True
 
@@ -185,10 +185,10 @@ def file_size(file_path):
 
         # Extract the file size from the metadata
         file_size = file_info['size']
-        print(f"Size of {os.getenv('GCS_STORAGE_PREFIX') + file_path}: {file_size} bytes")
+        # print(f"Size of {os.getenv('GCS_STORAGE_PREFIX') + file_path}: {file_size} bytes")
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        # print(f"An error occurred: {e}")
         return None
     return True
 
@@ -213,16 +213,16 @@ def rename_folder(old_prefix, new_prefix):
             
             # Copy the file to the new location
             fs.copy(old_file, new_file)
-            print(f"Copied {os.getenv('GCS_STORAGE_PREFIX') + old_file} to {os.getenv('GCS_STORAGE_PREFIX') + new_file}")
+            # print(f"Copied {os.getenv('GCS_STORAGE_PREFIX') + old_file} to {os.getenv('GCS_STORAGE_PREFIX') + new_file}")
 
             # Delete the original file
             fs.rm(old_file)
-            print(f"Deleted original file {os.getenv('GCS_STORAGE_PREFIX') + old_file}")
+            # print(f"Deleted original file {os.getenv('GCS_STORAGE_PREFIX') + old_file}")
 
-        print(f"All files under {os.getenv('GCS_STORAGE_PREFIX') + old_prefix} have been renamed to {os.getenv('GCS_STORAGE_PREFIX') + new_prefix}.")
+        # print(f"All files under {os.getenv('GCS_STORAGE_PREFIX') + old_prefix} have been renamed to {os.getenv('GCS_STORAGE_PREFIX') + new_prefix}.")
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        # print(f"An error occurred: {e}")
         return False
     return True
 
