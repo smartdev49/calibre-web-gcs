@@ -112,7 +112,7 @@ if ($("body.book").length > 0) {
     // If only one download type exists still put the items into a drop-drown list.
     downloads = $("a[id^=btnGroupDrop]").get();
     if ($(downloads).length === 1) {
-        $('<button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-download"></span>Download :<span class="caret"></span></button><ul class="dropdown-menu leramslist aria-labelledby="btnGroupDrop1"></ul>').insertBefore(downloads[downloads.length - 1]);
+        $('<button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-download"></span>Download</button><ul class="dropdown-menu leramslist aria-labelledby="btnGroupDrop1"></ul>').insertBefore(downloads[downloads.length - 1]);
         $(downloads).detach();
         $.each(downloads, function (i, val) {
             $("<li>" + downloads[i].outerHTML + "</li>").appendTo(".leramslist");

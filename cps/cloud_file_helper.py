@@ -2,6 +2,16 @@ from io import BytesIO
 import os
 from . import constants
 import gcsfs
+from google.cloud import storage
+import langcodes 
+import os
+import PyPDF2
+import docx
+from ebooklib import epub
+from bs4 import BeautifulSoup
+from langdetect import detect
+from datetime import timedelta
+import fitz
 
 def upload_from_filename(local_file_path, destination_path):
     # Initialize the GCSFileSystem
@@ -172,6 +182,23 @@ def delete_folder(folder_prefix):
         return False
     return True
 
+def generate_signed_url(bucket_name, blob_name, expiration_time=3600):
+    # Initialize a storage client
+    storage_client = storage.Client()
+
+    # Get the bucket and blob from the client
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(blob_name)
+
+    # Generate a signed URL for the blob
+    signed_url = blob.generate_signed_url(
+        version="v4",
+        expiration=timedelta(seconds=expiration_time),  # URL expiration time
+        method="GET",  # HTTP method to allow
+    )
+
+    return signed_url
+
 def file_size(file_path):
     # Initialize the GCSFileSystem
     fs = gcsfs.GCSFileSystem()
@@ -229,7 +256,7 @@ def rename_folder(old_prefix, new_prefix):
 
 # add for ebook cover extract
 
-import fitz
+
 def pdf_first_page_to_image(pdf_path, output_image_path):
     # Open the PDF file
     try:
@@ -253,7 +280,7 @@ def pdf_first_page_to_image(pdf_path, output_image_path):
         print(f"\npdf_first_page_to_image An error occurred: {e}\n")
         return False
     return True
-import langcodes
+
 
 def get_language_code(language_name):
     language = langcodes.find(language_name)
@@ -261,13 +288,7 @@ def get_language_code(language_name):
         return language.language
     else:
         return None
-    
-import os
-import PyPDF2
-import docx
-from ebooklib import epub
-from bs4 import BeautifulSoup
-from langdetect import detect
+
 
 def extract_text(file_path, target):
     _, file_extension = os.path.splitext(target)

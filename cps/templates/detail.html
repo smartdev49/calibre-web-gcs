@@ -12,132 +12,7 @@
         </div>
         <div class="col-sm-9 col-lg-9 book-meta">
 
-            <div class="btn-toolbar" role="toolbar">
-                <div class="btn-group" role="group" aria-label="Download, send to eReader, reading">
-                    {% if current_user.role_download() %}
-                    {% if entry.data|length %}
-                    <div class="btn-group" role="group">
-                        {% if entry.data|length < 2 %} <button id="Download" type="button" class="btn btn-primary">
-                            {{ _('Download') }} :
-                            </button>
-                            {% for format in entry.data %}
-                            <a href="{{ url_for('web.download_link', book_id=entry.id, book_format=format.format|lower, anyname=entry.id|string+'.'+format.format|lower|replace('kepub', 'kepub.epub')) }}"
-                                id="btnGroupDrop1{{ format.format|lower }}" class="btn btn-primary" role="button">
-                                <span class="glyphicon glyphicon-download"></span>{{ format.format }}
-                                ({{ format.uncompressed_size|filesizeformat }})
-                            </a>
-                            {% endfor %}
-                            {% else %}
-                            <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="glyphicon glyphicon-download"></span> {{ _('Download') }}
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                                {% for format in entry.data %}
-                                <li>
-                                    <a
-                                        href="{{ url_for('web.download_link', book_id=entry.id, book_format=format.format|lower, anyname=entry.id|string+'.'+format.format|lower|replace('kepub', 'kepub.epub')) }}">{{
-                                        format.format }}
-                                        ({{ format.uncompressed_size|filesizeformat }})</a>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-                    </div>
-                    {% endif %}
-                    {% if current_user.kindle_mail and entry.email_share_list %}
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    {% if entry.email_share_list.__len__() == 1 %}
-                    <div class="btn-group" role="group">
-                        <button id="sendbtn" class="btn btn-primary sendbtn-form"
-                            data-href="{{url_for('web.send_to_ereader', book_id=entry.id, book_format=entry.email_share_list[0]['format'], convert=entry.email_share_list[0]['convert'])}}">
-                            <span class="glyphicon glyphicon-send"></span> {{entry.email_share_list[0]['text']}}
-                        </button>
-                    </div>
-                    {% else %}
-                    <div class="btn-group" role="group">
-                        <button id="sendbtn2" type="button" class="btn btn-primary dropdown-toggle"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="glyphicon glyphicon-send"></span>{{ _('Send to eReader') }}
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="send-to-ereader">
-                            {% for format in entry.email_share_list %}
-                            <li>
-                                <a class="sendbtn-form"
-                                    data-href="{{url_for('web.send_to_ereader', book_id=entry.id, book_format=format['format'], convert=format['convert'])}}">{{
-                                    format['text'] }}</a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-                    {% endif %}
-                    {% endif %}
-                    {% if entry.reader_list and current_user.role_viewer() %}
-                    <div class="btn-group" role="group">
-                        {% if entry.reader_list|length > 1 %}
-                        <button id="read-in-browser" type="button" class="btn btn-primary dropdown-toggle"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="glyphicon glyphicon-book"></span> {{ _('Read in Browser') }}
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="read-in-browser">
-                            {% for format in entry.reader_list %}
-                            <li><a target="_blank"
-                                    href="{{ url_for('web.read_book', book_id=entry.id, book_format=format) }}">{{
-                                    format }}</a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <a target="_blank"
-                            href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.reader_list[0]) }}"
-                            id="readbtn" class="btn btn-primary" role="button"><span
-                                class="glyphicon glyphicon-book"></span> {{ _('Read in Browser') }}
-                            - {{ entry.reader_list[0] }}</a>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                    {% if entry.audio_entries|length > 0 and current_user.role_viewer() %}
-                    <div class="btn-group" role="group">
-                        {% if entry.audio_entries|length > 1 %}
-                        <button id="listen-in-browser" type="button" class="btn btn-primary dropdown-toggle"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="glyphicon glyphicon-music"></span> {{ _('Listen in Browser') }}
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="listen-in-browser">
-                            {% for format in entry.reader_list %}
-                            <li><a target="_blank"
-                                    href="{{ url_for('web.read_book', book_id=entry.id, book_format=format) }}">{{
-                                    format }}</a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        <ul class="dropdown-menu" aria-labelledby="listen-in-browser">
 
-                            {% for format in entry.data %}
-                            {% if format.format|lower in entry.audio_entries %}
-                            <li><a target="_blank"
-                                    href="{{ url_for('web.read_book', book_id=entry.id, book_format=format.format|lower) }}">{{
-                                    format.format|lower }}</a>
-                            </li>
-                            {% endif %}
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <a target="_blank"
-                            href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.audio_entries[0]) }}"
-                            id="listenbtn" class="btn btn-primary" role="button"><span
-                                class="glyphicon glyphicon-music"></span> {{ _('Listen in Browser') }} - {{
-                            entry.audio_entries[0] }}</a>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
             <h2 id="title">{{ entry.title }}</h2>
             <p class="author">
                 {% for author in entry.ordered_authors %}
@@ -161,12 +36,12 @@
                 </p>
             </div>
             {% endif %}
-            {% if entry.series|length > 0 %}
+            <!-- {% if entry.series|length > 0 %}
             <p>{{ _("Book %(index)s of %(range)s", index=entry.series_index | formatfloat(2),
                 range=(url_for('web.books_list', data='series', sort_param='stored',
                 book_id=entry.series[0].id)|escapedlink(entry.series[0].name))|safe) }}</p>
 
-            {% endif %}
+            {% endif %} -->
 
             {% if entry.languages|length > 0 %}
             <div class="languages">
@@ -178,7 +53,7 @@
             {% endif %}
 
             {% if entry.identifiers|length > 0 %}
-            <div class="identifiers">
+            <!-- <div class="identifiers">
                 <p>
                     <span class="glyphicon glyphicon-link"></span>
                     {% for identifier in entry.identifiers %}
@@ -186,12 +61,12 @@
                         identifier.format_type() }}</a>
                     {% endfor %}
                 </p>
-            </div>
+            </div> -->
             {% endif %}
 
             {% if entry.tags|length > 0 %}
 
-            <div class="tags">
+            <!-- <div class="tags">
                 <p>
                     <span class="glyphicon glyphicon-tags"></span>
 
@@ -201,11 +76,11 @@
                     {% endfor %}
                 </p>
 
-            </div>
+            </div> -->
             {% endif %}
 
             {% if entry.publishers|length > 0 %}
-            <div class="publishers">
+            <!-- <div class="publishers">
                 <p>
                     <span>{{ _('Publisher') }}:
                         <a
@@ -213,13 +88,13 @@
                             entry.publishers[0].name }}</a>
                     </span>
                 </p>
-            </div>
+            </div> -->
             {% endif %}
 
             {% if (entry.pubdate|string)[:10] != '0101-01-01' %}
-            <div class="publishing-date">
+            <!-- <div class="publishing-date">
                 <p>{{ _('Published') }}: {{ entry.pubdate|formatdate }} </p>
-            </div>
+            </div> -->
             {% endif %}
             {% if cc|length > 0 %}
 
@@ -261,7 +136,7 @@
             {% endfor %}
             {% endif %}
             {% if not current_user.is_anonymous %}
-            {% if entry.read_status %}checked{% endif %}
+            <!-- {% if entry.read_status %}checked{% endif %}
             <div class="custom_columns">
                 <p>
                 <form id="have_read_form" action="{{ url_for('web.toggle_read', book_id=entry.id) }}" method="POST">
@@ -290,7 +165,7 @@
                 </p>
                 {% endif %}
             </div>
-            {% endif %}
+            {% endif %} -->
 
 
             {% if entry.comments|length > 0 and entry.comments[0].text|length > 0 %}
@@ -301,13 +176,153 @@
             {% endif %}
 
 
-            <div class="more-stuff">
+            <div class="more-stuff" style="display: flex; flex-direction: row;">
+                <div class="btn-toolbar" role="toolbar">
+                    <div class="btn-group" role="group" aria-label="Download, send to eReader, reading">
+                        {% if current_user.role_download() %}
+                        {% if entry.data|length %}
+                        <div class="btn-group" role="group">
+                            <!-- {% if entry.data|length < 2 %} -->
+                                {% for format in entry.data %}
+                                <a href="{{ url_for('web.download_link', book_id=entry.id, book_format=format.format|lower, anyname=entry.id|string+'.'+format.format|lower|replace('kepub', 'kepub.epub')) }}"
+                                    id="btnGroupDrop1{{ format.format|lower }}" class="btn btn-primary" role="button">
+                                    <span class="glyphicon glyphicon-download"></span>
+                                    <!-- {{ format.format }}
+                                    ({{ format.uncompressed_size|filesizeformat }}) -->
+                                    {{ _('Download') }}
+                                </a>
+                                {% endfor %}
+                                <!-- {% else %} -->
+                                <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="glyphicon glyphicon-download"></span> {{ _('Download') }}
+                                    <!-- <span class="caret"></span> -->
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                                    {% for format in entry.data %}
+                                    <li>
+                                        <a
+                                            href="{{ url_for('web.download_link', book_id=entry.id, book_format=format.format|lower, anyname=entry.id|string+'.'+format.format|lower|replace('kepub', 'kepub.epub')) }}">{{
+                                            format.format }}
+                                            ({{ format.uncompressed_size|filesizeformat }})</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                <!-- {% endif %} -->                                
+                        </div>
+                        {% endif %}
+                        {% if current_user.kindle_mail and entry.email_share_list %}
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% if entry.email_share_list.__len__() == 1 %}
+                        <div class="btn-group" role="group">
+                            <button id="sendbtn" class="btn btn-primary sendbtn-form"
+                                data-href="{{url_for('web.send_to_ereader', book_id=entry.id, book_format=entry.email_share_list[0]['format'], convert=entry.email_share_list[0]['convert'])}}">
+                                <span class="glyphicon glyphicon-send"></span> {{entry.email_share_list[0]['text']}}
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="btn-group" role="group">
+                            <button id="sendbtn2" type="button" class="btn btn-primary dropdown-toggle"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="glyphicon glyphicon-send"></span>{{ _('Send to eReader') }}
+                                <!-- <span class="caret"></span> -->
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="send-to-ereader">
+                                {% for format in entry.email_share_list %}
+                                <li>
+                                    <a class="sendbtn-form"
+                                        data-href="{{url_for('web.send_to_ereader', book_id=entry.id, book_format=format['format'], convert=format['convert'])}}">{{
+                                        format['text'] }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                        {% endif %}
+                        {% if entry.reader_list and current_user.role_viewer() %}
+                        <div class="btn-group" role="group">
+                            {% if entry.reader_list|length > 1 %}
+                            <button id="read-in-browser" type="button" class="btn btn-primary dropdown-toggle"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="glyphicon glyphicon-book"></span> {{ _('Read') }}
+                                <!-- <span class="caret"></span> -->
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="read-in-browser">
+                                {% for format in entry.reader_list %}
+                                <li><a target="_blank"
+                                        href="{{ url_for('web.read_book', book_id=entry.id, book_format=format) }}">{{
+                                        format }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <a target="_blank"
+                                href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.reader_list[0]) }}"
+                                id="readbtn" class="btn btn-primary" role="button"><span
+                                    class="glyphicon glyphicon-book"></span>
+                                {{ _('Read ') }}
+                                <!-- - {{ entry.reader_list[0] }} -->
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        {% if entry.audio_entries|length > 0 and current_user.role_viewer() %}
+                        <div class="btn-group" role="group">
+                            {% if entry.audio_entries|length > 1 %}
+                            <button id="listen-in-browser" type="button" class="btn btn-primary dropdown-toggle"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="glyphicon glyphicon-music"></span> {{ _('Listen') }}
+                                <!-- <span class="caret"></span> -->
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="listen-in-browser">
+                                {% for format in entry.reader_list %}
+                                <li><a target="_blank"
+                                        href="{{ url_for('web.read_book', book_id=entry.id, book_format=format) }}">{{
+                                        format }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            <ul class="dropdown-menu" aria-labelledby="listen-in-browser">
 
+                                {% for format in entry.data %}
+                                {% if format.format|lower in entry.audio_entries %}
+                                <li><a target="_blank"
+                                        href="{{ url_for('web.read_book', book_id=entry.id, book_format=format.format|lower) }}">{{
+                                        format.format|lower }}</a>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <a target="_blank"
+                                href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.audio_entries[0]) }}"
+                                id="listenbtn" class="btn btn-primary" role="button"><span
+                                    class="glyphicon glyphicon-music"></span> {{ _('Listen') }}
+                                <!-- - {{ entry.audio_entries[0] }} -->
+                            </a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if current_user.role_edit() %}
+                <div class="">
+                    <div class="btn-group" role="group" aria-label="Edit/Delete book">
+                        <a href="{{ url_for('edit-book.show_edit_book', book_id=entry.id) }}"
+                            class="btn btn-primary" id="edit_book" role="button">
+                            <span class="glyphicon glyphicon-edit"></span>
+                            {{ _('Edit Metadata') }}
+                        </a>
+                    </div>
+                    <!-- <div class="btn btn-default" data-back="{{ url_for('web.index') }}" id="back">{{_('Cancel')}}</div> -->
+                </div>
+                {% endif %}
                 {% if current_user.is_authenticated %}
                 {% if current_user.shelf.all() or g.shelves_access %}
                 <div id="shelf-actions" class="btn-toolbar" role="toolbar">
                     <div class="btn-group" role="group" aria-label="Add to shelves">
-                        <button id="add-to-shelf" type="button" class="btn btn-primary btn-sm dropdown-toggle"
+                        <button id="add-to-shelf" type="button" class="btn btn-primary dropdown-toggle"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="glyphicon glyphicon-list"></span> {{ _('Add to shelf') }}
                             <span class="caret"></span>
@@ -334,7 +349,7 @@
                         {% if shelf.id in books_shelfs %}
                         <a data-href="{{ url_for('shelf.remove_from_shelf', book_id=entry.id, shelf_id=shelf.id) }}"
                             data-add-href="{{ url_for('shelf.add_to_shelf', book_id=entry.id, shelf_id=shelf.id) }}"
-                            class="btn btn-sm btn-default" role="button" data-shelf-action="remove">
+                            class="btn btn-default" role="button" data-shelf-action="remove">
                             <span {% if not shelf.is_public or current_user.role_edit_shelfs() %}
                                 class="glyphicon glyphicon-remove" {% endif %}></span> {{ shelf.name }}{% if
                             shelf.is_public == 1 %} {{ _('(Public)') }}{% endif %}
@@ -346,18 +361,6 @@
                     <div id="shelf-action-errors" class="pull-left" role="alert"></div>
                 </div>
                 {% endif %}
-                {% endif %}
-                {% if current_user.role_edit() %}
-                <div class="col-sm-12">
-                    <div class="btn-group" role="group" aria-label="Edit/Delete book">
-                        <a href="{{ url_for('edit-book.show_edit_book', book_id=entry.id) }}"
-                            class="btn btn-sm btn-primary" id="edit_book" role="button">
-                            <span class="glyphicon glyphicon-edit"></span>
-                            {{ _('Edit Metadata') }}
-                        </a>
-                    </div>
-                    <div class="btn btn-default" data-back="{{ url_for('web.index') }}" id="back">{{_('Cancel')}}</div>
-                </div>
                 {% endif %}
             </div>
         </div>
@@ -374,7 +377,7 @@
     </li>
 </script>
 <script type="text/template" id="template-shelf-remove">
-    <a data-href="<%= remove %>" data-add-href="<%= add %>" class="btn btn-sm btn-default"
+    <a data-href="<%= remove %>" data-add-href="<%= add %>" class="btn btn-default"
        data-shelf-action="remove">
         <span class="glyphicon glyphicon-remove"></span> <%= content %>
     </a>
