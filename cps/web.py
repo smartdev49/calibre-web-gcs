@@ -1260,10 +1260,19 @@ def serve_book(book_id, book_format, anyname):
             except FileNotFoundError:
                 log.error("File Not Found")
                 return "File Not Found"
+            download_path = book.path + '/' + book.title + "." + book_format
+    # download_bytes = cloud_file_helper.download_to_memory(download_path)
+    
         # enable byte range read of pdf
         fname = book.path + '/' + data.name + '.' + book_format
+        if book_format.upper() == "M4B":
+            download_url = cloud_file_helper.generate_signed_url(fname)
+            return redirect(download_url)
+        
         serve_bytes = cloud_file_helper.download_to_memory(fname)
+        
         if serve_bytes:
+            
             response = make_response(
                 # Add For GCS            
                 send_file(serve_bytes, download_name=fname, as_attachment= True))

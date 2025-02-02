@@ -30,7 +30,7 @@ import requests
 import unidecode
 from uuid import uuid4
 
-from flask import send_from_directory, make_response, abort, url_for, Response
+from flask import send_from_directory, make_response, abort, url_for, Response, redirect
 from flask_babel import gettext as _
 from flask_babel import lazy_gettext as N_
 from flask_babel import get_locale
@@ -1097,15 +1097,18 @@ def do_download_file(book, book_format, client, data, headers):
     # END :
     # BEGIN: added code make GCS full path and make response from GCS file
     download_path = book.path + '/' + book.title + "." + book_format
-    download_bytes = cloud_file_helper.download_to_memory(download_path)
-    if download_bytes:
-        response = make_response(send_file(download_bytes, download_name=download_path, as_attachment= True))
-        # END :
-        # ToDo Check headers parameter
-        for element in headers:
-            response.headers[element[0]] = element[1]
-        log.info('Downloading file: {}'.format(os.path.join(filename, book_name + "." + book_format)))
-        return response
+    # download_bytes = cloud_file_helper.download_to_memory(download_path)
+    download_url = cloud_file_helper.generate_signed_url(download_path)
+    if download_url:
+        return redirect(download_url)
+    # if download_bytes:
+    #     response = make_response(send_file(download_bytes, download_name=download_path, as_attachment= True))
+    #     # END :
+    #     # ToDo Check headers parameter
+    #     for element in headers:
+    #         response.headers[element[0]] = element[1]
+    #     log.info('Downloading file: {}'.format(os.path.join(filename, book_name + "." + book_format)))
+    #     return response
     else:
         abort(404)
 

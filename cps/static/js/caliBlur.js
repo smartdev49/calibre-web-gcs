@@ -110,23 +110,23 @@ if ($("body.book").length > 0) {
         .prependTo(".book-meta > .btn-toolbar:first");
 
     // If only one download type exists still put the items into a drop-drown list.
-    downloads = $("a[id^=btnGroupDrop]").get();
-    if ($(downloads).length === 1) {
-        $('<button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-download"></span>Download</button><ul class="dropdown-menu leramslist aria-labelledby="btnGroupDrop1"></ul>').insertBefore(downloads[downloads.length - 1]);
-        $(downloads).detach();
-        $.each(downloads, function (i, val) {
-            $("<li>" + downloads[i].outerHTML + "</li>").appendTo(".leramslist");
-        });
-        $(".leramslist").find("span").remove();
-        $(".leramslist a").removeClass("btn btn-primary").removeAttr("role");
-    }
+    // downloads = $("a[id^=btnGroupDrop]").get();
+    // if ($(downloads).length === 1) {
+    //     $('<button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-download"></span>Download</button><ul class="dropdown-menu leramslist aria-labelledby="btnGroupDrop1"></ul>').insertBefore(downloads[downloads.length - 1]);
+    //     $(downloads).detach();
+    //     $.each(downloads, function (i, val) {
+    //         $("<li>" + downloads[i].outerHTML + "</li>").appendTo(".leramslist");
+    //     });
+    //     $(".leramslist").find("span").remove();
+    //     $(".leramslist a").removeClass("btn btn-primary").removeAttr("role");
+    // }
 
     // Add classes to buttons
     $("#sendbtn").parent().addClass("sendBtn");
-    $("[id*=btnGroupDrop]").parent().addClass("downloadBtn");
+    // $("[id*=btnGroupDrop]").parent().addClass("downloadBtn");
     $("read-in-browser").parent().addClass("readBtn");
     $("listen-in-browser").parent().addClass("listenBtn");
-    $(".downloadBtn button:first").addClass("download-text");
+    // $(".downloadBtn button:first").addClass("download-text");
 
     // Move all options in book details page to the same group
     $("[aria-label*='Delete book']")
@@ -167,9 +167,9 @@ if ($("body.book").length > 0) {
     });
 
 
-    $(".downloadBtn").click(function () {
-        $(".leramslist").toggle();
-    });
+    // $(".downloadBtn").click(function () {
+    //     $(".leramslist").toggle();
+    // });
 
     $("#sendbtn2").click(function () {
         $(".sendtoereader-drop").toggle();
@@ -208,18 +208,18 @@ if ($("body.book").length > 0) {
             }
         }
 
-        if ($(".downloadBtn").length > 0) {
+        // if ($(".downloadBtn").length > 0) {
 
-            position = $("#btnGroupDrop1").offset().left
+        //     position = $("#btnGroupDrop1").offset().left
 
-            if (position + $(".leramslist").width() > $(window).width()) {
-                positionOff = position + $(".leramslist").width() - $(window).width();
-                dlPosition = position - positionOff - 5
-                $(".leramslist").attr("style", "left: " + dlPosition + "px !important; right: auto;  top: " + topPos + "px");
-            } else {
-                $(".leramslist").attr("style", "left: " + position + "px !important; right: auto;  top: " + topPos + "px");
-            }
-        }
+        //     if (position + $(".leramslist").width() > $(window).width()) {
+        //         positionOff = position + $(".leramslist").width() - $(window).width();
+        //         dlPosition = position - positionOff - 5
+        //         $(".leramslist").attr("style", "left: " + dlPosition + "px !important; right: auto;  top: " + topPos + "px");
+        //     } else {
+        //         $(".leramslist").attr("style", "left: " + position + "px !important; right: auto;  top: " + topPos + "px");
+        //     }
+        // }
 
         if ($('div[aria-label="Add to shelves"]').length > 0) {
 
@@ -619,12 +619,12 @@ $("#read-in-browser").attr({
 })
     .addClass("send-btn-tooltip");
 
-$("#btnGroupDrop1").attr({
-    "data-toggle-two": "tooltip",
-    "title": $("#btnGroupDrop1").text(),
-    "data-placement": "bottom",
-    "data-viewport": ".btn-toolbar"
-});
+// $("#btnGroupDrop1").attr({
+//     "data-toggle-two": "tooltip",
+//     "title": $("#btnGroupDrop1").text(),
+//     "data-placement": "bottom",
+//     "data-viewport": ".btn-toolbar"
+// });
 
 if ($("body.epub").length === 0) {
     $(document).ready(function () {

@@ -182,13 +182,13 @@ def delete_folder(folder_prefix):
         return False
     return True
 
-def generate_signed_url(bucket_name, blob_name, expiration_time=3600):
+def generate_signed_url(blob_name, expiration_time=3600):
     # Initialize a storage client
     storage_client = storage.Client()
 
     # Get the bucket and blob from the client
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
+    bucket = storage_client.bucket(constants.GCS_BUCKET_NAME)
+    blob = bucket.blob(os.getenv('GCS_STORAGE_PREFIX') +blob_name)
 
     # Generate a signed URL for the blob
     signed_url = blob.generate_signed_url(
