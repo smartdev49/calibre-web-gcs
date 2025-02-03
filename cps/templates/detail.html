@@ -36,12 +36,6 @@
                 </p>
             </div>
             {% endif %}
-            <!-- {% if entry.series|length > 0 %}
-            <p>{{ _("Book %(index)s of %(range)s", index=entry.series_index | formatfloat(2),
-                range=(url_for('web.books_list', data='series', sort_param='stored',
-                book_id=entry.series[0].id)|escapedlink(entry.series[0].name))|safe) }}</p>
-
-            {% endif %} -->
 
             {% if entry.languages|length > 0 %}
             <div class="languages">
@@ -50,124 +44,8 @@
                         %}{{language.language_name}}{% if not loop.last %}, {% endif %}{% endfor %}</span>
                 </p>
             </div>
-            {% endif %}
-
-            {% if entry.identifiers|length > 0 %}
-            <!-- <div class="identifiers">
-                <p>
-                    <span class="glyphicon glyphicon-link"></span>
-                    {% for identifier in entry.identifiers %}
-                    <a href="{{ identifier|escape }}" target="_blank" class="btn btn-xs btn-success" role="button">{{
-                        identifier.format_type() }}</a>
-                    {% endfor %}
-                </p>
-            </div> -->
-            {% endif %}
-
-            {% if entry.tags|length > 0 %}
-
-            <!-- <div class="tags">
-                <p>
-                    <span class="glyphicon glyphicon-tags"></span>
-
-                    {% for tag in entry.tags %}
-                    <a href="{{ url_for('web.books_list', data='category', sort_param='stored', book_id=tag.id) }}"
-                        class="btn btn-xs btn-info" role="button">{{ tag.name }}</a>
-                    {% endfor %}
-                </p>
-
-            </div> -->
-            {% endif %}
-
-            {% if entry.publishers|length > 0 %}
-            <!-- <div class="publishers">
-                <p>
-                    <span>{{ _('Publisher') }}:
-                        <a
-                            href="{{ url_for('web.books_list', data='publisher', sort_param='stored', book_id=entry.publishers[0].id ) }}">{{
-                            entry.publishers[0].name }}</a>
-                    </span>
-                </p>
-            </div> -->
-            {% endif %}
-
-            {% if (entry.pubdate|string)[:10] != '0101-01-01' %}
-            <!-- <div class="publishing-date">
-                <p>{{ _('Published') }}: {{ entry.pubdate|formatdate }} </p>
-            </div> -->
-            {% endif %}
-            {% if cc|length > 0 %}
-
-
-            {% for c in cc %}
-            {% if entry['custom_column_' ~ c.id]|length > 0 %}
-            <div class="real_custom_columns">
-                {{ c.name }}:
-                {% for column in entry['custom_column_' ~ c.id] %}
-                {% if c.datatype == 'rating' %}
-                {{ (column.value / 2)|formatfloat }}
-                {% else %}
-                {% if c.datatype == 'bool' %}
-                {% if column.value == true %}
-                <span class="glyphicon glyphicon-ok"></span>
-                {% else %}
-                <span class="glyphicon glyphicon-remove"></span>
-                {% endif %}
-                {% else %}
-                {% if c.datatype == 'float' %}
-                {{ column.value|formatfloat(2) }}
-                {% elif c.datatype == 'datetime' %}
-                {{ column.value|formatdate }}
-                {% elif c.datatype == 'comments' %}
-                {{ column.value|safe }}
-                {% elif c.datatype == 'series' %}
-                {{ '%s [%s]' % (column.value, column.extra|formatfloat(2)) }}
-                {% elif c.datatype == 'text' %}
-                {{ column.value.strip() }}{% if not loop.last %}, {% endif %}
-                {% else %}
-                {{ column.value }}
-                {% endif %}
-                {% endif %}
-                {% endif %}
-                {% endfor %}
-
-            </div>
-            {% endif %}
-            {% endfor %}
-            {% endif %}
-            {% if not current_user.is_anonymous %}
-            <!-- {% if entry.read_status %}checked{% endif %}
-            <div class="custom_columns">
-                <p>
-                <form id="have_read_form" action="{{ url_for('web.toggle_read', book_id=entry.id) }}" method="POST">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <label class="block-label">
-                        <input id="have_read_cb" data-checked="{{ _('Mark As Unread') }}"
-                            data-unchecked="{{ _('Mark As Read') }}" type="checkbox" {% if entry.read_status %}checked{%
-                            endif %}>
-                        <span data-toggle="tooltip" title="{{_('Mark Book as Read or Unread')}}">{{ _('Read') }}</span>
-                    </label>
-                </form>
-                </p>
-                {% if current_user.check_visibility(32768) %}
-                <p>
-                <form id="archived_form" action="{{ url_for('web.toggle_archived', book_id=entry.id) }}" method="POST">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <label class="block-label">
-                        <input id="archived_cb" data-checked="{{ _('Restore from archive') }}"
-                            data-unchecked="{{ _('Add to archive') }}" type="checkbox" {% if entry.is_archived
-                            %}checked{% endif %}>
-                        <span data-toggle="tooltip"
-                            title="{{_('Mark Book as archived or not, to hide it in Calibre-Web and delete it from Kobo Reader')}}">{{
-                            _('Archive') }}</span>
-                    </label>
-                </form>
-                </p>
-                {% endif %}
-            </div>
-            {% endif %} -->
-
-
+            {% endif %}            
+            
             {% if entry.comments|length > 0 and entry.comments[0].text|length > 0 %}
             <div class="comments">
                 <h3 id="decription">{{ _('Description:') }}</h3>

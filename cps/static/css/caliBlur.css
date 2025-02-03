@@ -1712,9 +1712,7 @@ body > div.container-fluid > div.row-fluid > div.col-sm-2 {
     height: calc(100% - 60px);
     left: 0;
     top: 60px;
-    background: rgba(0, 0, 0, .15);
-    /*padding: 0 5px 20px 0;*/
-    overflow-y: auto
+    overflow-y: auto;
 }
 
 body > div.container-fluid > div.row-fluid > div.col-sm-10 {
@@ -1727,6 +1725,46 @@ body > div.container-fluid > div.row-fluid > div.col-sm-10 {
     top: 60px;
     right: 0;
     overflow-y: auto !important
+}
+
+@media (max-width: 767px) and (min-width: 510px) {
+    .navbar-default {
+        top: 0;
+    }
+
+    body > .container-fluid {
+        margin: 60px 0 0 0;
+        padding: 0;
+        width: calc(100%);
+        height: calc(100% - 60px);
+        position: unset;
+        left: 0
+    }
+
+    body > div.container-fluid > div.row-fluid > div.col-sm-2 {
+        position: unset;
+        width: 100%;
+        left: unset;
+        top: unset;
+        height: unset;
+        background: unset;
+    }
+
+    body > div.container-fluid > div.row-fluid > div.col-sm-10 {
+        width: 100%;
+        height: unset;
+        padding: 0;
+        position: unset;
+        min-height: 1px;
+        min-width: 1px;
+        top: unset;
+        right: unset;
+        overflow-y: auto !important
+    }
+
+    body:not(.read-frame) {
+        overflow-y: auto;
+    }
 }
 
 body.me > div.container-fluid > div.row-fluid > div.col-sm-10:before {
@@ -6902,12 +6940,14 @@ body.edituser.admin > div.container-fluid > div.row-fluid > div.col-sm-10 > div.
     body.book > div.container-fluid > div.row-fluid > div.col-sm-10 {
         width: 100%;
         top: 0;
-        height: calc(100% - 0px)
+        height: calc(100% - 0px);
     }
 
     body > div.container-fluid > div > div.col-sm-10 > div.single {
         width: 100%;
-        padding: 15px !important
+        padding: 15px !important;
+        
+        /* background-color: white; */
     }
 
     body > div.container-fluid > div > div.col-sm-10 > div > div > div.col-sm-3.col-lg-3.col-xs-5 {
@@ -6916,7 +6956,6 @@ body.edituser.admin > div.container-fluid > div.row-fluid > div.col-sm-10 > div.
         width: 100px;
         padding: 0;
         max-width: 100px;
-        margin-top: 75px
     }
 
     #bookDetailsModal > .modal-dialog.modal-lg > .modal-content > .modal-body > div > div > div > div.col-sm-3.col-lg-3.col-xs-5 > div.cover > img, body > div.container-fluid > div > div.col-sm-10 > div > div > div.col-sm-3.col-lg-3.col-xs-5 > div.cover > img {
@@ -7419,7 +7458,6 @@ body.edituser.admin > div.container-fluid > div.row-fluid > div.col-sm-10 > div.
         text-align: center;
         min-width: 40px;
         pointer-events: none;
-        // color: #
     }
 
     .col-xs-12 > .row > .col-xs-10 {
@@ -7717,7 +7755,7 @@ body.advanced_search > div.container-fluid > div.row-fluid > div.col-sm-10 > div
 @media only screen and (min-width: 767px) and (max-width: 811px) {
     body.author > div.container-fluid > div > div.col-sm-10 > div.discover {
         width: calc(100% + 20px);
-        padding: 0 !important
+        padding: 0 !important;
     }
 }
 
