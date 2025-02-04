@@ -262,7 +262,7 @@ class User(UserBase, Base):
     remote_auth_token = relationship('RemoteAuthToken', backref='user', lazy='dynamic')
     view_settings = Column(JSON, default={})
     kobo_only_shelves_sync = Column(Integer, default=0)
-
+    current_theme = Column(Integer, nullable=False, default=0)
 class OAuthProvider(Base):
     __tablename__ = 'oauthprovider'
     id = Column(Integer, primary_key=True)

@@ -576,6 +576,9 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
                                          dir_orig, 
                                          last_prefix).replace('\\', '/')
                 print('\n type=1', full_path)
+                if cloud_file_helper.extract_cover_image_from_m4b(original_filepath, original_filepath + '_cover.jpg'):
+                    cloud_file_helper.upload_from_filename(original_filepath + '_cover.jpg', full_path + "/cover.jpg")
+                    localbook.has_cover = 1
                 cloud_file_helper.move(localbook.path + '/' + db_filename, 
                                        full_path + "/" + db_filename)
                 

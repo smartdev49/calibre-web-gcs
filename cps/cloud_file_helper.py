@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from langdetect import detect
 from datetime import timedelta
 import fitz
+from mutagen.mp4 import MP4
 
 def upload_from_filename(local_file_path, destination_path):
     # Initialize the GCSFileSystem
@@ -281,7 +282,26 @@ def pdf_first_page_to_image(pdf_path, output_image_path):
         return False
     return True
 
+def extract_cover_image_from_m4b(m4b_path, output_image_path):
+    try:
+        # Load the m4b file
+        audio = MP4(m4b_path)
 
+        # Check if the m4b file contains cover art
+        if 'covr' in audio.tags:
+            cover_data = audio.tags['covr'][0]
+
+            # Write the cover art to the output image file
+            with open(output_image_path, 'wb') as img_file:
+                img_file.write(cover_data)
+            print(f"Cover image saved as {output_image_path}")
+        else:
+            print("No cover image found in the m4b file.")
+            return False
+    except Exception as e:
+        print(f"\nextract_cover_image_from_m4b An error occurred: {e}\n")
+        return False
+    return True
 def get_language_code(language_name):
     language = langcodes.find(language_name)
     if language:

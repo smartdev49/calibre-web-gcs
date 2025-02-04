@@ -1549,7 +1549,8 @@ def change_profile(kobo_support, local_oauth_check, oauth_status, translations, 
             new_phone = to_save.get("phone", current_user.phone)
             if new_phone != current_user.phone:
                 current_user.phone = check_phone(formatted_phone_number( new_phone ))
-        print("\n birthday", to_save.get("birthday", ""))
+        if to_save.get("config_theme") != current_user.current_theme:
+            current_user.current_theme = to_save.get("config_theme")
         if to_save.get("birthday", "") != "":
             new_birthday = to_save.get("birthday", current_user.birthday)
             if new_birthday != current_user.birthday:

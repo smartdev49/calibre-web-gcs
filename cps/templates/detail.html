@@ -44,8 +44,8 @@
                         %}{{language.language_name}}{% if not loop.last %}, {% endif %}{% endfor %}</span>
                 </p>
             </div>
-            {% endif %}            
-            
+            {% endif %}
+
             {% if entry.comments|length > 0 and entry.comments[0].text|length > 0 %}
             <div class="comments">
                 <h3 id="decription">{{ _('Description:') }}</h3>
@@ -54,7 +54,7 @@
             {% endif %}
 
 
-            <div class="more-stuff" style="display: flex; flex-direction: row;">
+            <div class="more-stuff" style="display: flex; flex-direction: row;align-items: center;">
                 <div class="btn-toolbar" role="toolbar">
                     <div class="btn-group" role="group" aria-label="Download, send to eReader, reading">
                         {% if current_user.role_download() %}
@@ -62,7 +62,9 @@
                         <div class="btn-group" role="group">
                             {% for format in entry.data %}
                             <a href="{{ url_for('web.download_link', book_id=entry.id, book_format=format.format|lower, anyname=entry.id|string+'.'+format.format|lower|replace('kepub', 'kepub.epub')) }}"
-                                id="btnGroupDrop1" class="btn btn-primary" role="button" style="display: flex; flex-direction: row; align-items: center;">
+                                id="btnGroupDrop1" class="btn btn-primary" role="button"
+                                style="display: flex; flex-direction: row; align-items: center;"
+                                title="{{ _('Download this book') }}">
                                 <span class="glyphicon glyphicon-download"></span>
                                 {{ _('Download') }}
                             </a>
@@ -119,8 +121,8 @@
                             {% else %}
                             <a target="_blank"
                                 href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.reader_list[0]) }}"
-                                id="readbtn" class="btn btn-primary" role="button"><span
-                                    class="glyphicon glyphicon-book"></span>
+                                id="readbtn" class="btn btn-primary" role="button" title="{{ _('Read this book') }}">
+                                <span class="glyphicon glyphicon-book"></span>
                                 {{ _('Read ') }}
                                 <!-- - {{ entry.reader_list[0] }} -->
                             </a>
@@ -131,13 +133,15 @@
                         <div class="btn-group" role="group">
                             {% if entry.audio_entries|length > 1 %}
                             <button id="listen-in-browser" type="button" class="btn btn-primary dropdown-toggle"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                title="{{ _('Listen this audiobook') }}">
                                 <span class="glyphicon glyphicon-music"></span> {{ _('Listen') }}
                                 <!-- <span class="caret"></span> -->
                             </button>
                             {% for format in entry.reader_list %}
                             <a target="_blank"
-                                href="{{ url_for('web.read_book', book_id=entry.id, book_format=format) }}">{{
+                                href="{{ url_for('web.read_book', book_id=entry.id, book_format=format) }}"
+                                title="{{ _('Listen this audiobook') }}">{{
                                 format }}{{ _('Listen') }}</a>
 
                             {% endfor %}
@@ -148,7 +152,9 @@
                             {% if format.format|lower in entry.audio_entries %}
                             <a target="_blank"
                                 href="{{ url_for('web.read_book', book_id=entry.id, book_format=format.format|lower) }}">
-                                <span class="glyphicon glyphicon-music"></span> {{ _('Listen') }}</a>
+                                <span class="glyphicon glyphicon-music"></span>
+                                {{ _('Listen') }}
+                            </a>
 
                             {% endif %}
                             {% endfor %}
@@ -159,8 +165,10 @@
                             {% else %}
                             <a target="_blank"
                                 href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.audio_entries[0]) }}"
-                                id="listenbtn" class="btn btn-primary" role="button"><span
-                                    class="glyphicon glyphicon-music"></span> {{ _('Listen') }}
+                                id="listenbtn" {% if g.current_theme == 0 %}class="btn btn-primary"{% endif %} role="button"
+                                title="{{ _('Listen this audiobook') }}">
+                                <span class="glyphicon glyphicon-music"></span>
+                                {% if g.current_theme == 0 %}{{ _('Listen') }}{% endif %}
                                 <!-- - {{ entry.audio_entries[0] }} -->
                             </a>
                             {% endif %}
@@ -172,7 +180,7 @@
                 <div class="">
                     <div class="btn-group" role="group" aria-label="Edit/Delete book">
                         <a href="{{ url_for('edit-book.show_edit_book', book_id=entry.id) }}" class="btn btn-primary"
-                            id="edit_book" role="button">
+                            id="edit_book" role="button" title="{{ _('edit book metadata') }}">
                             <span class="glyphicon glyphicon-edit"></span>
                             {{ _('Edit Metadata') }}
                         </a>
@@ -213,8 +221,9 @@
                             data-add-href="{{ url_for('shelf.add_to_shelf', book_id=entry.id, shelf_id=shelf.id) }}"
                             class="btn btn-default" role="button" data-shelf-action="remove">
                             <span {% if not shelf.is_public or current_user.role_edit_shelfs() %}
-                                class="glyphicon glyphicon-remove" {% endif %}></span> {{ shelf.name }}{% if
-                            shelf.is_public == 1 %} {{ _('(Public)') }}{% endif %}
+                                class="glyphicon glyphicon-remove" {% endif %}></span>
+                            {{ shelf.name }}
+                            {% if shelf.is_public == 1 %} {{ _('(Public)') }}{% endif %}
                         </a>
                         {% endif %}
                         {% endfor %}

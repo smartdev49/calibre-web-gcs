@@ -400,6 +400,7 @@ class Books(Base):
     languages = relationship(Languages, secondary=books_languages_link, backref='books')
     publishers = relationship(Publishers, secondary=books_publishers_link, backref='books')
     identifiers = relationship(Identifiers, backref='books')
+    
     # user = relationship
     # price = Column(Integer, default = 0)
     def __init__(self, title, sort, author_sort, timestamp, pubdate, series_index, last_modified, path, has_cover,
@@ -709,6 +710,7 @@ class CalibreDB:
     def get_filtered_book(self, book_id, allow_show_archived=False):
         query =  self.session.query(Books).filter(Books.id == book_id). \
             filter(self.common_filters(allow_show_archived)).first()
+            
         # print(query.statement)
         return query
         return (self.session.query(Books, ub.ReadBook.read_status, ub.ArchivedBook.is_archived).select_from(Books)
