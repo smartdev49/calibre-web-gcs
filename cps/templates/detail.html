@@ -54,9 +54,9 @@
             {% endif %}
 
 
-            <div class="more-stuff">
+            <div class="more-stuff" style="display: flex;">
                 <div class="btn-toolbar" role="toolbar">
-                    <div class="btn-group" role="group" aria-label="Download, send to eReader, reading" style="display: flex; flex-direction: row; align-items: center;">
+                    <div class="btn-group" role="group" aria-label="Download, send to eReader, reading" {% if current_user.current_theme == 1 %}style="display: flex; flex-direction: row; align-items: center;"{% endif %}>
                         {% if current_user.role_download() %}
                         {% if entry.data|length %}
                         <div class="btn-group" role="group">
