@@ -180,7 +180,7 @@ def upload():
                                                             meta.file_path,
                                                             title_dir + meta.extension.lower(),
                                                             type = 0, uploaded_filename = requested_file_name)
-                    move_coverfile(meta, db_book)
+                    # move_coverfile(meta, db_book)
                     
                     if modify_date:
                         calibre_db.set_metadata_dirty(book_id)
@@ -215,78 +215,6 @@ def upload():
         return jsonify({'message': 'Chunk upload complete'}), 200
     else:
          return redirect(url_for("web.index"))
-    if len(request.files.getlist("btn-upload-format")):
-        book_id = request.form.get('book_id', -1)
-        return do_edit_book(book_id, request.files.getlist("btn-upload-format"))
-    elif len(request.files.getlist("btn-upload")):
-        for requested_file in request.files.getlist("btn-upload"):
-            try:
-                modify_date = False
-                # create the function for sorting...
-                calibre_db.create_functions(config)
-                
-                requested_file_name = requested_file.filename
-                meta, error = file_handling_on_upload(requested_file)
-                if error:
-                    return error
-
-                db_book, input_authors, title_dir = create_book_on_upload(modify_date, meta)
-
-                # Comments need book id therefore only possible after flush
-                modify_date |= edit_book_comments(Markup(meta.description).unescape(), db_book)
-
-                book_id = db_book.id
-                title = db_book.title
-                if config.config_use_google_drive:
-                    helper.upload_new_file_gdrive(book_id,
-                                                  input_authors[0],
-                                                  title,
-                                                  title_dir,
-                                                  meta.file_path,
-                                                  meta.extension.lower())
-                    
-                    for file_format in db_book.data:
-                        file_format.name = (helper.get_valid_filename(title, chars=42) + ' - '
-                                            + helper.get_valid_filename(input_authors[0], chars=42))
-                    
-                else:
-                    error = helper.update_dir_structure(book_id,
-                                                        config.get_book_path(),
-                                                        input_authors[0],
-                                                        meta.file_path,
-                                                        title_dir + meta.extension.lower(),
-                                                        type = 0, uploaded_filename = requested_file_name)
-                move_coverfile(meta, db_book)
-                
-                if modify_date:
-                    calibre_db.set_metadata_dirty(book_id)
-                # save data to database, reread data
-                calibre_db.session.commit()
-
-                if config.config_use_google_drive:
-                    gdriveutils.updateGdriveCalibreFromLocal()
-                if error:
-                    flash(error, category="error")
-                link = '<a href="{}">{}</a>'.format(url_for('web.show_book', book_id=book_id), escape(title))
-                upload_text = N_("File %(file)s uploaded", file=link)
-                WorkerThread.add(current_user.name, TaskUpload(upload_text, escape(title)))
-                helper.add_book_to_thumbnail_cache(book_id)
-
-                if len(request.files.getlist("btn-upload")) < 2:
-                    if current_user.role_edit() or current_user.role_admin():
-                        resp = {"location": url_for('edit-book.show_edit_book', book_id=book_id)}
-                        return Response(json.dumps(resp), mimetype='application/json')
-                    else:
-                        resp = {"location": url_for('web.show_book', book_id=book_id)}
-                        return Response(json.dumps(resp), mimetype='application/json')
-            except (OperationalError, IntegrityError, StaleDataError) as e:
-                calibre_db.session.rollback()
-                log.error_or_exception("Database error: {}".format(e))
-                flash(_("Oops! Database Error: %(error)s.", error=e.orig if hasattr(e, "orig") else e),
-                      category="error")
-        return Response(json.dumps({"location": url_for("web.index")}), mimetype='application/json')
-    abort(404)
-
 
 @editbook.route("/admin/book/convert/<int:book_id>", methods=['POST'])
 @login_required_if_no_ano
@@ -895,13 +823,7 @@ def create_book_on_upload(modify_date, meta):
 
 
 def file_handling_on_upload(requested_file, file_name):
-    # check if file extension is correct
     allowed_extensions = config.config_upload_formats.split(',')
-    # if requested_file:
-    #     if config.config_check_extensions and allowed_extensions != ['']:
-    #         if not validate_mime_type(requested_file, allowed_extensions):
-    #             flash(_("File type isn't allowed to be uploaded to this server"), category="error")
-    #             return None, Response(json.dumps({"location": url_for("web.index")}), mimetype='application/json')
     if '.' in file_name:
         file_ext = file_name.rsplit('.', 1)[-1].lower()
         if file_ext not in allowed_extensions and '' not in allowed_extensions:
@@ -912,8 +834,6 @@ def file_handling_on_upload(requested_file, file_name):
     else:
         flash(_('File to be uploaded must have an extension'), category="error")
         return None, Response(json.dumps({"location": url_for("web.index")}), mimetype='application/json')
-
-    # extract metadata from file
     try:
         meta = uploader.upload(requested_file, config.config_rarfile_location, file_name=file_name)
     except (IOError, OSError):

@@ -268,37 +268,11 @@ def get_magick_version():
     return ret
 
 def upload(uploadfile, rar_excecutable, file_name=None):
-    print('1: \n')
     if file_name is not None:
-        print('2: \n')
         tmp_dir = get_temp_dir()
-        print('3: \n')
         filename = file_name
-        print('4: \n')
         filename_root, file_extension = os.path.splitext(filename)
-        print('5: \n')
-        md5 = hashlib.md5(filename.encode('utf-8')).hexdigest()  # nosec
-        print('6: \n')
+        md5 = hashlib.md5(filename.encode('utf-8')).hexdigest()  # no
         tmp_file_path = os.path.join(tmp_dir, md5)
-        print('7: \n')
-        log.debug("Temporary file: %s", tmp_file_path)
-        print('8: \n', uploadfile)
-        # shutil.move(uploadfile, tmp_file_path)
-        print('9: \n', uploadfile)
         return process(uploadfile, filename_root, file_extension, rar_excecutable)
-    print('10: \n')
-    tmp_dir = get_temp_dir()
-    print('11: \n')
-    filename = uploadfile.filename
-    print('12: \n')
-    filename_root, file_extension = os.path.splitext(filename)
-    print('13: \n')
-    md5 = hashlib.md5(filename.encode('utf-8')).hexdigest()  # nosec
-    print('14: \n')
-    tmp_file_path = os.path.join(tmp_dir, md5)
-    print('15: \n')
-    log.debug("Temporary file: %s", tmp_file_path)
-    print('16: \n')
-    uploadfile.save(tmp_file_path)
-    print('17: \n')
     return process(tmp_file_path, filename_root, file_extension, rar_excecutable)

@@ -9,6 +9,7 @@ test.py
 .python-version
 env/
 venv/
+vevn/
 eggs/
 dist/
 executable/

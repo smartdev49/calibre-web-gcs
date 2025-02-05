@@ -566,6 +566,9 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
                     cloud_file_helper.upload_from_filename(original_filepath + '_cover.jpg', full_path + "/cover.jpg")
                     
                     localbook.has_cover = 1
+                if cloud_file_helper.extract_cover_image_from_m4b(original_filepath, original_filepath + '_cover.jpg'):
+                    cloud_file_helper.upload_from_filename(original_filepath + '_cover.jpg', full_path + "/cover.jpg")
+                    localbook.has_cover = 1
                 ret, msg = cloud_file_helper.upload_from_filename(original_filepath, full_path + "/" + db_filename)
             elif type == 1:
                 dir_unicode_title = new_titledir.encode('unicode-escape').decode('ascii')
@@ -575,44 +578,9 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
                                          dir_lang, 
                                          dir_orig, 
                                          last_prefix).replace('\\', '/')
-                print('\n type=1', full_path)
-                if cloud_file_helper.extract_cover_image_from_m4b(original_filepath, original_filepath + '_cover.jpg'):
-                    cloud_file_helper.upload_from_filename(original_filepath + '_cover.jpg', full_path + "/cover.jpg")
-                    localbook.has_cover = 1
                 cloud_file_helper.move(localbook.path + '/' + db_filename, 
                                        full_path + "/" + db_filename)
-                
-            ##########################################################################
-            # if not os.path.isdir(new_path):
-            #     os.makedirs(new_path)
-            # try:
-            #     shutil.move(original_filepath, os.path.join(new_path, db_filename))
-            # except OSError:
-            #     log.error("Rename title from {} to {} failed with error, trying to "
-            #               "move without metadata".format(path, new_path))
-            #     shutil.move(original_filepath, os.path.join(new_path, db_filename), copy_function=shutil.copy)
-            # log.debug("Moving title: %s to %s", original_filepath, new_path)
-            ##########################################################################
         else:
-            #################### REMOVE FOR CLOUD STORAGE OPERATION ##################################
-            # Check new path is not valid path
-            # if not os.path.exists(new_path):
-            #     # move original path to new path
-            #     log.debug("Moving title: %s to %s", path, new_path)
-            #     shutil.move(path, new_path)
-            # else:  # path is valid copy only files to new location (merge)
-            #     log.info("Moving title: %s into existing: %s", path, new_path)
-            #     # Take all files and subfolder from old path (strange command)
-            #     for dir_name, __, file_list in os.walk(path):
-            #         for file in file_list:
-            #             shutil.move(os.path.join(dir_name, file), os.path.join(new_path + dir_name[len(path):], file))
-            # if not os.listdir(os.path.split(path)[0]):
-            #     try:
-            #         shutil.rmtree(os.path.split(path)[0])
-            #     except (IOError, OSError) as ex:
-            #         log.error("Deleting authorpath for book %s failed: %s", localbook.id, ex)
-            ############################################### END ######################################
-
             if type == 1:
                 dir_unicode_title = new_titledir.encode('unicode-escape').decode('ascii')
                 dir_hash = localbook.path.split('_')[-1]
@@ -621,6 +589,7 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
                                          dir_lang, 
                                          dir_orig, 
                                          new_titledir + "_" + dir_unicode_title + "_" + new_author_dir + "_" + dir_hash).replace('\\', '/')
+                
                 cloud_file_helper.rename_folder(localbook.path, full_path)
         localbook.path = full_path
     except OSError as ex:
@@ -637,16 +606,6 @@ def rename_files_on_change(first_author,
                            path="",
                            calibre_path="",
                            gdrive=False):
-    # Rename all files from old names to new names
-    # try:
-    #     clean_author_database(renamed_author, calibre_path, gdrive=gdrive)
-    #     if first_author and first_author not in renamed_author:
-    #        clean_author_database([first_author], calibre_path, local_book, gdrive)
-    #     if not gdrive and not renamed_author and not original_filepath and len(os.listdir(os.path.dirname(path))) == 0:
-    #        shutil.rmtree(os.path.dirname(path))
-    # except (OSError, FileNotFoundError) as ex:
-    #    log.error_or_exception("Error in rename file in path {}".format(ex))
-    #    return _("Error in rename file in path: {}".format(str(ex)))
     return False
 
 

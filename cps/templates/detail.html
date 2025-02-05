@@ -54,9 +54,9 @@
             {% endif %}
 
 
-            <div class="more-stuff" style="display: flex; flex-direction: row;align-items: center;">
+            <div class="more-stuff">
                 <div class="btn-toolbar" role="toolbar">
-                    <div class="btn-group" role="group" aria-label="Download, send to eReader, reading">
+                    <div class="btn-group" role="group" aria-label="Download, send to eReader, reading" style="display: flex; flex-direction: row; align-items: center;">
                         {% if current_user.role_download() %}
                         {% if entry.data|length %}
                         <div class="btn-group" role="group">
@@ -130,48 +130,15 @@
                         </div>
                         {% endif %}
                         {% if entry.audio_entries|length > 0 and current_user.role_viewer() %}
-                        <div class="btn-group" role="group">
-                            {% if entry.audio_entries|length > 1 %}
-                            <button id="listen-in-browser" type="button" class="btn btn-primary dropdown-toggle"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                title="{{ _('Listen this audiobook') }}">
-                                <span class="glyphicon glyphicon-music"></span> {{ _('Listen') }}
-                                <!-- <span class="caret"></span> -->
-                            </button>
-                            {% for format in entry.reader_list %}
-                            <a target="_blank"
-                                href="{{ url_for('web.read_book', book_id=entry.id, book_format=format) }}"
-                                title="{{ _('Listen this audiobook') }}">{{
-                                format }}{{ _('Listen') }}</a>
-
-                            {% endfor %}
-                            <ul class="dropdown-menu" aria-labelledby="listen-in-browser">
-
-                            </ul>
-                            {% for format in entry.data %}
-                            {% if format.format|lower in entry.audio_entries %}
-                            <a target="_blank"
-                                href="{{ url_for('web.read_book', book_id=entry.id, book_format=format.format|lower) }}">
-                                <span class="glyphicon glyphicon-music"></span>
-                                {{ _('Listen') }}
-                            </a>
-
-                            {% endif %}
-                            {% endfor %}
-                            <ul class="dropdown-menu" aria-labelledby="listen-in-browser">
-
-
-                            </ul>
-                            {% else %}
+                        <div class="btn-group" role="group">        
                             <a target="_blank"
                                 href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.audio_entries[0]) }}"
-                                id="listenbtn" {% if g.current_theme == 0 %}class="btn btn-primary"{% endif %} role="button"
+                                {% if current_user.current_theme == 0 %}id="listenbtn" class="btn btn-primary"{% endif %} role="button"
                                 title="{{ _('Listen this audiobook') }}">
                                 <span class="glyphicon glyphicon-music"></span>
-                                {% if g.current_theme == 0 %}{{ _('Listen') }}{% endif %}
+                                {% if current_user.current_theme == 0 %}{{ _('Listen') }}{% endif %}
                                 <!-- - {{ entry.audio_entries[0] }} -->
                             </a>
-                            {% endif %}
                         </div>
                         {% endif %}
                     </div>
