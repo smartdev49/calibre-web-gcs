@@ -27,3 +27,6 @@ input.datepicker {color: transparent}
 input.datepicker:focus {color: transparent}
 input.datepicker:focus + input {color: #555}
 
+#btnGroupDrop1 {
+  color: white !important;
+}

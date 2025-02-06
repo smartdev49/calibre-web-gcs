@@ -619,12 +619,12 @@ $("#read-in-browser").attr({
 })
     .addClass("send-btn-tooltip");
 
-// $("#btnGroupDrop1").attr({
-//     "data-toggle-two": "tooltip",
-//     "title": $("#btnGroupDrop1").text(),
-//     "data-placement": "bottom",
-//     "data-viewport": ".btn-toolbar"
-// });
+$("#btnGroupDrop1").attr({
+    "data-toggle-two": "tooltip",
+    "title": $("#btnGroupDrop1").text(),
+    "data-placement": "bottom",
+    "data-viewport": ".btn-toolbar"
+});
 
 if ($("body.epub").length === 0) {
     $(document).ready(function () {

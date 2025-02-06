@@ -3173,7 +3173,7 @@ div.btn-group[role=group][aria-label="Download, send to Kindle, reading"] > div.
 
 #add-to-shelf, #btnGroupDrop1, #readbtn,  #sendbtn, .book-meta .btn-toolbar > .btn-group > .btn-group:nth-child(1) > a:first-of-type, .book-meta .btn-toolbar > .btn-group > .btn-warning, .btn-toolbar > .btn-group > #btnGroupDrop2, .btn-toolbar > .btn-group > .btn-group > #btnGroupDrop2 {
     background: 0 0;
-    color: transparent;
+    /* color: transparent; */
     width: 50px;
     height: 60px;
     margin: 0;
