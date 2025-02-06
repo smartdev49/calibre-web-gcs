@@ -36,13 +36,13 @@
           <label for="config_authors_max">{{_('No. of Authors to Display Before Hiding (0=Disable Hiding)')}}</label>
           <input type="number" min="0" max="999" class="form-control" name="config_authors_max" id="config_authors_max" value="{% if conf.config_authors_max != None %}{{ conf.config_authors_max }}{% endif %}" autocomplete="off">
         </div>
-        <div class="form-group">
+        <!-- <div class="form-group">
         <label for="config_theme">{{_('Theme')}}</label>
             <select name="config_theme" id="config_theme" class="form-control">
                 <option value="0" {% if conf.config_theme == 0 %}selected{% endif %}>{{ _("Standard Theme") }}</option>
                 <option value="1" {% if conf.config_theme == 1 %}selected{% endif %}>{{ _("caliBlur! Dark Theme") }}</option>
             </select>
-        </div>
+        </div> -->
         <div class="form-group">
           <label for="config_columns_to_ignore">{{_('Regular Expression for Ignoring Columns')}}</label>
           <input type="text" class="form-control" name="config_columns_to_ignore" id="config_columns_to_ignore" value="{% if conf.config_columns_to_ignore != None %}{{ conf.config_columns_to_ignore }}{% endif %}" autocomplete="off">
