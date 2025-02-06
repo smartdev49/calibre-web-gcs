@@ -1,0 +1,35 @@
+.btn-bar {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin-left: 200px;
+}
+
+.metadata-details {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+.cover {
+    width: 200px;
+}
+
+@media (max-width: 768px) {
+    .btn-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        margin-left: 0px;
+    }
+
+    .metadata-details {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-bar {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}

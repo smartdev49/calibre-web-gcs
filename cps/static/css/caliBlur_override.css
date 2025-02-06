@@ -1,4 +1,4 @@
-body.serieslist.grid-view div.container-fluid > div > div.col-sm-10::before {
+body.serieslist.grid-view div.container-fluid>div>div.col-sm-10::before {
   display: none;
 }
 
@@ -23,7 +23,54 @@ body.serieslist.grid-view div.container-fluid > div > div.col-sm-10::before {
   line-height: 15px;
 }
 
-input.datepicker {color: transparent}
-input.datepicker:focus {color: transparent}
-input.datepicker:focus + input {color: #555}
+input.datepicker {
+  color: transparent
+}
 
+input.datepicker:focus {
+  color: transparent
+}
+
+input.datepicker:focus+input {
+  color: #555
+}
+
+.metadata-details {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+}
+
+.cover {
+  width: 200px;
+}
+
+.btn-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-left: 200px;
+}
+
+@media (max-width: 768px) {
+  .btn-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin-left: 0px;
+  }
+
+  .cover {
+    box-shadow: none;
+  }
+
+  .metadata-details {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-bar {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
