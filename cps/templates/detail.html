@@ -54,11 +54,14 @@
         </div>
     </div>
     <div class="btn-bar">
+        {% if entry.reader_list and current_user.role_edit() %}
         <a target="_blank" href="{{ url_for('edit-book.show_edit_book', book_id=entry.id)}}" class="btn btn-primary"
             title="{{ _('Listen this audiobook') }}">
             <span class="glyphicon glyphicon-edit"></span>
             {{ _('Edit') }}
         </a>
+        {% endif %}
+
         {% if entry.reader_list and current_user.role_viewer() %}
         <a target="_blank" href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.reader_list[0])}}"
             class="btn btn-primary" title="{{ _('Listen this audiobook') }}">
@@ -73,6 +76,7 @@
             {{ _('Listen') }}
         </a>
         {% endif %}
+        {% if entry.reader_list and current_user.role_download() %}
         {% for format in entry.data %}
         <a target="_blank"
             href="{{ url_for('web.download_link', book_id=entry.id, book_format=format.format|lower, anyname=entry.id|string+'.'+format.format|lower|replace('kepub', 'kepub.epub'))}}"
@@ -81,7 +85,7 @@
             {{ _('Download') }}
         </a>
         {% endfor %}
-
+        {% endif %}
     </div>
 </div>
 {% endblock %}
