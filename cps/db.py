@@ -29,7 +29,7 @@ from uuid import uuid4
 from sqlite3 import OperationalError as sqliteOperationalError
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, ForeignKey, CheckConstraint
-from sqlalchemy import String, Integer, Boolean, TIMESTAMP, Float
+from sqlalchemy import String, Integer, Boolean, TIMESTAMP, Float, Text
 from sqlalchemy.orm import relationship, sessionmaker, scoped_session
 from sqlalchemy.orm.collections import InstrumentedList
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -402,7 +402,7 @@ class Books(Base):
     identifiers = relationship(Identifiers, backref='books')
     
     # user = relationship
-    # price = Column(Integer, default = 0)
+    chapters = Column(Text, default = "")
     def __init__(self, title, sort, author_sort, timestamp, pubdate, series_index, last_modified, path, has_cover,
                  authors, tags, languages=None):
         super().__init__()
@@ -415,7 +415,7 @@ class Books(Base):
         self.last_modified = last_modified
         self.path = path
         self.has_cover = (has_cover is not None)
-        self.price = 0
+        self.chapters = ""
 
     def __repr__(self):
         return "<Books('{0},{1}{2}{3}{4}{5}{6}{7}{8}')>".format(self.title, self.sort, self.author_sort,

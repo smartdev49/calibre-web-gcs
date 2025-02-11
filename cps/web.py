@@ -1697,6 +1697,7 @@ def read_book(book_id, book_format):
                                                 entry=entry, 
                                                 bookmark=bookmarklist, 
                                                 books_shelfs=book_in_shelves,
+                                                chapters=book.chapters,
                                                 is_xhr=request.headers.get('X-Requested-With') == 'XMLHttpRequest',
                                      )
         for fileExt in ["cbr", "cbt", "cbz"]:

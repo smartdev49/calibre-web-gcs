@@ -13,6 +13,8 @@ from langdetect import detect
 from datetime import timedelta
 import fitz
 from mutagen.mp4 import MP4
+import ffmpeg
+import json
 
 def upload_from_filename(local_file_path, destination_path):
     # Initialize the GCSFileSystem
@@ -360,3 +362,11 @@ def get_full_language_name(language_code):
         return language.display_name()
     except LookupError:
         return "Unknown"
+
+
+def get_chapters(file_path):
+    """Extract metadata using ffmpeg-python."""
+    probe = ffmpeg.probe(file_path, show_chapters=None)
+    if 'chapters' in probe:
+        return json.dumps(probe['chapters'])
+    return ""

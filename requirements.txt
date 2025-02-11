@@ -32,6 +32,7 @@ EbookLib==0.18
 executing==2.1.0
 eyed3==0.9.7
 fastjsonschema==2.20.0
+ffmpeg-python==0.2.0
 filetype==1.2.0
 Flask==3.0.3
 flask-babel==4.0.0
@@ -42,6 +43,7 @@ Flask-Principal==0.4.0
 Flask-WTF==1.2.1
 frozenlist==1.4.1
 fsspec==2024.9.0
+future==1.0.0
 gcloud==0.18.3
 gcsfs==2024.9.0.post1
 google-api-core==2.20.0

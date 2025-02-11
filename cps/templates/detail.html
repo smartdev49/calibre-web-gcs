@@ -49,42 +49,89 @@
                 {{ entry.comments[0].text|safe }}
             </div>
             {% endif %}
-
+            {% if current_user.is_authenticated %}
+            {% if current_user.shelf.all() or g.shelves_access %}
+            <div id="shelf-actions" class="btn-toolbar" role="toolbar">
+                <div class="btn-group" role="group" aria-label="Add to shelves">
+                    <button id="add-to-shelf" type="button" class="btn btn-primary dropdown-toggle"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-list"></span> {{ _('Add to shelf') }}
+                        <span class="caret"></span>
+                    </button>
+                    <ul id="add-to-shelves" class="dropdown-menu" aria-labelledby="add-to-shelf">
+                        {% for shelf in g.shelves_access %}
+                        {% if not shelf.id in books_shelfs and ( not shelf.is_public or
+                        current_user.role_edit_shelfs() ) %}
+                        <li>
+                            <a data-href="{{ url_for('shelf.add_to_shelf', book_id=entry.id, shelf_id=shelf.id) }}"
+                                data-remove-href="{{ url_for('shelf.remove_from_shelf', book_id=entry.id, shelf_id=shelf.id) }}"
+                                data-shelf-action="add">
+                                {{ shelf.name }}{% if shelf.is_public == 1 %}
+                                {{ _('(Public)') }}{% endif %}
+                            </a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div id="remove-from-shelves" class="btn-group" role="group" aria-label="Remove from shelves">
+                    {% if books_shelfs %}
+                    {% for shelf in g.shelves_access %}
+                    {% if shelf.id in books_shelfs %}
+                    <a data-href="{{ url_for('shelf.remove_from_shelf', book_id=entry.id, shelf_id=shelf.id) }}"
+                        data-add-href="{{ url_for('shelf.add_to_shelf', book_id=entry.id, shelf_id=shelf.id) }}"
+                        class="btn btn-default" role="button" data-shelf-action="remove">
+                        <span {% if not shelf.is_public or current_user.role_edit_shelfs() %}
+                            class="glyphicon glyphicon-remove" {% endif %}></span>
+                        {{ shelf.name }}
+                        {% if shelf.is_public == 1 %} {{ _('(Public)') }}{% endif %}
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                <div id="shelf-action-errors" class="pull-left" role="alert"></div>
+            </div>
+            {% endif %}
+            {% endif %}
 
         </div>
     </div>
     <div class="btn-bar">
-        {% if entry.reader_list and current_user.role_edit() %}
+        {% if current_user.role_edit() or current_user.role_admin() %}
+        {% if (entry.reader_list|length > 0 or entry.audio_entries|length > 0) %}
         <a target="_blank" href="{{ url_for('edit-book.show_edit_book', book_id=entry.id)}}" class="btn btn-primary"
-            title="{{ _('Listen this audiobook') }}">
+            title="{{ _('Edit metadata') }}">
             <span class="glyphicon glyphicon-edit"></span>
             {{ _('Edit') }}
         </a>
         {% endif %}
+        {% endif %}
 
-        {% if entry.reader_list and current_user.role_viewer() %}
+        {% if entry.reader_list|length > 0 and (current_user.role_edit() or current_user.role_admin()) %}
         <a target="_blank" href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.reader_list[0])}}"
-            class="btn btn-primary" title="{{ _('Listen this audiobook') }}">
+            class="btn btn-primary" title="{{ _('Read this audiobook') }}">
             <span class="glyphicon glyphicon-book"></span>
             {{ _('Read ') }}
         </a>
         {% endif %}
-        {% if entry.audio_entries|length > 0 and current_user.role_viewer() %}
+        {% if entry.audio_entries|length > 0 and (current_user.role_edit() or current_user.role_admin()) %}
         <a target="_blank" href="{{ url_for('web.read_book', book_id=entry.id, book_format=entry.audio_entries[0])}}"
             class="btn btn-primary" title="{{ _('Listen this audiobook') }}">
             <span class="glyphicon glyphicon-music"></span>
             {{ _('Listen') }}
         </a>
         {% endif %}
-        {% if entry.reader_list and current_user.role_download() %}
-        {% for format in entry.data %}
+        {% if (entry.reader_list|length > 0 or entry.audio_entries|length > 0) and (current_user.role_download() or
+        current_user.role_admin()) %}
+        <!-- {% for format in entry.data %} -->
         <a target="_blank"
             href="{{ url_for('web.download_link', book_id=entry.id, book_format=format.format|lower, anyname=entry.id|string+'.'+format.format|lower|replace('kepub', 'kepub.epub'))}}"
-            class="btn btn-primary" title="{{ _('Listen this audiobook') }}">
+            class="btn btn-primary" title="{{ _('Download this audiobook') }}">
             <span class="glyphicon glyphicon-download"></span>
             {{ _('Download') }}
         </a>
-        {% endfor %}
+        <!-- {% endfor %} -->
         {% endif %}
     </div>
 </div>

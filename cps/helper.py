@@ -567,8 +567,10 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
                     
                     localbook.has_cover = 1
                 if cloud_file_helper.extract_cover_image_from_m4b(original_filepath, original_filepath + '_cover.jpg'):
+                    localbook.chapters = cloud_file_helper.get_chapters(original_filepath)
                     cloud_file_helper.upload_from_filename(original_filepath + '_cover.jpg', full_path + "/cover.jpg")
                     localbook.has_cover = 1
+                    
                 ret, msg = cloud_file_helper.upload_from_filename(original_filepath, full_path + "/" + db_filename)
             elif type == 1:
                 dir_unicode_title = new_titledir.encode('unicode-escape').decode('ascii')
