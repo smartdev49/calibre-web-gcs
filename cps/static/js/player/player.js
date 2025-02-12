@@ -55,15 +55,15 @@ var Player = function (playlist) {
     this.index = 0;
 
     // Display the title of the first track.
-    track.innerHTML = '1. ' + playlist[0].title;
+    track.innerHTML = '1. ' + jChapters[0]['tags']['title'];
 
     // Setup the playlist display.
-    playlist.forEach(function (song) {
+    jChapters.forEach(function (iter) {
         var div = document.createElement('div');
         div.className = 'list-song';
-        div.innerHTML = song.title;
+        div.innerHTML = iter['tags']['title'];
         div.onclick = function () {
-            player.skipTo(playlist.indexOf(song));
+            player.seekTime(iter['start_time']);
         };
         list.appendChild(div);
     });
