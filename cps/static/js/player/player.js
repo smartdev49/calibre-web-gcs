@@ -1,45 +1,44 @@
 /*!
- *  Howler.js Audio Player Demo
- *  howlerjs.com
  *
  *  (c) 2013-2020, James Simpson of GoldFire Studios
  *  goldfirestudios.com
  *
  *  MIT License
  */
-const jChapters = JSON.parse($('#chapters').val());
+console.log(calibre)
+const jChapters = JSON.parse($("#chapters").val());
 // Cache references to DOM elements.
 var elms = [
-    'track',
-    'timer',
-    'duration',
-    'playBtn',
-    'pauseBtn',
-    'prevBtn',
-    'nextBtn',
-    'playlistBtn',
-    'volumeBtn',
-    'progress',
-    'bar',
-    'wave',
-    'loading',
-    'playlist',
-    'list',
-    'volume',
-    'barEmpty',
-    'barFull',
-    'sliderBtn',
-    'forwardBtn',
-    'backwardBtn',
-    'totalProgress',
-    'bookmarkBtn',
-    'bookmark',
-    'playbackRate',
-    'playbackRateBtn',
-    'settings',
-    'settingsBtn',
-    'sleepTime',
-    'sleepTimeBtn'
+    "track",
+    "timer",
+    "duration",
+    "playBtn",
+    "pauseBtn",
+    "prevBtn",
+    "nextBtn",
+    "playlistBtn",
+    "volumeBtn",
+    "progress",
+    "bar",
+    "wave",
+    "loading",
+    "playlist",
+    "list",
+    "volume",
+    "barEmpty",
+    "barFull",
+    "sliderBtn",
+    "forwardBtn",
+    "backwardBtn",
+    "totalProgress",
+    "bookmarkBtn",
+    "bookmark",
+    "playbackRate",
+    "playbackRateBtn",
+    "settings",
+    "settingsBtn",
+    "sleepTime",
+    "sleepTimeBtn",
 ];
 elms.forEach(function (elm) {
     window[elm] = document.getElementById(elm);
@@ -53,17 +52,19 @@ elms.forEach(function (elm) {
 var Player = function (playlist) {
     this.playlist = playlist;
     this.index = 0;
-
+    this.sleepTime = -1; // Stoped
+    this.timer = null;
     // Display the title of the first track.
-    track.innerHTML = '1. ' + playlist[0].title;
+    // Display the title of the first track.
+    track.innerHTML = "1. " + jChapters[0]["tags"]["title"];
 
     // Setup the playlist display.
-    playlist.forEach(function (song) {
-        var div = document.createElement('div');
-        div.className = 'list-song';
-        div.innerHTML = song.title;
+    jChapters.forEach(function (iter) {
+        var div = document.createElement("div");
+        div.className = "list-song";
+        div.innerHTML = iter["tags"]["title"];
         div.onclick = function () {
-            player.skipTo(playlist.indexOf(song));
+            seekTime(iter["start_time"]);
         };
         list.appendChild(div);
     });
@@ -77,7 +78,7 @@ Player.prototype = {
         var self = this;
         var sound;
 
-        index = typeof index === 'number' ? index : self.index;
+        index = typeof index === "number" ? index : self.index;
         var data = self.playlist[index];
 
         // If we already loaded this track, use the current one.
@@ -87,48 +88,51 @@ Player.prototype = {
         } else {
             sound = data.howl = new Howl({
                 // src: ['./audio/' + data.file + '.webm', './audio/' + data.file + '.mp3', './audio/' + data.file + '.m4b'],
-                src: [$('#filename').val()],
+                src: [$("#filename").val()],
                 html5: true, // Force to HTML5 so that the audio can stream in (best for large files).
+                preload: true,
                 onplay: function () {
                     // Display the duration.
-                    duration.innerHTML = self.formatTime(Math.round(sound.duration()));
+                    duration.innerHTML = self.formatTime(
+                        Math.round(sound.duration())
+                    );
 
                     // Start updating the progress of the track.
                     requestAnimationFrame(self.step.bind(self));
 
                     // Start the wave animation if we have already loaded
-                    wave.container.style.display = 'flex';
-                    bar.style.display = 'none';
-                    pauseBtn.style.display = 'flex';
+                    wave.container.style.display = "flex";
+                    bar.style.display = "none";
+                    pauseBtn.style.display = "flex";
                 },
                 onload: function () {
                     // Start the wave animation.
-                    wave.container.style.display = 'flex';
-                    bar.style.display = 'none';
-                    loading.style.display = 'none';
+                    wave.container.style.display = "flex";
+                    bar.style.display = "none";
+                    loading.style.display = "none";
                 },
                 onend: function () {
                     // Stop the wave animation.
-                    wave.container.style.display = 'none';
-                    bar.style.display = 'flex';
+                    wave.container.style.display = "none";
+                    bar.style.display = "flex";
 
-                    loading.style.display = 'none';
-                    self.skip('next');
+                    loading.style.display = "none";
+                    self.skip("next");
                 },
                 onpause: function () {
                     // Stop the wave animation.
-                    wave.container.style.display = 'none';
-                    bar.style.display = 'flex';
+                    wave.container.style.display = "none";
+                    bar.style.display = "flex";
                 },
                 onstop: function () {
                     // Stop the wave animation.
-                    wave.container.style.display = 'none';
-                    bar.style.display = 'flex';
+                    wave.container.style.display = "none";
+                    bar.style.display = "flex";
                 },
                 onseek: function () {
                     // Start updating the progress of the track.
                     requestAnimationFrame(self.step.bind(self));
-                }
+                },
             });
         }
 
@@ -139,13 +143,13 @@ Player.prototype = {
         // track.innerHTML = (index + 1) + '. ' + data.title;
 
         // Show the pause button.
-        if (sound.state() === 'loaded') {
-            playBtn.style.display = 'none';
-            pauseBtn.style.display = 'flex';
+        if (sound.state() === "loaded") {
+            playBtn.style.display = "none";
+            pauseBtn.style.display = "flex";
         } else {
-            loading.style.display = 'flex';
-            playBtn.style.display = 'none';
-            pauseBtn.style.display = 'none';
+            loading.style.display = "flex";
+            playBtn.style.display = "none";
+            pauseBtn.style.display = "none";
         }
 
         // Keep track of the index we are currently playing.
@@ -165,8 +169,8 @@ Player.prototype = {
         sound.pause();
 
         // Show the play button.
-        playBtn.style.display = 'flex';
-        pauseBtn.style.display = 'none';
+        playBtn.style.display = "flex";
+        pauseBtn.style.display = "none";
     },
 
     /**
@@ -178,7 +182,7 @@ Player.prototype = {
 
         // Get the next track based on the direction of the track.
         var index = 0;
-        if (direction === 'prev') {
+        if (direction === "prev") {
             index = self.index - 1;
             if (index < 0) {
                 index = self.playlist.length - 1;
@@ -206,7 +210,7 @@ Player.prototype = {
         }
 
         // Reset progress.
-        progress.style.width = '0%';
+        progress.style.width = "0%";
 
         // Play the new track.
         self.play(index);
@@ -224,8 +228,9 @@ Player.prototype = {
 
         // Update the display on the slider.
         var barWidth = (val * 90) / 100;
-        barFull.style.width = (barWidth * 100) + '%';
-        sliderBtn.style.left = (window.innerWidth * barWidth + window.innerWidth * 0.05 - 25) + 'px';
+        barFull.style.width = barWidth * 100 + "%";
+        sliderBtn.style.left =
+            window.innerWidth * barWidth + window.innerWidth * 0.05 - 25 + "px";
     },
     forward: function () {
         var self = this;
@@ -253,7 +258,7 @@ Player.prototype = {
         // Convert the percent into a seek position.
         if (sound.playing()) {
             const pos = sound.duration() * per;
-            console.log(sound.seek(pos).play());
+            sound.seek(pos).play();
         }
     },
 
@@ -271,7 +276,7 @@ Player.prototype = {
         var self = this;
         var sound = self.playlist[self.index].howl;
         if (sound !== null) {
-            sound.rate(rate)
+            sound.rate(rate);
             return true;
         }
         return false;
@@ -288,13 +293,19 @@ Player.prototype = {
         // Determine our current seek position.
         var seek = sound.seek() || 0;
         timer.innerHTML = self.formatTime(Math.round(seek));
-        progress.style.width = (((seek / sound.duration()) * 100) || 0) + '%';
-        var cur = jChapters.filter(iter => (iter['start_time'] <= seek && iter['end_time'] >= seek))[0]
-        $('#track').text(`${cur['id']}. ${cur['tags']['title']}`);
+        progress.style.width = ((seek / sound.duration()) * 100 || 0) + "%";
+        var cur = jChapters.filter(
+            (iter) => iter["start_time"] <= seek && iter["end_time"] >= seek
+        )[0];
+        $("#track").text(`${cur["id"]}. ${cur["tags"]["title"]}`);
         // If the sound is still playing, continue stepping.
         if (sound.playing()) {
-            loading.style.display = 'none';
+            loading.style.display = "none";
             requestAnimationFrame(self.step.bind(self));
+            if (self.sleepTime == 0) {
+                sound.pause();
+                self.sleepTime = -1;
+            }
         }
     },
     /**
@@ -302,12 +313,15 @@ Player.prototype = {
      */
     togglePlaylist: function () {
         var self = this;
-        var display = (playlist.style.display === 'flex') ? 'none' : 'flex';
+        var display = playlist.style.display === "flex" ? "none" : "flex";
 
-        setTimeout(function () {
-            playlist.style.display = display;
-        }, (display === 'flex') ? 0 : 500);
-        playlist.className = (display === 'flex') ? 'fadein' : 'fadeout';
+        setTimeout(
+            function () {
+                playlist.style.display = display;
+            },
+            display === "flex" ? 0 : 500
+        );
+        playlist.className = display === "flex" ? "fadein" : "fadeout";
     },
 
     /**
@@ -315,52 +329,67 @@ Player.prototype = {
      */
     toggleVolume: function () {
         var self = this;
-        var display = (volume.style.display === 'flex') ? 'none' : 'flex';
+        var display = volume.style.display === "flex" ? "none" : "flex";
 
-        setTimeout(function () {
-            volume.style.display = display;
-        }, (display === 'flex') ? 0 : 500);
-        volume.className = (display === 'flex') ? 'fadein' : 'fadeout';
+        setTimeout(
+            function () {
+                volume.style.display = display;
+            },
+            display === "flex" ? 0 : 500
+        );
+        volume.className = display === "flex" ? "fadein" : "fadeout";
     },
 
     toggleSettings: function () {
         var self = this;
-        var display = (settings.style.display === 'flex') ? 'none' : 'flex';
+        var display = settings.style.display === "flex" ? "none" : "flex";
 
-        setTimeout(function () {
-            settings.style.display = display;
-        }, (display === 'flex') ? 0 : 500);
-        settings.className = (display === 'flex') ? 'fadein' : 'fadeout';
+        setTimeout(
+            function () {
+                settings.style.display = display;
+            },
+            display === "flex" ? 0 : 500
+        );
+        settings.className = display === "flex" ? "fadein" : "fadeout";
     },
 
     toggleplaybackRate: function () {
         var self = this;
-        var display = (playbackRate.style.display === 'flex') ? 'none' : 'flex';
+        var display = playbackRate.style.display === "flex" ? "none" : "flex";
 
-        setTimeout(function () {
-            playbackRate.style.display = display;
-        }, (display === 'flex') ? 0 : 500);
-        playbackRate.className = (display === 'flex') ? 'fadein' : 'fadeout';
+        setTimeout(
+            function () {
+                playbackRate.style.display = display;
+            },
+            display === "flex" ? 0 : 500
+        );
+        playbackRate.className = display === "flex" ? "fadein" : "fadeout";
     },
 
     toggleBookmark: function () {
         var self = this;
-        var display = (bookmark.style.display === 'flex') ? 'none' : 'flex';
+        var display = bookmark.style.display === "flex" ? "none" : "flex";
 
-        setTimeout(function () {
-            bookmark.style.display = display;
-        }, (display === 'flex') ? 0 : 500);
-        bookmark.className = (display === 'flex') ? 'fadein' : 'fadeout';
+        setTimeout(
+            function () {
+                bookmark.style.display = display;
+            },
+            display === "flex" ? 0 : 500
+        );
+        bookmark.className = display === "flex" ? "fadein" : "fadeout";
     },
 
     togglesleepTime: function () {
         var self = this;
-        var display = (sleepTime.style.display === 'flex') ? 'none' : 'flex';
+        var display = sleepTime.style.display === "flex" ? "none" : "flex";
 
-        setTimeout(function () {
-            sleepTime.style.display = display;
-        }, (display === 'flex') ? 0 : 500);
-        sleepTime.className = (display === 'flex') ? 'fadein' : 'fadeout';
+        setTimeout(
+            function () {
+                sleepTime.style.display = display;
+            },
+            display === "flex" ? 0 : 500
+        );
+        sleepTime.className = display === "flex" ? "fadein" : "fadeout";
     },
 
     /**
@@ -369,147 +398,230 @@ Player.prototype = {
      * @return {String}      Formatted time.
      */
     formatTime: function (secs) {
-        var hours = Math.floor(secs / 3500) || 0;
-        var minutes = Math.floor(secs % 3600 / 60) || 0;
-        var seconds = (secs % 60) || 0;
+        var hours = Math.floor(secs / 3600) || 0;
+        var minutes = Math.floor((secs % 3600) / 60) || 0;
+        var seconds = secs % 60 || 0;
         if (hours > 0)
-            return hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-        return (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-    }
+            return (
+                hours +
+                ":" +
+                (minutes < 10 ? "0" : "") +
+                minutes +
+                ":" +
+                (seconds < 10 ? "0" : "") +
+                seconds
+            );
+        return (
+            (minutes < 10 ? "0" : "") +
+            minutes +
+            ":" +
+            (seconds < 10 ? "0" : "") +
+            seconds
+        );
+    },
+    sleepAfter: function (secs) {
+        var self = this;
+        var sound = self.playlist[self.index].howl;
+        if (self.timer) clearInterval(self.timer);
+        // Convert the percent into a seek position.
+        if (sound.playing()) {
+            console.log("sec", secs);
+            if (secs < 0) {
+                self.sleepTime = sound.duration() - sound.seek();
+            } else {
+                self.sleepTime = Math.max(
+                    0,
+                    Math.min(secs, sound.duration() - sound.seek())
+                );
+            }
+            self.timer = setInterval(function () {
+                self.sleepTime = self.sleepTime - 1;
+                $(".sleepTime").text(formatTime(self.sleepTime));
+                if (self.sleepTime <= 0) {
+                    clearInterval(self.timer);
+                    self.timer = null;
+                }
+            }, 1000);
+        }
+    },
+    delayTime: function (secs) {
+        var self = this;
+        var sound = self.playlist[self.index].howl;
+        if (sound.playing()) {
+            self.sleepTime = Math.max(
+                0,
+                Math.min(self.sleepTime + secs, sound.duration() - sound.seek())
+            );
+        }
+    },
 };
 
 const formatTime = (secs) => {
-    var hours = Math.floor(secs / 3500) || 0;
-    var minutes = Math.floor(secs % 3600 / 60) || 0;
+    var hours = Math.floor(secs / 3600) || 0;
+    var minutes = Math.floor((secs % 3600) / 60) || 0;
     var seconds = Math.round(secs % 60) || 0;
     if (hours > 0)
-        return hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-    return (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+        return (
+            hours +
+            ":" +
+            (minutes < 10 ? "0" : "") +
+            minutes +
+            ":" +
+            (seconds < 10 ? "0" : "") +
+            seconds
+        );
+    return (
+        (minutes < 10 ? "0" : "") +
+        minutes +
+        ":" +
+        (seconds < 10 ? "0" : "") +
+        seconds
+    );
 };
 
 // Setup our new audio player class and pass it the playlist.
 var player = new Player([
     {
-        title: 'Rave Digger',
-        file: 'rave_digger',
-        howl: null
-    }
+        title: "Rave Digger",
+        file: "rave_digger",
+        howl: null,
+    },
 ]);
-if ($('#chapters').val() !== "") {
-
+if ($("#chapters").val() !== "") {
     let htmlChapters = "";
-    let htmlTimes = ""
+    let htmlTimes = "";
 
-    let total = jChapters[jChapters.length - 1]['end'];
-    $('.chapter-count').text(jChapters.length);
-    jChapters.forEach((iter) => {
-        htmlChapters += `<a class='chapter-line' start-time='${iter['start_time']}' total-time='${jChapters[jChapters.length - 1]['end_time']}'><span>${iter['id']}</span><span>${iter['tags']['title']}</span><span>${formatTime(iter['start_time'])}</span><span>${formatTime(iter['end_time'] - iter['start_time'])}</span></a>`;
-        let per = (iter['end'] - iter['start']) / total;
-        htmlTimes += `<div class='ct-line' style='width:${per * 100}%'></div>`
+    let total = jChapters[jChapters.length - 1]["end"];
+    $(".chapter-count").text(jChapters.length);
+    jChapters.forEach(function (iter) {
+        htmlChapters += `<a class='chapter-line' id='chp${
+            iter["id"]
+        }' start-time='${iter["start_time"]}' total-time='${
+            jChapters[jChapters.length - 1]["end_time"]
+        }'><span>${iter["id"]}</span><span>${
+            iter["tags"]["title"]
+        }</span><span>${formatTime(
+            iter["start_time"]
+        )}</span><span>${formatTime(
+            iter["end_time"] - iter["start_time"]
+        )}</span></a>`;
+        let per = (iter["end"] - iter["start"]) / total;
+        htmlTimes += `<div class='ct-line' style='width:${per * 100}%'></div>`;
     });
-    $('#chapter-time').html(htmlTimes);
-    $('.chapter-lists').html(htmlChapters);
+    $("#chapter-time").html(htmlTimes);
+    $(".chapter-lists").html(htmlChapters);
 }
 
 Player.prototype.seektime = function (pos) {
     let self = this;
     let sound = self.playlist[self.index].howl;
     if (sound.playing()) {
-        alert(pos)
         sound.seek(pos);
         requestAnimationFrame(self.step.bind(self));
     }
-}
+};
 // Bind our player controls.
-playBtn.addEventListener('click', function () {
+playBtn.addEventListener("click", function () {
     player.play();
 });
-pauseBtn.addEventListener('click', function () {
+pauseBtn.addEventListener("click", function () {
     player.pause();
 });
-forwardBtn.addEventListener('click', () => {
+forwardBtn.addEventListener("click", () => {
     player.forward();
 });
-backwardBtn.addEventListener('click', () => {
+backwardBtn.addEventListener("click", () => {
     player.backward();
-})
-prevBtn.addEventListener('click', function () {
-    player.skip('prev');
 });
-nextBtn.addEventListener('click', function () {
-    player.skip('next');
+prevBtn.addEventListener("click", function () {
+    player.skip("prev");
 });
-totalProgress.addEventListener('click', function (event) {
+nextBtn.addEventListener("click", function () {
+    player.skip("next");
+});
+totalProgress.addEventListener("click", function (event) {
     player.seek(event.clientX / window.innerWidth);
 });
-playlistBtn.addEventListener('click', function () {
+playlistBtn.addEventListener("click", function () {
     player.togglePlaylist();
 });
-playlist.addEventListener('click', function () {
+playlist.addEventListener("click", function () {
     player.togglePlaylist();
 });
-volumeBtn.addEventListener('click', function () {
+volumeBtn.addEventListener("click", function () {
     player.toggleVolume();
 });
-volume.addEventListener('click', function () {
+volume.addEventListener("click", function () {
     player.toggleVolume();
 });
 
 // Setup the event listeners to enable dragging of volume slider.
-barEmpty.addEventListener('click', function (event) {
+barEmpty.addEventListener("click", function (event) {
     var per = event.layerX / parseFloat(barEmpty.scrollWidth);
     player.volume(per);
 });
-sliderBtn.addEventListener('mousedown', function () {
+sliderBtn.addEventListener("mousedown", function () {
     window.sliderDown = true;
 });
-sliderBtn.addEventListener('touchstart', function () {
+sliderBtn.addEventListener("touchstart", function () {
     window.sliderDown = true;
 });
-volume.addEventListener('mouseup', function () {
+volume.addEventListener("mouseup", function () {
     window.sliderDown = false;
 });
-volume.addEventListener('touchend', function () {
+volume.addEventListener("touchend", function () {
     window.sliderDown = false;
 });
-bookmarkBtn.addEventListener('click', function () {
-    document.getElementById('current-seek').innerText = player.formatTime(Math.round(player.curSeek()));
+bookmarkBtn.addEventListener("click", function () {
+    document.getElementById("current-seek").innerText = player.formatTime(
+        Math.round(player.curSeek())
+    );
     player.toggleBookmark();
 });
-bookmark.addEventListener('click', function (event) {
+bookmark.addEventListener("click", function (event) {
     if (event.target === bookmark) {
         player.toggleBookmark();
     }
 });
-sleepTimeBtn.addEventListener('click', function () {
+sleepTimeBtn.addEventListener("click", function () {
     player.togglesleepTime();
 });
-sleepTime.addEventListener('click', function (event) {
+sleepTime.addEventListener("click", function (event) {
     if (event.target === sleepTime) {
         player.togglesleepTime();
     }
 });
-playbackRateBtn.addEventListener('click', function () {
+playbackRateBtn.addEventListener("click", function () {
     player.toggleplaybackRate();
 });
-playbackRate.addEventListener('click', function (event) {
+playbackRate.addEventListener("click", function (event) {
     if (event.target === playbackRate) {
         player.toggleplaybackRate();
     }
 });
-settingsBtn.addEventListener('click', function () {
+settingsBtn.addEventListener("click", function () {
     player.toggleSettings();
 });
-settings.addEventListener('click', function (event) {
+settings.addEventListener("click", function (event) {
     if (event.target === settings) {
         player.toggleSettings();
     }
 });
-$('.chapter-header').on('click', function () {
+$(".chapter-header").on("click", function () {
     player.seek(5000);
 });
-$(".chapter-line").on('click', function () {
-    player.seek($(this).attr('start-time')/$(this).attr('total-time'));
+jChapters.forEach(function (iter) {
+    $(`#chp${iter["id"]}`).on("click", function () {
+        console.log(`#chp${iter["id"]}`);
+        player.seek($(this).attr("start-time") / $(this).attr("total-time"));
+    });
+});
+$(".time-line").on("click", function () {
+    player.sleepAfter($(this).attr("sleep-after") * 60);
+});
+
+$(".delay-time").on("click", function () {
+    player.delayTime($(this).attr("delay-time") * 60);
 });
 var currentRate = 1;
 var rateInterval = 0.1;
@@ -517,42 +629,46 @@ var forwardJump = 10;
 var backwardJumb = 10;
 const setForwardJump = (jump) => {
     forwardJump = Number(jump);
-}
+};
 const setBackwardJump = (jump) => {
     backwardJumb = Number(jump);
-}
+};
 const playrate = (rate) => {
     if (!player.playRate(rate)) return;
     currentRate = rate;
-    document.getElementById('currentRate').innerText = currentRate.toFixed(2) + 'x';
-}
+    document.getElementById("currentRate").innerText =
+        currentRate.toFixed(2) + "x";
+};
 
 const increasePlayrate = () => {
     playrate(Math.min(currentRate + rateInterval, 4));
-}
+};
 const seekTime = (pos) => {
     player.seektime(pos);
-}
+};
 const decreasePlayrate = () => {
     playrate(Math.max(currentRate - rateInterval, 0.5));
-}
+};
 
 const setRateInterval = (val) => {
     rateInterval = Number(val);
-}
+};
 
 var move = function (event) {
     if (window.sliderDown) {
         var x = event.clientX || event.touches[0].clientX;
         var startX = window.innerWidth * 0.05;
         var layerX = x - startX;
-        var per = Math.min(1, Math.max(0, layerX / parseFloat(barEmpty.scrollWidth)));
+        var per = Math.min(
+            1,
+            Math.max(0, layerX / parseFloat(barEmpty.scrollWidth))
+        );
         player.volume(per);
     }
 };
 
-volume.addEventListener('mousemove', move);
-volume.addEventListener('touchmove', move);
+volume.addEventListener("mousemove", move);
+volume.addEventListener("touchmove", move);
 
 // Setup the "waveform" animation.
 var wave = new SiriWave({
@@ -563,7 +679,7 @@ var wave = new SiriWave({
     speed: 0.03,
     amplitude: 0.9,
     frequency: 3,
-    color: '#ffffff'
+    color: "#ffffff",
 });
 wave.start();
 
@@ -586,9 +702,10 @@ var resize = function () {
     var sound = player.playlist[player.index].howl;
     if (sound) {
         var vol = sound.volume();
-        var barWidth = (vol * 0.9);
-        sliderBtn.style.left = (window.innerWidth * barWidth + window.innerWidth * 0.05 - 25) + 'px';
+        var barWidth = vol * 0.9;
+        sliderBtn.style.left =
+            window.innerWidth * barWidth + window.innerWidth * 0.05 - 25 + "px";
     }
 };
-window.addEventListener('resize', resize);
+window.addEventListener("resize", resize);
 resize();
