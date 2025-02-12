@@ -509,7 +509,7 @@ $('.chapter-header').on('click', function () {
     player.seek(5000);
 });
 $(".chapter-line").on('click', function () {
-    player.seek($(this).attr('start-time')/$(this).attr('total-time'));
+    player.seek($(this).attr('start-time') / $(this).attr('total-time'));
 });
 var currentRate = 1;
 var rateInterval = 0.1;
