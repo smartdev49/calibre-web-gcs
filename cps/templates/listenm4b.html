@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="no-js">
+<html>
 
 <head>
     <meta charset="utf-8">
@@ -12,16 +12,19 @@
     {% if g.google_site_verification|length > 0 %}
     <meta name="google-site-verification" content="{{g.google_site_verification}}">
     {% endif %}
-
     <script src="{{ url_for('static', filename='js/libs/jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/libs/soundmanager2.js') }}"></script>
 
     <link rel="apple-touch-icon" sizes="140x140" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-    <link href="{{ url_for('static', filename='css/libs/bootstrap.min.css') }}" rel="stylesheet" media="screen">
-    <script src="{{ url_for('static', filename='js/libs/bootstrap.min.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/libs/audioplayer-black.css') }}">
-    <script src="{{ url_for('static', filename='js/libs/audioplayer.js') }}"> </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    {% if current_user.current_theme == 0 %}
+    <link href="{{ url_for('static', filename='css/player/light.css') }}" rel="stylesheet" media="screen">
+    {% endif %}
+    {% if current_user.current_theme == 1 %}
+    <link href="{{ url_for('static', filename='css/player/dark.css') }}" rel="stylesheet" media="screen">
+    {% endif %}
+
     <script>
         "use strict";
     </script>
@@ -29,238 +32,190 @@
 </head>
 
 <body>
-    <div class="contents">
-        <img src="{{url_for('web.get_cover', book_id=entry.id, resolution='og', c=entry|last_modified)}}" loading="lazy"
-            width="208" height="208" />
-
-        <div class="book-metadata">
-            <h1 class="book-title">{{entry.title}}</h1>
+    <div id="metadata">
+        <div
+            style="position: relative; padding: 0px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <img src="{{url_for('web.get_cover', book_id=entry.id, resolution='og', c=entry|last_modified)}}"
+                width="208" height="208" />
+            <div id="waveform"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 5px; color: white;">
+            <div style="font-size: 24px;">{{entry.title}}</div>
             <input type="hidden" value="{{ url_for('web.serve_book', book_id=mp3file,book_format=audioformat)}}"
                 id="filename" />
-            <p class="book-author">by {% for author in entry.ordered_authors %}
+            <div style="font-size: 18px;">by {% for author in entry.ordered_authors %}
                 <a
                     href="{{url_for('web.books_list',  data='author', sort_param='stored', book_id=author.id ) }}">{{author.name.replace('|',',')}}</a>
                 {% if not loop.last %}
                 &amp;
                 {% endif %}
                 {% endfor %}
-            </p>
-            <div class="book-metainfo">
-                <span class="category">PUBLISH YEAR</span>
-                <span class="category-info">{{entry.pubdate|formatdate}}</span>
-            </div>
-            <div class="book-metainfo">
-                <span class="category">GENRES</span>
-                <span class="category-info">
-                    Literature & Fiction, Politics & Social Sciences, Stoicism</span>
-            </div>
-            <div class="book-metainfo">
-                <span class="category">TAGS</span>
-                <span class="category-info">
-                    {% for tag in entry.tags %}
-                    <a href="{{ url_for('web.books_list', data='category', sort_param='stored', book_id=tag.id) }}"
-                        class="btn btn-xs btn-info" role="button">{{tag.name}}</a>
-                    {%endfor%}
-                </span>
-            </div>
-            <div class="book-metainfo">
-                <span class="category">LANGUAGE</span>
-                <span class="category-info">{% for language in entry.languages
-                    %}{{language.language_name}}{% if not loop.last %}, {% endif %}{% endfor %}</span>
-            </div>
-            <div class="book-metainfo">
-                <span class="category">DURATION</span>
-                <span class="category-info">6 hr 59min</span>
-            </div>
-            <div class="book-metainfo">
-                <span class="category">SIZE</span>
-                <span class="category-info">201.18MB</span>
-            </div>
-
-            <div class="chapter-list">
-                <div class="chapter-head">
-                    <div>Chapter<span>25</span></div>
-                    <a id="collapse">
-                        <img src="{{ url_for('static', filename='arrow-down.svg') }}" width="24" height="24" />
-                    </a>
+                <div style="font-size: 15px; display: grid; grid-template-columns: 100px auto;"><span
+                        style="color: #ffffff40;">PUBLISH YEAR</span><span>{{entry.pubdate|formatdate}}</span></div>
+                <div style="font-size: 15px; display: grid; grid-template-columns: 100px auto;"><span
+                        style="color: #ffffff40;">TAGS</span><span>{% for tag in entry.tags %}
+                        <a href="{{ url_for('web.books_list', data='category', sort_param='stored', book_id=tag.id) }}"
+                            role="button">{{tag.name}}</a>
+                        {%endfor%}</span></div>
+                <div style="font-size: 15px; display: grid; grid-template-columns: 100px auto;"><span
+                        style="color: #ffffff40;">LANGUAGE</span><span>{% for language in entry.languages
+                        %}{{language.language_name}}{% if not loop.last %}, {% endif %}{% endfor %}</span></div>
+                
+                <div class="chapter-box">
+                    <div class="chapter-header">Chapters <span class="chapter-count"></span></div>
+                    <div class="chapter-lists"></div>
                 </div>
+                <input type="hidden" value="{{ chapters }}" id="chapters" />
+            </div>
+        </div>
+        <!-- Top Info -->
+    </div>
 
-                <table class="chapter-table hidden">
-                    <tr>
-                        <th class="text-left">#</th>
-                        <th class="text-left" dir="auto">Title</th>
-                        <th>Start</th>
-                        <th>Duration</th>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                    <tr>
-                        <td class="text-left">1</td>
-                        <td class="text-left" dir="auto">The Old Hound</td>
-                        <td class="text-center">0:00</td>
-                        <td class="text-center">1:34</td>
-                    </tr>
-                </table>
+    <div class="howler-player">
+        <!-- Controls -->
+        <div class="controlsOuter">
+            <div class="controlsInner" id="control1">
+                <div class="btn btn-sm" id="playbackRateBtn"><i class="fas fa-tachometer-alt"></i></div>
+                <div class="btn btn-sm" id="sleepTimeBtn"><i class="fas fa-clock"></i></div>
+                <div class="btn btn-sm" id="settingsBtn"><i class="fas fa-cog"></i></div>
+            </div>
+            <div class="controlsInner" id="control2">
+                <div class="btn btn-sm" id="prevBtn"><i class="fas fa-step-backward"></i></div>
+                <div class="btn btn-sm" id="backwardBtn"><i class="fas fa-undo-alt"></i></div>
+                <div style="position: relative;">
+                    <div id="loading"></div>
+                    <div class="btn btn-md" id="playBtn"><i class="fas fa-play"></i></div>
+                    <div class="btn btn-md" id="pauseBtn"><i class="fas fa-pause"></i></div>
+                </div>
+                <div class="btn btn-sm" id="forwardBtn"><i class="fas fa-redo-alt"></i></div>
+                <div class="btn btn-sm" id="nextBtn"><i class="fas fa-step-forward"></i></div>
+            </div>
+            <div class="controlsInner" id="control3">
+                <div class="btn btn-sm" id="playlistBtn"><i class="fas fa-list"></i></div>
+                <div class="btn btn-sm" id="bookmarkBtn"><i class="fas fa-bookmark"></i></div>
+                <div class="btn btn-sm" id="volumeBtn"><i class="fas fa-volume-up"></i></div>
+            </div>
+        </div>
+        <!-- Progress -->
+        <div style="display: flex; flex-direction: column; gap: 1vh;">
+            <div style="display: flex; flex-direction: column; position: relative;">
+                <div id="bar"></div>
+                <div id="progress"></div>
+                <div id="totalProgress"></div>
+                <div id="chapter-time"></div>
+            </div>
+
+            <div id="title">
+                <div id="timer">0:00</div>
+                <span id="track"></span>
+                <div id="duration">0:00</div>
             </div>
         </div>
     </div>
-    <div class="sm2-player">
-        <div class="sm2-book-info">
-            <img src="{{url_for('web.get_cover', book_id=entry.id, resolution='og', c=entry|last_modified)}}"
-                loading="lazy" width="77" height="77" />
-            <div class="sm2-bookmeta-infos">
-                <div class="title">Meditations</div>
-                <div class="author">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
-                        <path
-                            d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                    {% for author in entry.ordered_authors %}
-                    <a
-                        href="{{url_for('web.books_list',  data='author', sort_param='stored', book_id=author.id ) }}">{{author.name.replace('|',',')}}</a>
-                    {% if not loop.last %}
-                    &amp;
-                    {% endif %}
-                    {% endfor %}
-                </div>
-                <div class="duration">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white">
-                        <path
-                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-6h6v2h-4v4z" />
-                    </svg>
-                    <a class="duration-value">6:59:06</a>
-                </div>
+
+
+    <!-- Playlist -->
+    <div id="playlist">
+        <div id="list"></div>
+    </div>
+
+    <!-- Volume -->
+    <div id="volume" class="fadeout">
+        <div id="barFull" class="bar"></div>
+        <div id="barEmpty" class="bar"></div>
+        <div id="sliderBtn"></div>
+    </div>
+
+    <div id="playbackRate" class="fadeout">
+        <div class="playbackrate-box">
+            <div class="grid-5-cols">
+                <a class="btn-round" onclick="playrate(0.5)">0.5x</a>
+                <a class="btn-round" onclick="playrate(1)">1x</a>
+                <a class="btn-round" onclick="playrate(1.2)">1.2x</a>
+                <a class="btn-round" onclick="playrate(1.5)">1.5x</a>
+                <a class="btn-round" onclick="playrate(2)">2x</a>
             </div>
-            <div class="sm2-close"><img src="{{ url_for('static', filename='PNG/close.png') }}" style="width: 100%;"
-                    width="24" height="24" /></div>
-        </div>
-        <div class="sm2-control-bar">
-            <div class="sm2-control control-speed"><span>1.0x</span></div>
-            <div class="sm2-control control-sound"><img src="{{ url_for('static', filename='PNG/medium-volume.png') }}"
-                    style="width: 100%;" /></div>
-            <div class="sm2-control control-sleep"><img src="{{ url_for('static', filename='PNG/alarm.png') }}"
-                    style="width: 100%;" /></div>
-            <div class="sm2-control control-bookmark"><img src="{{ url_for('static', filename='PNG/tag.png') }}"
-                    style="width: 100%;" /></div>
-            <div class="sm2-control control-list"><img src="{{ url_for('static', filename='PNG/list.png') }}"
-                    style="width: 100%;" /></div>
-            <div class="sm2-control control-queue"><img src="{{ url_for('static', filename='PNG/playlist.png') }}"
-                    style="width: 100%;" /></div>
-            <div class="sm2-control control-setting"><img src="{{ url_for('static', filename='PNG/video-player.png') }}"
-                    style="width: 100%;" /></div>
-        </div>
-        <div class="sm2-play-control-bar">
-            <div class="sm2-control control-prev"><img src="{{ url_for('static', filename='PNG/first.png') }}"
-                    style="width: 100%;" /></div>
-            <div class="sm2-control control-backward"><img src="{{ url_for('static', filename='PNG/backward.png') }}"
-                    style="width: 100%;" /></div>
-            <div class="sm2-control control-play">
-                <img class="play" src="{{ url_for('static', filename='PNG/play.png') }}" style="width: 80%;" />
-                <img class="stop" src="{{ url_for('static', filename='PNG/pause.png') }}" style="width: 80%;" hidden />
-                <img class="load" src="{{ url_for('static', filename='loading.png') }}" style="width: 80%;" hidden />
-            </div>
-            <div class="sm2-control control-forward"><img src="{{ url_for('static', filename='PNG/forward.png') }}"
-                    style="width: 100%;" /></div>
-            <div class="sm2-control control-next"><img src="{{ url_for('static', filename='PNG/last.png') }}"
-                    style="width: 100%;" /></div>
-        </div>
-        <div class="sm2-progress-bar">
-            <div class="progress-bar">
-                <div class="progress-current"></div>
-            </div>
-            <div class="progress-chapter">
-                <div class="chapter"></div>
-                <div class="chapter"></div>
-                <div class="chapter"></div>
-                <div class="chapter"></div>
-                <div class="chapter"></div>
-                <div class="chapter"></div>
-                <div class="chapter"></div>
-                <div class="chapter"></div>
-                <div class="chapter"></div>
-                <div class="chapter"></div>
-            </div>
-            <div class="progress-label">
-                <div><span class="current-duration">12:32</span> / <span class="current-percent">85%</span></div>
-                <div class="chapter-title">The Dog in The Manger</div>
-                <div class="rest-time">-1:34</div>
+            <div class="grid-1-3-1-cols">
+                <a class="btn-round-black" onclick="decreasePlayrate()"><i class="fas fa-minus"></i></a>
+                <div class="rate-text" id="currentRate"><span>1.0x</span></div>
+                <a class="btn-round-black" onclick="increasePlayrate()"><i class="fas fa-plus"></i></a>
             </div>
         </div>
     </div>
+    <div id="sleepTime" class="fadeout">
+        <div class="time-box">
+            <a class="time-line">5 minutes</a>
+            <a class="time-line">15 minutes</a>
+            <a class="time-line">20 minutes</a>
+            <a class="time-line">30 minutes</a>
+            <a class="time-line">45 minutes</a>
+            <a class="time-line">1 hours</a>
+            <a class="time-line">90 minutes</a>
+            <a class="time-line">2 hours</a>
+            <a class="time-line">End of Chapter</a>
+            <div class="f-row">
+                <input class="input-black" type="number" placeholder="Time in minutes" min="0.1" />
+                <a class="btn-round-green">Submit</a>
+            </div>
+            <div class="line"></div>
+            <div class="control-grid">
+                <a class="btn-round-black"><i class="fas fa-minus"></i> 30m</a>
+                <a class="btn-round-black"><i class="fas fa-minus"></i></a>
+                <div class="rate-text"><span cla="sleepTime">1.0x</span></div>
+                <a class="btn-round-black"><i class="fas fa-plus"></i></a>
+                <a class="btn-round-black"><i class="fas fa-plus"></i> 30m</a>
+            </div>
+            <div class="btn-round-black">Cancel</div>
+        </div>
+    </div>
+    <div id="settings" class="fadeout">
+        <div class="setting-box">
+            <div class="t-xs t-white">Player Settings</div>
+            <div class="t-md t-white"><input type="checkbox" />Use chapter track</div>
+            <div class="t-sm t-white">Jump forward amount</div>
+            <select onchange="setForwardJump(this.value)">
+                <option value="10">10 seconds</option>
+                <option value="15">15 seconds</option>
+                <option value="30">30 seconds</option>
+                <option value="60">60 seconds</option>
+                <option value="120">2 minutes</option>
+                <option value="300">5 minutes</option>
+            </select>
+            <div class="t-sm t-white">Jump backward amount</div>
+            <select onchange="setBackwardJump(this.value)">
+                <option value="10">10 seconds</option>
+                <option value="15">15 seconds</option>
+                <option value="30">30 seconds</option>
+                <option value="60">60 seconds</option>
+                <option value="120">2 minutes</option>
+                <option value="300">5 minutes</option>
+            </select>
+            <div class="t-sm t-white">Playback Rate Increment/Decrement Amount</div>
+            <select onchange="setRateInterval(this.value)">
+                <option value="0.1">0.1</option>
+                <option value="0.05">0.05</option>
+            </select>
+        </div>
+    </div>
+    <div id="bookmark" class="fadeout">
+        <div class="bookmark-box">
+            <div class="bookmark-line"><span>1:38:31</span><span>02/07/2025 01:21</span></div>
+            <div class="bookmark-line"><span>1:38:31</span><span>02/07/2025 01:21</span></div>
+            <div class="bookmark-line"><span>1:38:31</span><span>02/07/2025 01:21</span></div>
+            <div class="bookmark-line"><span>1:38:31</span><span>02/07/2025 01:21</span></div>
+            <div class="bookmark-line" style="border-top: 1px solid #ffffff10;">
+                <span id="current-seek">3:40:33</span>
+                <div class="f-row">
+                    <input type="text" class="input-black" />
+                    <a class="btn-round-green"><i class="fas fa-plus"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/player/howler.core.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/player/siriwave.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/player/player.js') }}"></script>
 </body>
-
-<script src="{{ url_for('static', filename='js/libs/underscore-umd-min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/libs/jquery.form.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/details.js') }}"></script>
 
 </html>
