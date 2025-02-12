@@ -43,7 +43,6 @@
             <div style="font-size: 24px;">{{entry.title}}</div>
             <input type="hidden" value="{{ url_for('web.serve_book', book_id=mp3file,book_format=audioformat)}}"
                 id="filename" />
-            <div style="font-size: 18px;">{{ url_for('web.serve_book', book_id=mp3file,book_format=audioformat)}}</div>
             <div style="font-size: 18px;">by {% for author in entry.ordered_authors %}
                 <a
                     href="{{url_for('web.books_list',  data='author', sort_param='stored', book_id=author.id ) }}">{{author.name.replace('|',',')}}</a>
@@ -54,8 +53,6 @@
                 <div style="font-size: 15px; display: grid; grid-template-columns: 100px auto;"><span
                         style="color: #ffffff40;">PUBLISH YEAR</span><span>{{entry.pubdate|formatdate}}</span></div>
                 <div style="font-size: 15px; display: grid; grid-template-columns: 100px auto;"><span
-                        style="color: #ffffff40;">GENRES</span><span>Philosophy, Stoicism</span></div>
-                <div style="font-size: 15px; display: grid; grid-template-columns: 100px auto;"><span
                         style="color: #ffffff40;">TAGS</span><span>{% for tag in entry.tags %}
                         <a href="{{ url_for('web.books_list', data='category', sort_param='stored', book_id=tag.id) }}"
                             role="button">{{tag.name}}</a>
@@ -63,30 +60,11 @@
                 <div style="font-size: 15px; display: grid; grid-template-columns: 100px auto;"><span
                         style="color: #ffffff40;">LANGUAGE</span><span>{% for language in entry.languages
                         %}{{language.language_name}}{% if not loop.last %}, {% endif %}{% endfor %}</span></div>
-                <div style="font-size: 15px; display: grid; grid-template-columns: 100px auto;"><span
-                        style="color: #ffffff40;">DURATION</span><span>DURATION</span></div>
-                <div style="font-size: 15px; display: grid; grid-template-columns: 100px auto;"><span
-                        style="color: #ffffff40;">SIZE</span><span>DURATION</span></div>
-                <div style="font-size: 15px;">This is the second volume of the Letters, Epistles LXVI-XCII. Among the
-                    personalities of the early Roman Empire
-                    there are few who offer to the readers of to-day such dramatic interest as does Lucius Annaeus
-                    Seneca,
-                    the
-                    author
-                    of the Epistles. These letters, written by Seneca towards the end of his life, are all addressed to
-                    his
-                    friend
-                    Lucilius, who, at the time when these letters were written, was a procurator in Sicily. The form of
-                    this
-                    work,
-                    as
-                    Bacon says, is a collection of essays rather than of letters. Summary paraphrased from the
-                    Introduction
-                    in
-                    Volume
-                    1 by Suprad.</div>
-
-                <div class="chapter-lists"></div>
+                
+                <div class="chapter-box">
+                    <div class="chapter-header">Chapters <span class="chapter-count"></span></div>
+                    <div class="chapter-lists"></div>
+                </div>
                 <input type="hidden" value="{{ chapters }}" id="chapters" />
             </div>
         </div>
@@ -124,6 +102,7 @@
                 <div id="bar"></div>
                 <div id="progress"></div>
                 <div id="totalProgress"></div>
+                <div id="chapter-time"></div>
             </div>
 
             <div id="title">

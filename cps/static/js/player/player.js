@@ -7,7 +7,7 @@
  *
  *  MIT License
  */
-
+const jChapters = JSON.parse($('#chapters').val());
 // Cache references to DOM elements.
 var elms = [
     'track',
@@ -66,7 +66,6 @@ var Player = function (playlist) {
             player.skipTo(playlist.indexOf(song));
         };
         list.appendChild(div);
-        // document.getElementById('chapter-lists').appendChild(div);
     });
 };
 Player.prototype = {
@@ -87,7 +86,8 @@ Player.prototype = {
             sound = data.howl;
         } else {
             sound = data.howl = new Howl({
-                src: ['./audio/' + data.file + '.webm', './audio/' + data.file + '.mp3', './audio/' + data.file + '.m4b'],
+                // src: ['./audio/' + data.file + '.webm', './audio/' + data.file + '.mp3', './audio/' + data.file + '.m4b'],
+                src: [$('#filename').val()],
                 html5: true, // Force to HTML5 so that the audio can stream in (best for large files).
                 onplay: function () {
                     // Display the duration.
@@ -136,7 +136,7 @@ Player.prototype = {
         sound.play();
 
         // Update the track display.
-        track.innerHTML = (index + 1) + '. ' + data.title;
+        // track.innerHTML = (index + 1) + '. ' + data.title;
 
         // Show the pause button.
         if (sound.state() === 'loaded') {
@@ -237,7 +237,6 @@ Player.prototype = {
     },
     backward: function () {
         var self = this;
-
         // Get the Howl we want to manipulate.
         var sound = self.playlist[self.index].howl;
         if (sound.playing()) {
@@ -253,7 +252,8 @@ Player.prototype = {
         var sound = self.playlist[self.index].howl;
         // Convert the percent into a seek position.
         if (sound.playing()) {
-            sound.seek(sound.duration() * per);
+            const pos = sound.duration() * per;
+            console.log(sound.seek(pos).play());
         }
     },
 
@@ -289,9 +289,11 @@ Player.prototype = {
         var seek = sound.seek() || 0;
         timer.innerHTML = self.formatTime(Math.round(seek));
         progress.style.width = (((seek / sound.duration()) * 100) || 0) + '%';
-
+        var cur = jChapters.filter(iter => (iter['start_time'] <= seek && iter['end_time'] >= seek))[0]
+        $('#track').text(`${cur['id']}. ${cur['tags']['title']}`);
         // If the sound is still playing, continue stepping.
         if (sound.playing()) {
+            loading.style.display = 'none';
             requestAnimationFrame(self.step.bind(self));
         }
     },
@@ -393,7 +395,31 @@ var player = new Player([
         howl: null
     }
 ]);
+if ($('#chapters').val() !== "") {
 
+    let htmlChapters = "";
+    let htmlTimes = ""
+
+    let total = jChapters[jChapters.length - 1]['end'];
+    $('.chapter-count').text(jChapters.length);
+    jChapters.forEach((iter) => {
+        htmlChapters += `<a class='chapter-line' start-time='${iter['start_time']}' total-time='${jChapters[jChapters.length - 1]['end_time']}'><span>${iter['id']}</span><span>${iter['tags']['title']}</span><span>${formatTime(iter['start_time'])}</span><span>${formatTime(iter['end_time'] - iter['start_time'])}</span></a>`;
+        let per = (iter['end'] - iter['start']) / total;
+        htmlTimes += `<div class='ct-line' style='width:${per * 100}%'></div>`
+    });
+    $('#chapter-time').html(htmlTimes);
+    $('.chapter-lists').html(htmlChapters);
+}
+
+Player.prototype.seektime = function (pos) {
+    let self = this;
+    let sound = self.playlist[self.index].howl;
+    if (sound.playing()) {
+        alert(pos)
+        sound.seek(pos);
+        requestAnimationFrame(self.step.bind(self));
+    }
+}
 // Bind our player controls.
 playBtn.addEventListener('click', function () {
     player.play();
@@ -479,6 +505,12 @@ settings.addEventListener('click', function (event) {
         player.toggleSettings();
     }
 });
+$('.chapter-header').on('click', function () {
+    player.seek(5000);
+});
+$(".chapter-line").on('click', function () {
+    player.seek($(this).attr('start-time')/$(this).attr('total-time'));
+});
 var currentRate = 1;
 var rateInterval = 0.1;
 var forwardJump = 10;
@@ -498,7 +530,9 @@ const playrate = (rate) => {
 const increasePlayrate = () => {
     playrate(Math.min(currentRate + rateInterval, 4));
 }
-
+const seekTime = (pos) => {
+    player.seektime(pos);
+}
 const decreasePlayrate = () => {
     playrate(Math.max(currentRate - rateInterval, 0.5));
 }
