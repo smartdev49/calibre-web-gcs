@@ -1585,8 +1585,7 @@
             // a little hackish: ensure UI updates immediately with current position, even if audio is buffering and hasn't moved there yet.
             if (sound._iO && sound._iO.whileplaying) {
               soundObject._iO.whileplaying.apply(sound);
-            }
-  
+            }  
           }
   
           if (e.preventDefault) {
