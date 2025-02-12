@@ -494,17 +494,14 @@ if ($("#chapters").val() !== "") {
     let total = jChapters[jChapters.length - 1]["end"];
     $(".chapter-count").text(jChapters.length);
     jChapters.forEach(function (iter) {
-        htmlChapters += `<a class='chapter-line' id='chp${
-            iter["id"]
-        }' start-time='${iter["start_time"]}' total-time='${
-            jChapters[jChapters.length - 1]["end_time"]
-        }'><span>${iter["id"]}</span><span>${
-            iter["tags"]["title"]
-        }</span><span>${formatTime(
-            iter["start_time"]
-        )}</span><span>${formatTime(
-            iter["end_time"] - iter["start_time"]
-        )}</span></a>`;
+        htmlChapters += `<a class='chapter-line' id='chp${iter["id"]
+            }' start-time='${iter["start_time"]}' total-time='${jChapters[jChapters.length - 1]["end_time"]
+            }'><span>${iter["id"]}</span><span>${iter["tags"]["title"]
+            }</span><span>${formatTime(
+                iter["start_time"]
+            )}</span><span>${formatTime(
+                iter["end_time"] - iter["start_time"]
+            )}</span></a>`;
         let per = (iter["end"] - iter["start"]) / total;
         htmlTimes += `<div class='ct-line' style='width:${per * 100}%'></div>`;
     });
