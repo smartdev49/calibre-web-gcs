@@ -308,16 +308,21 @@
     </div>
     <div id="bookmark" class="fadeout">
       <div class="bookmark-box">
-        {% for no, item in bookmark: %}
-        <div class="bookmark-line">
-          <span>{{no}}</span><span>{{item.id}} - {{item.bookmark_key}}</span><a></a>
+        <div class="bookmark-lines bookmark-box">
+          {% for no, item in bookmark: %}
+          <div class="bookmark-line">
+            <span>{{no}}</span><span>{{item.id}} - {{item.bookmark_key}}</span
+            ><a>x</a>
+          </div>
+          {% endfor %}
         </div>
-        {% endfor %}
         <div class="bookmark-line" style="border-top: 1px solid #ffffff10">
           <span id="current-seek">3:40:33</span>
           <div class="f-row">
-            <input type="text" class="input-black" />
-            <a class="btn-round-green add-book-mark" bookmark="-1"><i class="fas fa-plus"></i></a>
+            <input type="text" class="input-black" id="bookmark-value" />
+            <a class="btn-round-green add-book-mark"
+              ><i class="fas fa-plus"></i
+            ></a>
           </div>
         </div>
       </div>
