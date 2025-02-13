@@ -5,7 +5,7 @@
  *
  *  MIT License
  */
-console.log(calibre)
+console.log(calibre);
 const jChapters = JSON.parse($("#chapters").val());
 // Cache references to DOM elements.
 var elms = [
@@ -366,6 +366,57 @@ Player.prototype = {
         playbackRate.className = display === "flex" ? "fadein" : "fadeout";
     },
 
+    addBookmark: function (bookmark_key) {
+        let csrf_token = $("input[name='csrf_token']").val();
+        $.ajax(calibre.bookmarkUrl, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrf_token, // Include the CSRF token in the headers
+            },
+            data: { bookmark: bookmark_key },
+            success: (res) => {
+                let html = $(".bookmark-lines").html();
+                let insertHtml =
+                    '<li style="display: flex; justify-content: space-between;">' +
+                    '<a href="#playfrom&' +
+                    bookmark_key +
+                    '" style="width: 100%; color: whitesmoke;">' +
+                    "<b>New &gt;&gt; " +
+                    res +
+                    " : </b> : " +
+                    Math.round(bookmark_key) +
+                    "ms" /* + h + "h " + m +"m " + s + "s" + */ +
+                    "</a>" +
+                    '<a href="#deletebookmark&' +
+                    res +
+                    '" class="remove-bookmark-btn"><b>X</b></a>' +
+                    "</li>";
+                $(".bookmark-lines").html(insertHtml + html);
+            },
+        }).fail(function (xhr, status, error) {
+            console.error(error);
+            console.log("Response:", xhr.responseText);
+        });
+    },
+
+    deleteBookmark: function () {
+        let csrf_token = $("input[name='csrf_token']").val();
+        $.ajax(calibre.deletebookmarkUrl, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrf_token, // Include the CSRF token in the headers
+            },
+            data: { bookmark_id: id },
+            success: () => {
+                if (e.target.parentNode.parentNode.nodeName == "LI")
+                    e.target.parentNode.parentNode.remove();
+            },
+        }).fail(function (xhr, status, error) {
+            console.error(error);
+            console.log("Response:", xhr.responseText);
+        });
+    },
+
     toggleBookmark: function () {
         var self = this;
         var display = bookmark.style.display === "flex" ? "none" : "flex";
@@ -619,6 +670,10 @@ $(".time-line").on("click", function () {
 
 $(".delay-time").on("click", function () {
     player.delayTime($(this).attr("delay-time") * 60);
+});
+
+$('.add-book-mark').on('click', function () {
+    player.addBookmark($('#bookmark-value').value);
 });
 var currentRate = 1;
 var rateInterval = 0.1;
