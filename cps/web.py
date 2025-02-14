@@ -1833,6 +1833,7 @@ def serve_otp():
 @web.route("/book/<int:book_id>")
 @login_required_if_no_ano
 def show_book(book_id):
+    book = calibre_db.session.query(db.Books).filter(db.Books.id == book_id).first()
     entries = calibre_db.get_book_read_archived(book_id, config.config_read_column, allow_show_archived=True)
     print('\n', entries)
     if entries:
@@ -1868,8 +1869,9 @@ def show_book(book_id):
                                      is_xhr=request.headers.get('X-Requested-With') == 'XMLHttpRequest',
                                      title=entry.title,
                                      books_shelfs=book_in_shelves,
-                                    #  wasPaid = wasPaid,
-                                     book_id = book_id,
+                                     book_id = book_id,                                     
+                                    is_owner = True if book.owner == current_user.id else False,
+                                    is_public_book = True if book.owner == 0 else False,
                                      page="book")
     else:
         log.debug("Selected book is unavailable. File does not exist or is not accessible")

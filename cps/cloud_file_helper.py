@@ -365,7 +365,7 @@ def get_full_language_name(language_code):
 
 
 def get_chapters(file_path):
-    """Extract metadata using ffmpeg-python."""
+    print("""Extract metadata using ffmpeg-python.""")
     probe = ffmpeg.probe(file_path, show_chapters=None)
     if 'chapters' in probe:
         return json.dumps(probe['chapters'])

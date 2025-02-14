@@ -570,8 +570,14 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
                     localbook.chapters = cloud_file_helper.get_chapters(original_filepath)
                     cloud_file_helper.upload_from_filename(original_filepath + '_cover.jpg', full_path + "/cover.jpg")
                     localbook.has_cover = 1
-                    
+                print('\n')
+                print('\n')
+                print('before upload.....\n')
                 ret, msg = cloud_file_helper.upload_from_filename(original_filepath, full_path + "/" + db_filename)
+                print(db_filename, '\n')
+                print('\n')
+                print('\n')
+                
             elif type == 1:
                 dir_unicode_title = new_titledir.encode('unicode-escape').decode('ascii')
                 dir_hash = localbook.path.split('_')[-1]
@@ -596,7 +602,7 @@ def move_files_on_change(calibre_path, new_author_dir, new_titledir, localbook, 
         localbook.path = full_path
     except OSError as ex:
         log.error_or_exception("Rename title from {} to {} failed with error: {}".format(path, new_path, ex))
-        return _("Rename title from: '%(src)s' to '%(dest)s' failed with error: %(error)s",
+        return _(": '%(src)s' to '%(dest)s' failed with error: %(error)s",
                  src=path, dest=new_path, error=str(ex))
     return False
 

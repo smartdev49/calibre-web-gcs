@@ -91,7 +91,6 @@ books_publishers_link = Table('books_publishers_link', Base.metadata,
                               Column('publisher', Integer, ForeignKey('publishers.id'), primary_key=True)
                               )
 
-
 class Library_Id(Base):
     __tablename__ = 'library_id'
     id = Column(Integer, primary_key=True)
@@ -401,8 +400,8 @@ class Books(Base):
     publishers = relationship(Publishers, secondary=books_publishers_link, backref='books')
     identifiers = relationship(Identifiers, backref='books')
     
-    # user = relationship
     chapters = Column(Text, default = "")
+    owner = Column(Integer, nullable=false, default=0)
     def __init__(self, title, sort, author_sort, timestamp, pubdate, series_index, last_modified, path, has_cover,
                  authors, tags, languages=None):
         super().__init__()
