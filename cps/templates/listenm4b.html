@@ -98,9 +98,6 @@
                 <div class="btn btn-sm" id="playbackRateBtn">
                     <i class="fas fa-tachometer-alt"></i>
                 </div>
-                <div class="btn btn-sm" id="sleepTimeBtn">
-                    <i class="fas fa-clock"></i>
-                </div>
                 <div class="btn btn-sm" id="settingsBtn">
                     <i class="fas fa-cog"></i>
                 </div>
@@ -129,12 +126,6 @@
                 </div>
             </div>
             <div class="controlsInner" id="control3">
-                <div class="btn btn-sm" id="playlistBtn">
-                    <i class="fas fa-list"></i>
-                </div>
-                <div class="btn btn-sm" id="bookmarkBtn">
-                    <i class="fas fa-bookmark"></i>
-                </div>
                 <div class="btn btn-sm" id="volumeBtn">
                     <i class="fas fa-volume-up"></i>
                 </div>
@@ -155,11 +146,6 @@
                 <div id="duration">0:00</div>
             </div>
         </div>
-    </div>
-
-    <!-- Playlist -->
-    <div id="playlist">
-        <div id="list"></div>
     </div>
 
     <!-- Volume -->
@@ -185,32 +171,7 @@
             </div>
         </div>
     </div>
-    <div id="sleepTime" class="fadeout">
-        <div class="time-box">
-            <a class="time-line" sleep-after="5">5 minutes</a>
-            <a class="time-line" sleep-after="15">15 minutes</a>
-            <a class="time-line" sleep-after="20">20 minutes</a>
-            <a class="time-line" sleep-after="30">30 minutes</a>
-            <a class="time-line" sleep-after="45">45 minutes</a>
-            <a class="time-line" sleep-after="60">1 hours</a>
-            <a class="time-line" sleep-after="90">90 minutes</a>
-            <a class="time-line" sleep-after="120">2 hours</a>
-            <a class="time-line" sleep-after="-1">End of Chapter</a>
-            <div class="f-row">
-                <input class="input-black" type="number" placeholder="Time in minutes" min="0.1" />
-                <a class="btn-round-green">Submit</a>
-            </div>
-            <div class="line"></div>
-            <div class="control-grid">
-                <a class="btn-round-black delay-time" delay-time="-30"><i class="fas fa-minus"></i> 30m</a>
-                <a class="btn-round-black delay-time" delay-time="-5"><i class="fas fa-minus"></i></a>
-                <div class="rate-text"><span class="sleepTime"></span></div>
-                <a class="btn-round-black delay-time" delay-time="5"><i class="fas fa-plus"></i></a>
-                <a class="btn-round-black delay-time" delay-time="30"><i class="fas fa-plus"></i> 30m</a>
-            </div>
-            <div class="btn-round-black" sleep-after="0">Cancel</div>
-        </div>
-    </div>
+
     <div id="settings" class="fadeout">
         <div class="setting-box">
             <div class="t-xs t-white">Player Settings</div>
@@ -242,24 +203,7 @@
             </select>
         </div>
     </div>
-    <div id="bookmark" class="fadeout">
-        <div class="bookmark-box">
-            <div class="bookmark-lines">
-                {% for no, item in bookmark: %}
-                <div class="bookmark-line">
-                    <span>{{no}}</span><span>{{item.id}} - {{item.bookmark_key}}</span><a></a>
-                </div>
-                {% endfor %}
-            </div>
-            <div class="bookmark-line" style="border-top: 1px solid #ffffff10">
-                <span id="current-seek">3:40:33</span>
-                <div class="f-row">
-                    <input type="text" class="input-black" />
-                    <a class="btn-round-green add-book-mark" bookmark="-1"><i class="fas fa-plus"></i></a>
-                </div>
-            </div>
-        </div>
-    </div>
+
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <!-- Scripts -->
     <script>
@@ -267,8 +211,7 @@
             filePath: "{{ url_for('static', filename='js/libs/') }}",
             bookUrl: "{{ url_for('static', filename=mp3file) }}/",
             bookmarkUrl:
-                "{{ url_for('web.add_bookmark', book_id=mp3file, book_format=audioformat.upper()) }}",
-            deletebookmarkUrl: "{{ url_for('web.delete_bookmark')}}",
+                "{{ url_for('web.set_bookmark', book_id=mp3file, book_format=audioformat.upper()) }}",
             bookmark: "{{ bookmark.bookmark_key if bookmark != None }}",
             useBookmarks: "{{ current_user.is_authenticated | tojson }}",
         };

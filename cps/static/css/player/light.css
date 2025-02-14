@@ -685,7 +685,7 @@ select {
 .bookmark-line {
   padding: 18px;
   display: grid;
-  grid-template-columns: 50px auto;
+  grid-template-columns: 50px auto 35px;
   color: white;
   gap: 20px;
   align-items: center;

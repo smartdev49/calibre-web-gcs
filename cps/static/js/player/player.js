@@ -9,21 +9,18 @@ console.log(calibre);
 const jChapters = JSON.parse($("#chapters").val());
 // Cache references to DOM elements.
 var elms = [
-    "track",
-    "timer",
-    "duration",
-    "playBtn",
-    "pauseBtn",
+    "track", // track bar current chapter
+    "timer", // track bar current time
+    "duration", // track bar total time
+    "playBtn", // player play btn
+    "pauseBtn", // player pause btn
     "prevBtn",
     "nextBtn",
-    "playlistBtn",
     "volumeBtn",
     "progress",
     "bar",
     "wave",
     "loading",
-    "playlist",
-    "list",
     "volume",
     "barEmpty",
     "barFull",
@@ -31,14 +28,10 @@ var elms = [
     "forwardBtn",
     "backwardBtn",
     "totalProgress",
-    "bookmarkBtn",
-    "bookmark",
     "playbackRate",
     "playbackRateBtn",
     "settings",
     "settingsBtn",
-    "sleepTime",
-    "sleepTimeBtn",
 ];
 elms.forEach(function (elm) {
     window[elm] = document.getElementById(elm);
@@ -49,113 +42,113 @@ elms.forEach(function (elm) {
  * Includes all methods for playing, skipping, updating the display, etc.
  * @param {Array} playlist Array of objects with playlist song details ({title, file, howl}).
  */
-var Player = function (playlist) {
-    this.playlist = playlist;
+const Player = function (src, chapters, bookmark) {
+    console.log(chapters);
+    this.src = src;
+    this.chapters = chapters;
+    this.bookmark = bookmark;
+    this.howl = null;
     this.index = 0;
-    this.sleepTime = -1; // Stoped
     this.timer = null;
-    // Display the title of the first track.
-    // Display the title of the first track.
-    track.innerHTML = "1. " + jChapters[0]["tags"]["title"];
-
-    // Setup the playlist display.
-    jChapters.forEach(function (iter) {
-        var div = document.createElement("div");
-        div.className = "list-song";
-        div.innerHTML = iter["tags"]["title"];
-        div.onclick = function () {
-            seekTime(iter["start_time"]);
-        };
-        list.appendChild(div);
-    });
+    track.innerHTML = "1. " + this.chapters[0]["tags"]["title"];
+    this.init();
 };
 Player.prototype = {
     /**
      * Play a song in the playlist.
      * @param  {Number} index Index of the song in the playlist (leave empty to play the first or current).
      */
-    play: function (index) {
+    init: function () {
         var self = this;
-        var sound;
+        self.howl = new Howl({
+            src: [self.src],
+            html5: true, // Force to HTML5 so that the audio can stream in (best for large files).
+            preload: true,
+            onplay: function () {
+                // Display the duration.
+                duration.innerHTML = self.formatTime(
+                    Math.round(self.howl.duration())
+                );
 
-        index = typeof index === "number" ? index : self.index;
-        var data = self.playlist[index];
+                // Start updating the progress of the track.
+                requestAnimationFrame(self.step.bind(self));
 
-        // If we already loaded this track, use the current one.
-        // Otherwise, setup and load a new Howl.
-        if (data.howl) {
-            sound = data.howl;
-        } else {
-            sound = data.howl = new Howl({
-                // src: ['./audio/' + data.file + '.webm', './audio/' + data.file + '.mp3', './audio/' + data.file + '.m4b'],
-                src: [$("#filename").val()],
-                html5: true, // Force to HTML5 so that the audio can stream in (best for large files).
-                preload: true,
-                onplay: function () {
-                    // Display the duration.
-                    duration.innerHTML = self.formatTime(
-                        Math.round(sound.duration())
-                    );
+                // Start the wave animation if we have already loaded
+                wave.container.style.display = "flex";
+                bar.style.display = "none";
+                pauseBtn.style.display = "flex";
+            },
+            onload: function () {
+                // Start the wave animation.
+                wave.container.style.display = "flex";
+                bar.style.display = "none";
+                loading.style.display = "none";
+                self.howl.seek(calibre.bookmark ? calibre.bookmark : 0);
+            },
+            onend: function () {
+                // Stop the wave animation.
+                wave.container.style.display = "none";
+                bar.style.display = "flex";
 
-                    // Start updating the progress of the track.
-                    requestAnimationFrame(self.step.bind(self));
-
-                    // Start the wave animation if we have already loaded
-                    wave.container.style.display = "flex";
-                    bar.style.display = "none";
-                    pauseBtn.style.display = "flex";
-                },
-                onload: function () {
-                    // Start the wave animation.
-                    wave.container.style.display = "flex";
-                    bar.style.display = "none";
-                    loading.style.display = "none";
-                },
-                onend: function () {
-                    // Stop the wave animation.
-                    wave.container.style.display = "none";
-                    bar.style.display = "flex";
-
-                    loading.style.display = "none";
-                    self.skip("next");
-                },
-                onpause: function () {
-                    // Stop the wave animation.
-                    wave.container.style.display = "none";
-                    bar.style.display = "flex";
-                },
-                onstop: function () {
-                    // Stop the wave animation.
-                    wave.container.style.display = "none";
-                    bar.style.display = "flex";
-                },
-                onseek: function () {
-                    // Start updating the progress of the track.
-                    requestAnimationFrame(self.step.bind(self));
-                },
-            });
-        }
-
+                loading.style.display = "none";
+                self.skip("next");
+            },
+            onpause: function () {
+                // Stop the wave animation.
+                wave.container.style.display = "none";
+                bar.style.display = "flex";
+            },
+            onstop: function () {
+                // Stop the wave animation.
+                wave.container.style.display = "none";
+                bar.style.display = "flex";
+            },
+            onseek: function () {
+                // Start updating the progress of the track.
+                requestAnimationFrame(self.step.bind(self));
+            },
+        });
+    },
+    play: function () {
+        var self = this;
         // Begin playing the sound.
-        sound.play();
-
+        self.howl.play();
         // Update the track display.
         // track.innerHTML = (index + 1) + '. ' + data.title;
 
         // Show the pause button.
-        if (sound.state() === "loaded") {
+        if (self.howl.state() === "loaded") {
             playBtn.style.display = "none";
             pauseBtn.style.display = "flex";
         } else {
             loading.style.display = "flex";
             playBtn.style.display = "none";
             pauseBtn.style.display = "none";
-        }
-
+        }        
+                
+        self.timer = setInterval(self.timeout.bind(self), 1000);
         // Keep track of the index we are currently playing.
-        self.index = index;
+        self.index = 0;
     },
+    timeout: function () {
+        var self = this;
+        let csrf_token = $("input[name='csrf_token']").val();
+        console.log(self.src)
+        var sound = self.howl;
+        if (sound.playing()) {
+            $.ajax(calibre.bookmarkUrl, {
+                method: "POST",
 
+                headers: {
+                    "X-CSRFToken": csrf_token, // Include the CSRF token in the headers
+                },
+                data: { bookmark: sound.seek() },
+            }).fail(function (xhr, status, error) {
+                console.error(error);
+                console.log("Response:", xhr.responseText);
+            });
+        }
+    },
     /**
      * Pause the currently playing track.
      */
@@ -163,7 +156,7 @@ Player.prototype = {
         var self = this;
 
         // Get the Howl we want to manipulate.
-        var sound = self.playlist[self.index].howl;
+        var sound = self.howl;
 
         // Puase the sound.
         sound.pause();
@@ -232,10 +225,11 @@ Player.prototype = {
         sliderBtn.style.left =
             window.innerWidth * barWidth + window.innerWidth * 0.05 - 25 + "px";
     },
+
     forward: function () {
         var self = this;
         // Get the Howl we want to manipulate.
-        var sound = self.playlist[self.index].howl;
+        var sound = self.howl;
         if (sound.playing()) {
             sound.seek(Math.min(sound.seek() + forwardJump, sound.duration()));
         }
@@ -243,7 +237,7 @@ Player.prototype = {
     backward: function () {
         var self = this;
         // Get the Howl we want to manipulate.
-        var sound = self.playlist[self.index].howl;
+        var sound = self.howl;
         if (sound.playing()) {
             sound.seek(Math.max(sound.seek() - backwardJumb, 0));
         }
@@ -254,7 +248,7 @@ Player.prototype = {
      */
     seek: function (per) {
         var self = this;
-        var sound = self.playlist[self.index].howl;
+        var sound = self.howl;
         // Convert the percent into a seek position.
         if (sound.playing()) {
             const pos = sound.duration() * per;
@@ -264,7 +258,7 @@ Player.prototype = {
 
     curSeek: function () {
         var self = this;
-        var sound = self.playlist[self.index].howl;
+        var sound = self.howl;
         // Convert the percent into a seek position.
         if (sound.playing()) {
             return sound.seek();
@@ -274,7 +268,7 @@ Player.prototype = {
 
     playRate: function (rate) {
         var self = this;
-        var sound = self.playlist[self.index].howl;
+        var sound = self.howl;
         if (sound !== null) {
             sound.rate(rate);
             return true;
@@ -288,7 +282,7 @@ Player.prototype = {
         var self = this;
 
         // Get the Howl we want to manipulate.
-        var sound = self.playlist[self.index].howl;
+        var sound = self.howl;
 
         // Determine our current seek position.
         var seek = sound.seek() || 0;
@@ -302,28 +296,8 @@ Player.prototype = {
         if (sound.playing()) {
             loading.style.display = "none";
             requestAnimationFrame(self.step.bind(self));
-            if (self.sleepTime == 0) {
-                sound.pause();
-                self.sleepTime = -1;
-            }
         }
     },
-    /**
-     * Toggle the playlist display on/off.
-     */
-    togglePlaylist: function () {
-        var self = this;
-        var display = playlist.style.display === "flex" ? "none" : "flex";
-
-        setTimeout(
-            function () {
-                playlist.style.display = display;
-            },
-            display === "flex" ? 0 : 500
-        );
-        playlist.className = display === "flex" ? "fadein" : "fadeout";
-    },
-
     /**
      * Toggle the volume display on/off.
      */
@@ -368,79 +342,41 @@ Player.prototype = {
 
     addBookmark: function (bookmark_key) {
         let csrf_token = $("input[name='csrf_token']").val();
+        console.log(
+            "csrf_token",
+            csrf_token,
+            calibre.bookmarkUrl,
+            bookmark_key
+        );
         $.ajax(calibre.bookmarkUrl, {
             method: "POST",
             headers: {
                 "X-CSRFToken": csrf_token, // Include the CSRF token in the headers
             },
-            data: { bookmark: bookmark_key },
+            data: { bookmark: Math.round(bookmark_key) },
             success: (res) => {
                 let html = $(".bookmark-lines").html();
                 let insertHtml =
-                    '<li style="display: flex; justify-content: space-between;">' +
-                    '<a href="#playfrom&' +
-                    bookmark_key +
-                    '" style="width: 100%; color: whitesmoke;">' +
-                    "<b>New &gt;&gt; " +
+                    '<div class="bookmark-line" bookmar-id="' +
                     res +
-                    " : </b> : " +
+                    '">' +
+                    "<span>New</span>" +
+                    `<a class="play-bookmark-btn" bookmark-key="${Math.round(
+                        bookmark_key
+                    )}">` +
                     Math.round(bookmark_key) +
                     "ms" /* + h + "h " + m +"m " + s + "s" + */ +
                     "</a>" +
-                    '<a href="#deletebookmark&' +
+                    '<a class="remove-bookmark-btn" bookmark-id="' +
                     res +
-                    '" class="remove-bookmark-btn"><b>X</b></a>' +
-                    "</li>";
+                    '"><i class="fas fa-times"></i></a>' +
+                    "</div>";
                 $(".bookmark-lines").html(insertHtml + html);
             },
         }).fail(function (xhr, status, error) {
             console.error(error);
             console.log("Response:", xhr.responseText);
         });
-    },
-
-    deleteBookmark: function () {
-        let csrf_token = $("input[name='csrf_token']").val();
-        $.ajax(calibre.deletebookmarkUrl, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": csrf_token, // Include the CSRF token in the headers
-            },
-            data: { bookmark_id: id },
-            success: () => {
-                if (e.target.parentNode.parentNode.nodeName == "LI")
-                    e.target.parentNode.parentNode.remove();
-            },
-        }).fail(function (xhr, status, error) {
-            console.error(error);
-            console.log("Response:", xhr.responseText);
-        });
-    },
-
-    toggleBookmark: function () {
-        var self = this;
-        var display = bookmark.style.display === "flex" ? "none" : "flex";
-
-        setTimeout(
-            function () {
-                bookmark.style.display = display;
-            },
-            display === "flex" ? 0 : 500
-        );
-        bookmark.className = display === "flex" ? "fadein" : "fadeout";
-    },
-
-    togglesleepTime: function () {
-        var self = this;
-        var display = sleepTime.style.display === "flex" ? "none" : "flex";
-
-        setTimeout(
-            function () {
-                sleepTime.style.display = display;
-            },
-            display === "flex" ? 0 : 500
-        );
-        sleepTime.className = display === "flex" ? "fadein" : "fadeout";
     },
 
     /**
@@ -470,41 +406,6 @@ Player.prototype = {
             seconds
         );
     },
-    sleepAfter: function (secs) {
-        var self = this;
-        var sound = self.playlist[self.index].howl;
-        if (self.timer) clearInterval(self.timer);
-        // Convert the percent into a seek position.
-        if (sound.playing()) {
-            console.log("sec", secs);
-            if (secs < 0) {
-                self.sleepTime = sound.duration() - sound.seek();
-            } else {
-                self.sleepTime = Math.max(
-                    0,
-                    Math.min(secs, sound.duration() - sound.seek())
-                );
-            }
-            self.timer = setInterval(function () {
-                self.sleepTime = self.sleepTime - 1;
-                $(".sleepTime").text(formatTime(self.sleepTime));
-                if (self.sleepTime <= 0) {
-                    clearInterval(self.timer);
-                    self.timer = null;
-                }
-            }, 1000);
-        }
-    },
-    delayTime: function (secs) {
-        var self = this;
-        var sound = self.playlist[self.index].howl;
-        if (sound.playing()) {
-            self.sleepTime = Math.max(
-                0,
-                Math.min(self.sleepTime + secs, sound.duration() - sound.seek())
-            );
-        }
-    },
 };
 
 const formatTime = (secs) => {
@@ -531,13 +432,7 @@ const formatTime = (secs) => {
 };
 
 // Setup our new audio player class and pass it the playlist.
-var player = new Player([
-    {
-        title: "Rave Digger",
-        file: "rave_digger",
-        howl: null,
-    },
-]);
+var player = new Player($("#filename").val(), jChapters, calibre.bookmark);
 if ($("#chapters").val() !== "") {
     let htmlChapters = "";
     let htmlTimes = "";
@@ -545,14 +440,17 @@ if ($("#chapters").val() !== "") {
     let total = jChapters[jChapters.length - 1]["end"];
     $(".chapter-count").text(jChapters.length);
     jChapters.forEach(function (iter) {
-        htmlChapters += `<a class='chapter-line' id='chp${iter["id"]
-            }' start-time='${iter["start_time"]}' total-time='${jChapters[jChapters.length - 1]["end_time"]
-            }'><span>${iter["id"]}</span><span>${iter["tags"]["title"]
-            }</span><span>${formatTime(
-                iter["start_time"]
-            )}</span><span>${formatTime(
-                iter["end_time"] - iter["start_time"]
-            )}</span></a>`;
+        htmlChapters += `<a class='chapter-line' id='chp${
+            iter["id"]
+        }' start-time='${iter["start_time"]}' total-time='${
+            jChapters[jChapters.length - 1]["end_time"]
+        }'><span>${iter["id"]}</span><span>${
+            iter["tags"]["title"]
+        }</span><span>${formatTime(
+            iter["start_time"]
+        )}</span><span>${formatTime(
+            iter["end_time"] - iter["start_time"]
+        )}</span></a>`;
         let per = (iter["end"] - iter["start"]) / total;
         htmlTimes += `<div class='ct-line' style='width:${per * 100}%'></div>`;
     });
@@ -590,12 +488,6 @@ nextBtn.addEventListener("click", function () {
 totalProgress.addEventListener("click", function (event) {
     player.seek(event.clientX / window.innerWidth);
 });
-playlistBtn.addEventListener("click", function () {
-    player.togglePlaylist();
-});
-playlist.addEventListener("click", function () {
-    player.togglePlaylist();
-});
 volumeBtn.addEventListener("click", function () {
     player.toggleVolume();
 });
@@ -619,25 +511,6 @@ volume.addEventListener("mouseup", function () {
 });
 volume.addEventListener("touchend", function () {
     window.sliderDown = false;
-});
-bookmarkBtn.addEventListener("click", function () {
-    document.getElementById("current-seek").innerText = player.formatTime(
-        Math.round(player.curSeek())
-    );
-    player.toggleBookmark();
-});
-bookmark.addEventListener("click", function (event) {
-    if (event.target === bookmark) {
-        player.toggleBookmark();
-    }
-});
-sleepTimeBtn.addEventListener("click", function () {
-    player.togglesleepTime();
-});
-sleepTime.addEventListener("click", function (event) {
-    if (event.target === sleepTime) {
-        player.togglesleepTime();
-    }
 });
 playbackRateBtn.addEventListener("click", function () {
     player.toggleplaybackRate();
@@ -664,17 +537,7 @@ jChapters.forEach(function (iter) {
         player.seek($(this).attr("start-time") / $(this).attr("total-time"));
     });
 });
-$(".time-line").on("click", function () {
-    player.sleepAfter($(this).attr("sleep-after") * 60);
-});
 
-$(".delay-time").on("click", function () {
-    player.delayTime($(this).attr("delay-time") * 60);
-});
-
-$('.add-book-mark').on('click', function () {
-    player.addBookmark($('#bookmark-value').value);
-});
 var currentRate = 1;
 var rateInterval = 0.1;
 var forwardJump = 10;
@@ -751,7 +614,7 @@ var resize = function () {
     // wave.container.style.margin = -(height / 2) + 'px auto';
 
     // Update the position of the slider.
-    var sound = player.playlist[player.index].howl;
+    var sound = player.howl;
     if (sound) {
         var vol = sound.volume();
         var barWidth = vol * 0.9;

@@ -1672,7 +1672,7 @@ def read_book(book_id, book_format):
         for fileExt in constants.EXTENSIONS_AUDIO:
             bookmarks = ub.session.query(ub.Bookmark).filter(and_(ub.Bookmark.user_id == int(current_user.id),
                                                              ub.Bookmark.book_id == book_id,
-                                                             ub.Bookmark.format == book_format.upper()))
+                                                             ub.Bookmark.format == book_format.upper())).first()
             bookmarklist = list(enumerate(bookmarks, start=1))
 
             if book_format.lower() == fileExt:
