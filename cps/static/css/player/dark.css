@@ -111,8 +111,7 @@ body {
 .controlsOuter {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  justify-content: ce;
+  justify-content: center;
   align-items: end;
   gap: 2vw;
   flex-wrap: wrap;
@@ -739,4 +738,29 @@ select {
 .ct-line {
   border-right: 1px solid #fff;
   height: 3px;
+}
+
+a.link {
+  color: purple;
+}
+
+a.link:visited {
+  color: white; /* Change the color of visited links */
+  text-decoration: none; /* Remove underline from visited links */
+}
+
+.book-title {
+  color: #FFFFFF;
+}
+
+span {
+  color: white;
+}
+
+.author {
+  color: #2C2D3A;
+}
+
+.pre-tag {
+  color: #FFFFFF8F;
 }

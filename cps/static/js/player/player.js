@@ -1,11 +1,4 @@
-/*!
- *
- *  (c) 2013-2020, James Simpson of GoldFire Studios
- *  goldfirestudios.com
- *
- *  MIT License
- */
-console.log(calibre);
+
 const jChapters = JSON.parse($("#chapters").val());
 // Cache references to DOM elements.
 var elms = [
@@ -43,7 +36,6 @@ elms.forEach(function (elm) {
  * @param {Array} playlist Array of objects with playlist song details ({title, file, howl}).
  */
 const Player = function (src, chapters, bookmark) {
-    console.log(chapters);
     this.src = src;
     this.chapters = chapters;
     this.bookmark = bookmark;
@@ -58,6 +50,16 @@ Player.prototype = {
      * Play a song in the playlist.
      * @param  {Number} index Index of the song in the playlist (leave empty to play the first or current).
      */
+    updateIndexBasedOnPosition: function (position) {
+        var self = this;
+        const foundChapter = self.chapters.find(chapter => 
+            Number(chapter['start_time']) < self.bookmark && Number(chapter['end_time']) > self.bookmark
+        );
+        if (foundChapter) {
+            self.index = foundChapter['id'];
+        }
+        return self.index;
+    },
     init: function () {
         var self = this;
         self.howl = new Howl({
@@ -83,7 +85,8 @@ Player.prototype = {
                 wave.container.style.display = "flex";
                 bar.style.display = "none";
                 loading.style.display = "none";
-                self.howl.seek(calibre.bookmark ? calibre.bookmark : 0);
+                self.howl.seek(calibre.bookmark ? calibre.bookmark : 0);                
+                self.updateIndexBasedOnPosition(self.howl.seek());
             },
             onend: function () {
                 // Stop the wave animation.
@@ -105,6 +108,7 @@ Player.prototype = {
             },
             onseek: function () {
                 // Start updating the progress of the track.
+                
                 requestAnimationFrame(self.step.bind(self));
             },
         });
@@ -124,18 +128,16 @@ Player.prototype = {
             loading.style.display = "flex";
             playBtn.style.display = "none";
             pauseBtn.style.display = "none";
-        }        
-                
+        }                
         self.timer = setInterval(self.timeout.bind(self), 1000);
         // Keep track of the index we are currently playing.
-        self.index = 0;
     },
     timeout: function () {
         var self = this;
         let csrf_token = $("input[name='csrf_token']").val();
-        console.log(self.src)
         var sound = self.howl;
-        if (sound.playing()) {
+        if (sound.playing()) {            
+            requestAnimationFrame(self.step.bind(self));
             $.ajax(calibre.bookmarkUrl, {
                 method: "POST",
 
@@ -144,7 +146,6 @@ Player.prototype = {
                 },
                 data: { bookmark: sound.seek() },
             }).fail(function (xhr, status, error) {
-                console.error(error);
                 console.log("Response:", xhr.responseText);
             });
         }
@@ -178,15 +179,14 @@ Player.prototype = {
         if (direction === "prev") {
             index = self.index - 1;
             if (index < 0) {
-                index = self.playlist.length - 1;
+                self.index = self.chapters.length - 1;
             }
         } else {
             index = self.index + 1;
-            if (index >= self.playlist.length) {
-                index = 0;
+            if (index >= self.chapters.length) {
+                self.index = 0;
             }
         }
-
         self.skipTo(index);
     },
 
@@ -198,15 +198,14 @@ Player.prototype = {
         var self = this;
 
         // Stop the current track.
-        if (self.playlist[self.index].howl) {
-            self.playlist[self.index].howl.stop();
+        if (self.howl) {
+            // Reset progress.
+            progress.style.width = "0%";
+    
+            // Play the new track.
+            self.howl.seek(self.chapters[index]['start_time']);
         }
-
-        // Reset progress.
-        progress.style.width = "0%";
-
-        // Play the new track.
-        self.play(index);
+        self.play();
     },
 
     /**
@@ -280,22 +279,17 @@ Player.prototype = {
      */
     step: function () {
         var self = this;
-
-        // Get the Howl we want to manipulate.
         var sound = self.howl;
-
         // Determine our current seek position.
         var seek = sound.seek() || 0;
         timer.innerHTML = self.formatTime(Math.round(seek));
         progress.style.width = ((seek / sound.duration()) * 100 || 0) + "%";
-        var cur = jChapters.filter(
-            (iter) => iter["start_time"] <= seek && iter["end_time"] >= seek
-        )[0];
-        $("#track").text(`${cur["id"]}. ${cur["tags"]["title"]}`);
+        self.index = self.updateIndexBasedOnPosition(seek)
+        $("#track").text(`${self.index}. ${self.chapters[self.index]["tags"]["title"]}`);
         // If the sound is still playing, continue stepping.
         if (sound.playing()) {
             loading.style.display = "none";
-            requestAnimationFrame(self.step.bind(self));
+            // requestAnimationFrame(self.step.bind(self));
         }
     },
     /**
@@ -338,45 +332,6 @@ Player.prototype = {
             display === "flex" ? 0 : 500
         );
         playbackRate.className = display === "flex" ? "fadein" : "fadeout";
-    },
-
-    addBookmark: function (bookmark_key) {
-        let csrf_token = $("input[name='csrf_token']").val();
-        console.log(
-            "csrf_token",
-            csrf_token,
-            calibre.bookmarkUrl,
-            bookmark_key
-        );
-        $.ajax(calibre.bookmarkUrl, {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": csrf_token, // Include the CSRF token in the headers
-            },
-            data: { bookmark: Math.round(bookmark_key) },
-            success: (res) => {
-                let html = $(".bookmark-lines").html();
-                let insertHtml =
-                    '<div class="bookmark-line" bookmar-id="' +
-                    res +
-                    '">' +
-                    "<span>New</span>" +
-                    `<a class="play-bookmark-btn" bookmark-key="${Math.round(
-                        bookmark_key
-                    )}">` +
-                    Math.round(bookmark_key) +
-                    "ms" /* + h + "h " + m +"m " + s + "s" + */ +
-                    "</a>" +
-                    '<a class="remove-bookmark-btn" bookmark-id="' +
-                    res +
-                    '"><i class="fas fa-times"></i></a>' +
-                    "</div>";
-                $(".bookmark-lines").html(insertHtml + html);
-            },
-        }).fail(function (xhr, status, error) {
-            console.error(error);
-            console.log("Response:", xhr.responseText);
-        });
     },
 
     /**
@@ -533,7 +488,6 @@ $(".chapter-header").on("click", function () {
 });
 jChapters.forEach(function (iter) {
     $(`#chp${iter["id"]}`).on("click", function () {
-        console.log(`#chp${iter["id"]}`);
         player.seek($(this).attr("start-time") / $(this).attr("total-time"));
     });
 });

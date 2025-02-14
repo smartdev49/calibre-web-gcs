@@ -156,20 +156,39 @@ def get_email_status_json():
 @user_login_required
 def set_bookmark(book_id, book_format):
     bookmark_key = request.form["bookmark"]
-    ub.session.query(ub.Bookmark).filter(and_(ub.Bookmark.user_id == int(current_user.id),
-                                              ub.Bookmark.book_id == book_id,
-                                              ub.Bookmark.format == book_format)).first()
+    
+    # Check if a bookmark already exists for this user and book
+    existing_bookmark = ub.session.query(ub.Bookmark).filter(
+        ub.Bookmark.user_id == int(current_user.id),
+        ub.Bookmark.book_id == book_id,
+        ub.Bookmark.format == book_format
+    ).first()
+    
     if not bookmark_key:
-        ub.session_commit()
-        return "", 204
+        if existing_bookmark:
+            # If no bookmark key is provided and a bookmark exists, delete it
+            ub.session.delete(existing_bookmark)
+            ub.session_commit()
+            return "", 204  # No Content
+        else:
+            return "", 400  # Bad Request, no bookmark key provided
 
-    l_bookmark = ub.Bookmark(user_id=current_user.id,
-                             book_id=book_id,
-                             format=book_format,
-                             bookmark_key=bookmark_key)
-    ub.session.merge(l_bookmark)
-    ub.session_commit("Bookmark for user {} in book {} created".format(current_user.id, book_id))
-    return "", 201
+    if existing_bookmark:
+        # Update the existing bookmark with the new bookmark key
+        existing_bookmark.bookmark_key = bookmark_key
+        ub.session.commit()
+        return "", 200  # OK, updated existing bookmark
+    else:
+        # Create a new bookmark if it doesn't exist
+        new_bookmark = ub.Bookmark(
+            user_id=current_user.id,
+            book_id=book_id,
+            format=book_format,
+            bookmark_key=bookmark_key
+        )
+        ub.session.add(new_bookmark)
+        ub.session_commit("Bookmark for user {} in book {} created".format(current_user.id, book_id))
+        return "", 201  # Created
 
 @web.route("/ajax/addbookmark/<int:book_id>/<book_format>", methods=['POST'])
 @user_login_required
@@ -1670,10 +1689,10 @@ def read_book(book_id, book_format):
                                      extension=book_format.lower())
     else:
         for fileExt in constants.EXTENSIONS_AUDIO:
-            bookmarks = ub.session.query(ub.Bookmark).filter(and_(ub.Bookmark.user_id == int(current_user.id),
-                                                             ub.Bookmark.book_id == book_id,
-                                                             ub.Bookmark.format == book_format.upper())).first()
-            bookmarklist = list(enumerate(bookmarks, start=1))
+            # bookmarks = ub.session.query(ub.Bookmark).filter(and_(ub.Bookmark.user_id == int(current_user.id),
+            #                                                  ub.Bookmark.book_id == book_id,
+            #                                                  ub.Bookmark.format == book_format.upper())).first()
+            # bookmarklist = list(enumerate(bookmarks, start=1))
 
             if book_format.lower() == fileExt:
                 # entries = calibre_db.get_filtered_book(book_id)
@@ -1695,7 +1714,7 @@ def read_book(book_id, book_format):
                                                 mp3file=book_id, 
                                                 audioformat=book_format.lower(),
                                                 entry=entry, 
-                                                bookmark=bookmarklist, 
+                                                bookmark=bookmark, 
                                                 books_shelfs=book_in_shelves,
                                                 chapters=book.chapters,
                                                 is_xhr=request.headers.get('X-Requested-With') == 'XMLHttpRequest',
