@@ -231,7 +231,9 @@ Player.prototype = {
         // Get the Howl we want to manipulate.
         var sound = self.howl;
         if (sound.playing()) {
+            
             sound.seek(Math.min(sound.seek() + forwardJump, sound.duration()));
+            this.index = self.updateIndexBasedOnPosition(sound.seek())
         }
     },
     backward: function () {
@@ -240,6 +242,7 @@ Player.prototype = {
         var sound = self.howl;
         if (sound.playing()) {
             sound.seek(Math.max(sound.seek() - backwardJumb, 0));
+            this.index = self.updateIndexBasedOnPosition(sound.seek())
         }
     },
     /**
@@ -253,6 +256,7 @@ Player.prototype = {
         if (sound.playing()) {
             const pos = sound.duration() * per;
             sound.seek(pos).play();
+            this.index = self.updateIndexBasedOnPosition(sound.seek())
         }
     },
 
@@ -285,7 +289,7 @@ Player.prototype = {
         var seek = sound.seek() || 0;
         timer.innerHTML = self.formatTime(Math.round(seek));
         progress.style.width = ((seek / sound.duration()) * 100 || 0) + "%";
-        // self.index = self.updateIndexBasedOnPosition(seek)
+        // this.index = self.updateIndexBasedOnPosition(seek)
         $("#track").text(`${self.index}. ${self.chapters[self.index]["tags"]["title"]}`);
         // If the sound is still playing, continue stepping.
         if (sound.playing()) {
@@ -420,6 +424,7 @@ Player.prototype.seektime = function (pos) {
     let sound = self.playlist[self.index].howl;
     if (sound.playing()) {
         sound.seek(pos);
+        this.index = self.updateIndexBasedOnPosition(sound.seek())
         requestAnimationFrame(self.step.bind(self));
     }
 };
