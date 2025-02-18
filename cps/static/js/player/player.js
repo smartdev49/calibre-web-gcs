@@ -294,7 +294,8 @@ Player.prototype = {
         // If the sound is still playing, continue stepping.
         if (sound.playing()) {
             loading.style.display = "none";
-            // requestAnimationFrame(self.step.bind(self));
+            // requestAnimationFrame(self.step.bind(self));            
+            this.index = self.updateIndexBasedOnPosition(seek)
         }
         // console.log("step: index => ", self.index);
     },
