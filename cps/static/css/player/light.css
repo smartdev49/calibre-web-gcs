@@ -676,7 +676,7 @@ select {
 }
 
 .ct-line {
-  border-right: 1px solid #fff;
+  border-right: 1px solid #000;
   height: 3px;
 }
 

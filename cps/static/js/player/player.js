@@ -179,12 +179,12 @@ Player.prototype = {
         if (direction === "prev") {
             index = self.index - 1;
             if (index < 0) {
-                self.index = self.chapters.length - 1;
+                index = self.chapters.length - 1;
             }
         } else {
             index = self.index + 1;
             if (index >= self.chapters.length) {
-                self.index = 0;
+                index = 0;
             }
         }
         self.skipTo(index);
@@ -196,13 +196,14 @@ Player.prototype = {
      */
     skipTo: function (index) {
         var self = this;
-
+        // console.log("index:", index)
         // Stop the current track.
         if (self.howl) {
             // Reset progress.
             progress.style.width = "0%";
-    
+            this.index = index;
             // Play the new track.
+            // console.log(self.index)
             self.howl.seek(self.chapters[index]['start_time']);
         }
         self.play();
@@ -219,7 +220,7 @@ Player.prototype = {
         Howler.volume(val);
 
         // Update the display on the slider.
-        var barWidth = (val * 90) / 100;
+        var barWidth = val;
         barFull.style.width = barWidth * 100 + "%";
         sliderBtn.style.left =
             window.innerWidth * barWidth + window.innerWidth * 0.05 - 25 + "px";
@@ -284,13 +285,14 @@ Player.prototype = {
         var seek = sound.seek() || 0;
         timer.innerHTML = self.formatTime(Math.round(seek));
         progress.style.width = ((seek / sound.duration()) * 100 || 0) + "%";
-        self.index = self.updateIndexBasedOnPosition(seek)
+        // self.index = self.updateIndexBasedOnPosition(seek)
         $("#track").text(`${self.index}. ${self.chapters[self.index]["tags"]["title"]}`);
         // If the sound is still playing, continue stepping.
         if (sound.playing()) {
             loading.style.display = "none";
             // requestAnimationFrame(self.step.bind(self));
         }
+        // console.log("step: index => ", self.index);
     },
     /**
      * Toggle the volume display on/off.
@@ -441,7 +443,9 @@ nextBtn.addEventListener("click", function () {
     player.skip("next");
 });
 totalProgress.addEventListener("click", function (event) {
-    player.seek(event.clientX / window.innerWidth);
+    player.seek(event.offsetX / event.target.clientWidth);
+    console.log("X: ", event.clientX)
+    console.log("width: ", event.target.clientWidth)
 });
 volumeBtn.addEventListener("click", function () {
     player.toggleVolume();
@@ -525,12 +529,12 @@ const setRateInterval = (val) => {
 
 var move = function (event) {
     if (window.sliderDown) {
-        var x = event.clientX || event.touches[0].clientX;
-        var startX = window.innerWidth * 0.05;
-        var layerX = x - startX;
+        var x = event.offsetX || event.touches[0].offsetX;
+        // var startX = window.innerWidth * 0.05;
+        var layerX = x;
         var per = Math.min(
             1,
-            Math.max(0, layerX / parseFloat(barEmpty.scrollWidth))
+            Math.max(0, layerX / parseFloat(event.target.width))
         );
         player.volume(per);
     }
