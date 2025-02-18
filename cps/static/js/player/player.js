@@ -52,13 +52,13 @@ Player.prototype = {
      */
     updateIndexBasedOnPosition: function (position) {
         var self = this;
-        const foundChapter = self.chapters.find(chapter => 
-            Number(chapter['start_time']) < self.bookmark && Number(chapter['end_time']) > self.bookmark
+        var foundChapter = self.chapters.find(chapter => 
+            chapter['start_time'] <= position && chapter['end_time'] > position
         );
         if (foundChapter) {
-            self.index = foundChapter['id'];
+            this.index = foundChapter['id'];
         }
-        return self.index;
+        return this.index;
     },
     init: function () {
         var self = this;
