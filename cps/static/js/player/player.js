@@ -1,4 +1,3 @@
-
 const jChapters = JSON.parse($("#chapters").val());
 // Cache references to DOM elements.
 var elms = [
@@ -52,11 +51,13 @@ Player.prototype = {
      */
     updateIndexBasedOnPosition: function (position) {
         var self = this;
-        var foundChapter = self.chapters.find(chapter => 
-            chapter['start_time'] <= position && chapter['end_time'] > position
+        var foundChapter = self.chapters.find(
+            (chapter) =>
+                chapter["start_time"] <= position &&
+                chapter["end_time"] > position
         );
         if (foundChapter) {
-            this.index = foundChapter['id'];
+            this.index = foundChapter["id"];
         }
         return this.index;
     },
@@ -85,7 +86,7 @@ Player.prototype = {
                 wave.container.style.display = "flex";
                 bar.style.display = "none";
                 loading.style.display = "none";
-                self.howl.seek(calibre.bookmark ? calibre.bookmark : 0);                
+                self.howl.seek(calibre.bookmark ? calibre.bookmark : 0);
                 self.updateIndexBasedOnPosition(self.howl.seek());
             },
             onend: function () {
@@ -108,7 +109,7 @@ Player.prototype = {
             },
             onseek: function () {
                 // Start updating the progress of the track.
-                
+
                 requestAnimationFrame(self.step.bind(self));
             },
         });
@@ -128,7 +129,7 @@ Player.prototype = {
             loading.style.display = "flex";
             playBtn.style.display = "none";
             pauseBtn.style.display = "none";
-        }                
+        }
         self.timer = setInterval(self.timeout.bind(self), 1000);
         // Keep track of the index we are currently playing.
     },
@@ -136,7 +137,7 @@ Player.prototype = {
         var self = this;
         let csrf_token = $("input[name='csrf_token']").val();
         var sound = self.howl;
-        if (sound.playing()) {            
+        if (sound.playing()) {
             requestAnimationFrame(self.step.bind(self));
             $.ajax(calibre.bookmarkUrl, {
                 method: "POST",
@@ -177,9 +178,16 @@ Player.prototype = {
         // Get the next track based on the direction of the track.
         var index = 0;
         if (direction === "prev") {
-            index = self.index - 1;
-            if (index < 0) {
-                index = self.chapters.length - 1;
+            if (
+                self.howl.seek() - self.chapters[self.index]["start_time"] <
+                15
+            ) {
+                index = self.index - 1;
+                if (index < 0) {
+                    index = self.chapters.length - 1;
+                }
+            } else {
+                index = self.index;
             }
         } else {
             index = self.index + 1;
@@ -204,7 +212,7 @@ Player.prototype = {
             this.index = index;
             // Play the new track.
             // console.log(self.index)
-            self.howl.seek(self.chapters[index]['start_time']);
+            self.howl.seek(self.chapters[index]["start_time"]);
         }
         self.play();
     },
@@ -231,9 +239,8 @@ Player.prototype = {
         // Get the Howl we want to manipulate.
         var sound = self.howl;
         if (sound.playing()) {
-            
             sound.seek(Math.min(sound.seek() + forwardJump, sound.duration()));
-            this.index = self.updateIndexBasedOnPosition(sound.seek())
+            this.index = self.updateIndexBasedOnPosition(sound.seek());
         }
     },
     backward: function () {
@@ -242,7 +249,7 @@ Player.prototype = {
         var sound = self.howl;
         if (sound.playing()) {
             sound.seek(Math.max(sound.seek() - backwardJumb, 0));
-            this.index = self.updateIndexBasedOnPosition(sound.seek())
+            this.index = self.updateIndexBasedOnPosition(sound.seek());
         }
     },
     /**
@@ -256,7 +263,7 @@ Player.prototype = {
         if (sound.playing()) {
             const pos = sound.duration() * per;
             sound.seek(pos).play();
-            this.index = self.updateIndexBasedOnPosition(sound.seek())
+            this.index = self.updateIndexBasedOnPosition(sound.seek());
         }
     },
 
@@ -290,12 +297,14 @@ Player.prototype = {
         timer.innerHTML = self.formatTime(Math.round(seek));
         progress.style.width = ((seek / sound.duration()) * 100 || 0) + "%";
         // this.index = self.updateIndexBasedOnPosition(seek)
-        $("#track").text(`${self.index}. ${self.chapters[self.index]["tags"]["title"]}`);
+        $("#track").text(
+            `${self.index}. ${self.chapters[self.index]["tags"]["title"]}`
+        );
         // If the sound is still playing, continue stepping.
         if (sound.playing()) {
             loading.style.display = "none";
-            // requestAnimationFrame(self.step.bind(self));            
-            this.index = self.updateIndexBasedOnPosition(seek)
+            // requestAnimationFrame(self.step.bind(self));
+            this.index = self.updateIndexBasedOnPosition(seek);
         }
         // console.log("step: index => ", self.index);
     },
@@ -425,7 +434,7 @@ Player.prototype.seektime = function (pos) {
     let sound = self.playlist[self.index].howl;
     if (sound.playing()) {
         sound.seek(pos);
-        this.index = self.updateIndexBasedOnPosition(sound.seek())
+        this.index = self.updateIndexBasedOnPosition(sound.seek());
         requestAnimationFrame(self.step.bind(self));
     }
 };
@@ -450,8 +459,8 @@ nextBtn.addEventListener("click", function () {
 });
 totalProgress.addEventListener("click", function (event) {
     player.seek(event.offsetX / event.target.clientWidth);
-    console.log("X: ", event.clientX)
-    console.log("width: ", event.target.clientWidth)
+    console.log("X: ", event.clientX);
+    console.log("width: ", event.target.clientWidth);
 });
 volumeBtn.addEventListener("click", function () {
     player.toggleVolume();
