@@ -88,7 +88,7 @@ SIDEBAR_HOT             = 1 <<  4
 SIDEBAR_RANDOM          = 1 <<  5
 SIDEBAR_AUTHOR          = 1 <<  6
 SIDEBAR_BEST_RATED      = 1 <<  7
-SIDEBAR_READ_AND_UNREAD = 1 <<  8
+SIDEBAR_READ            = 1 <<  8
 SIDEBAR_RECENT          = 1 <<  9
 SIDEBAR_SORTED          = 1 << 10
 MATURE_CONTENT          = 1 << 11
@@ -98,6 +98,7 @@ SIDEBAR_FORMAT          = 1 << 14
 SIDEBAR_ARCHIVED        = 1 << 15
 SIDEBAR_DOWNLOAD        = 1 << 16
 SIDEBAR_LIST            = 1 << 17
+SIDEBAR_UNREAD          = 1 << 18
 
 sidebar_settings = {
                 "detail_random": DETAIL_RANDOM,
@@ -107,7 +108,8 @@ sidebar_settings = {
                 "sidebar_random": SIDEBAR_RANDOM,
                 "sidebar_author": SIDEBAR_AUTHOR,
                 "sidebar_best_rated": SIDEBAR_BEST_RATED,
-                "sidebar_read_and_unread": SIDEBAR_READ_AND_UNREAD,
+                "sidebar_read": SIDEBAR_READ,
+                "sidebar_unread" : SIDEBAR_UNREAD,
                 "sidebar_recent": SIDEBAR_RECENT,
                 "sidebar_sorted": SIDEBAR_SORTED,
                 "sidebar_publisher": SIDEBAR_PUBLISHER,
