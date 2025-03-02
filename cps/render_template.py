@@ -64,7 +64,11 @@ def get_sidebar_config(kwargs=None):
     sidebar.append(
         {"glyph": "glyphicon-eye-close", "text": _('Unread Books'), "link": 'web.books_list', "id": "unread",
          "visibility": constants.SIDEBAR_UNREAD, 'public': (not current_user.is_anonymous), "page": "unread",
+<<<<<<< HEAD
          "show_text": _('Show unread'), "config_show": content})
+=======
+         "show_text": _('Show unread'), "config_show": False})
+>>>>>>> dade2e89ccda8cf830c55f32c1d880de97498438
     sidebar.append({"glyph": "glyphicon-random", "text": _('Discover'), "link": 'web.books_list', "id": "rand",
                     "visibility": constants.SIDEBAR_RANDOM, 'public': True, "page": "discover",
                     "show_text": _('Show Random Books'), "config_show": True})
