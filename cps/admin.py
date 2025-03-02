@@ -502,7 +502,21 @@ def edit_list_user(param):
                         raise Exception(_("Invalid role"))
                 elif param.startswith('sidebar'):
                     value = int(vals['field_index'])
-                    if user.name == "Guest" and value == constants.SIDEBAR_READ_AND_UNREAD:
+                    if user.name == "Guest" and value == constants.SIDEBAR_READ:
+                        raise Exception(_("Guest can't have this view"))
+                    # check for valid value, last on checks for power of 2 value
+                    if value > 0 and value <= constants.SIDEBAR_LIST and (value & value - 1 == 0 or value == 1):
+                        if vals['value'] == 'true':
+                            user.sidebar_view |= value
+                        elif vals['value'] == 'false':
+                            user.sidebar_view &= ~value
+                        else:
+                            raise Exception(_("Value has to be true or false"))
+                    else:
+                        raise Exception(_("Invalid view"))
+                elif param.startswith('sidebar'):
+                    value = int(vals['field_index'])
+                    if user.name == "Guest" and value == constants.SIDEBAR_UNREAD:
                         raise Exception(_("Guest can't have this view"))
                     # check for valid value, last on checks for power of 2 value
                     if value > 0 and value <= constants.SIDEBAR_LIST and (value & value - 1 == 0 or value == 1):

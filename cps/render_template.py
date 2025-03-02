@@ -59,12 +59,12 @@ def get_sidebar_config(kwargs=None):
          "visibility": constants.SIDEBAR_BEST_RATED, 'public': True, "page": "rated",
          "show_text": _('Show Top Rated Books'), "config_show": True})
     sidebar.append({"glyph": "glyphicon-eye-open", "text": _('Read Books'), "link": 'web.books_list', "id": "read",
-                    "visibility": constants.SIDEBAR_READ_AND_UNREAD, 'public': (not current_user.is_anonymous),
+                    "visibility": constants.SIDEBAR_READ, 'public': (not current_user.is_anonymous),
                     "page": "read", "show_text": _('Show Read and Unread'), "config_show": content})
     sidebar.append(
         {"glyph": "glyphicon-eye-close", "text": _('Unread Books'), "link": 'web.books_list', "id": "unread",
-         "visibility": constants.SIDEBAR_READ_AND_UNREAD, 'public': (not current_user.is_anonymous), "page": "unread",
-         "show_text": _('Show unread'), "config_show": False})
+         "visibility": constants.SIDEBAR_UNREAD, 'public': (not current_user.is_anonymous), "page": "unread",
+         "show_text": _('Show unread'), "config_show": content})
     sidebar.append({"glyph": "glyphicon-random", "text": _('Discover'), "link": 'web.books_list', "id": "rand",
                     "visibility": constants.SIDEBAR_RANDOM, 'public': True, "page": "discover",
                     "show_text": _('Show Random Books'), "config_show": True})

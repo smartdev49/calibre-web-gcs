@@ -706,7 +706,8 @@ function loadSuccess() {
     $("input[data-name='admin_role'][data-pk='"+guest.data("pk")+"']").prop("disabled", true);
     $("input[data-name='passwd_role'][data-pk='"+guest.data("pk")+"']").prop("disabled", true);
     $("input[data-name='edit_shelf_role'][data-pk='"+guest.data("pk")+"']").prop("disabled", true);
-    $("input[data-name='sidebar_read_and_unread'][data-pk='"+guest.data("pk")+"']").prop("disabled", true);
+    $("input[data-name='sidebar_read'][data-pk='"+guest.data("pk")+"']").prop("disabled", true);
+    $("input[data-name='sidebar_unread'][data-pk='"+guest.data("pk")+"']").prop("disabled", true);
     $(".user-remove[data-pk='"+guest.data("pk")+"']").hide();
 }
 
