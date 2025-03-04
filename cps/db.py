@@ -892,6 +892,7 @@ class CalibreDB:
                 element += 1
         query = query.filter(db_filter)\
             .filter(self.common_filters(allow_show_archived))
+        
         entries = list()
         pagination = list()
         try:

@@ -114,20 +114,28 @@ def user_login_required(func):
 
 
 def load_user_from_reverse_proxy_header(req):
-    rp_header_name = config.config_reverse_proxy_login_header_name
-    if rp_header_name:
-        rp_header_username = req.headers.get(rp_header_name)
-        if rp_header_username:
-            user = ub.session.query(ub.User).filter(func.lower(ub.User.name) == rp_header_username.lower()).first()
-            if user:
-                [limiter.limiter.storage.clear(k.key) for k in limiter.current_limits]
-                return user
-    return None
+    try:
+        rp_header_name = config.config_reverse_proxy_login_header_name
+        if rp_header_name:
+            rp_header_username = req.headers.get(rp_header_name)
+            if rp_header_username:
+                user = ub.session.query(ub.User).filter(func.lower(ub.User.name) == rp_header_username.lower()).first()
+                if user:
+                    [limiter.limiter.storage.clear(k.key) for k in limiter.current_limits]
+                    return user
+        else :
+            return None
+    except:
+        return None
 
 
 @lm.user_loader
 def load_user(user_id, random, session_key):
-    user = ub.session.query(ub.User).filter(ub.User.id == int(user_id)).first()
+    try:        
+        user = ub.session.query(ub.User).filter(ub.User.id == int(user_id)).first()
+    except Exception as e:
+        print(f"Database error: {e}")
+        ub.session.rollback()
     if not user:
         return None
     if session_key:
