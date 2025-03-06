@@ -892,7 +892,7 @@ class CalibreDB:
                 element += 1
         query = query.filter(db_filter)\
             .filter(self.common_filters(allow_show_archived))
-        
+        query = query.outerjoin(ub.User, database.owner == ub.User.id).filter((database.owner == current_user.id) | (ub.User.op("&")(func.power(2, 0)) !=0))
         entries = list()
         pagination = list()
         try:
