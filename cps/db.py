@@ -874,7 +874,8 @@ class CalibreDB:
         else:
             query = self.session.query(database)
         off = int(int(pagesize) * (page - 1))
-
+        query = query.outerjoin(ub.User, database.owner == ub.User.id).filter((database.owner == current_user.id) | (ub.User.role.op("&")(func.power(2, 0)) !=0))
+        
         indx = len(join)
         element = 0
         while indx:
@@ -892,7 +893,6 @@ class CalibreDB:
                 element += 1
         query = query.filter(db_filter)\
             .filter(self.common_filters(allow_show_archived))
-        query = query.outerjoin(ub.User, database.owner == ub.User.id).filter((database.owner == current_user.id) | (ub.User.role.op("&")(func.power(2, 0)) !=0))
         entries = list()
         pagination = list()
         try:
