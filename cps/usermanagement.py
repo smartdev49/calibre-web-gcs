@@ -136,8 +136,8 @@ def load_user(user_id, random, session_key):
     except Exception as e:
         print(f"Database error: {e}")
         ub.session.rollback()
-    if not user:
         return None
+    
     if session_key:
         entry = ub.session.query(ub.User_Sessions).filter(ub.User_Sessions.random == random,
                                                           ub.User_Sessions.session_key == session_key).first()
