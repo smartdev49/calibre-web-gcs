@@ -523,6 +523,7 @@ def render_hot_books(page, order):
         entries = list()
         for book in hot_books:
             query = calibre_db.generate_linked_query(config.config_read_column, db.Books)
+            query = query.outerjoin(ub.User, or_(db.Books.owner == ub.User.id, ub.User.role.op("&")(func.power(2, 0)) !=0))
             download_book = query.filter(calibre_db.common_filters()).filter(
                 book.Downloads.book_id == db.Books.id).first()
             if download_book:

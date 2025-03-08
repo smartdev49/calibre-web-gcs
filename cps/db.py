@@ -874,7 +874,7 @@ class CalibreDB:
         else:
             query = self.session.query(database)
         off = int(int(pagesize) * (page - 1))
-        query = query.outerjoin(ub.User, database.owner == ub.User.id).filter((database.owner == current_user.id) | (ub.User.role.op("&")(func.power(2, 0)) !=0))
+        query = query.outerjoin(ub.User, or_(database.owner == ub.User.id, ub.User.role.op("&")(func.power(2, 0)) !=0))
         
         indx = len(join)
         element = 0
@@ -900,6 +900,9 @@ class CalibreDB:
             entries = query.order_by(*order).offset(off).limit(pagesize).all()
         except Exception as ex:
             log.error_or_exception(ex)
+        print("query : ", "\n")
+        print(query)
+        print("query : ", "\n")
         # display authors in right order
         entries = self.order_authors(entries, True, join_archive_read)
         return entries, randm, pagination
