@@ -874,8 +874,11 @@ class CalibreDB:
         else:
             query = self.session.query(database)
         off = int(int(pagesize) * (page - 1))
-        query = query.outerjoin(ub.User, or_(database.owner == ub.User.id, ub.User.role.op("&")(func.power(2, 0)) !=0))
+        query = query.outerjoin(ub.User, database.owner == ub.User.id).filter( or_(database.owner == current_user.id, ub.User.role.op("&")(func.power(2,0)) !=0))
         
+        print("query1 : ", "\n")
+        print(query)
+        print("query1 : ", "\n")
         indx = len(join)
         element = 0
         while indx:
