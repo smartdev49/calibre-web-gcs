@@ -856,11 +856,8 @@ def render_archived_books(page, sort_param):
 
 @web.route("/mybooks")
 def mybooks():
-    entries, random, pagination = calibre_db.fill_indexpage("My Books", 0, db.Books, True, None,
-                                                                True, config.config_read_column,
-                                                                db.books_series_link,
-                                                                db.Books.id == db.books_series_link.c.book,
-                                                                db.Series)
+    entries = calibre_db.fill_bookpage(db.Books, "books")
+    print(entries)
     return render_title_template('index.html', entries=entries,
                                      title=_("My Books"), page="My Books", is_paid = calibre_db.get_user_is_paid())
 
@@ -870,7 +867,7 @@ def mybooks():
 def myaudiobooks():
     entries = calibre_db.fill_bookpage(db.Books, "books")
     print(entries)
-    return render_title_template('index.html',
+    return render_title_template('index.html', entries=entries,
                                      title=_("My Audiobooks"), page="My Audiobooks", is_paid = calibre_db.get_user_is_paid())
 
 
