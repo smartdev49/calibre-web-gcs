@@ -868,12 +868,9 @@ def mybooks():
 # ################################### View Books list ##################################################################
 @web.route("/myaudiobooks")
 def myaudiobooks():
-    entries, random, pagination = calibre_db.fill_indexpage("My Books", 0, db.Books, True, None,
-                                                                True, config.config_read_column,
-                                                                db.books_series_link,
-                                                                db.Books.id == db.books_series_link.c.book,
-                                                                db.Series)
-    return render_title_template('index.html', entries=entries,
+    entries = calibre_db.fill_bookpage(db.Books, "books")
+    print(entries)
+    return render_title_template('index.html',
                                      title=_("My Audiobooks"), page="My Audiobooks", is_paid = calibre_db.get_user_is_paid())
 
 

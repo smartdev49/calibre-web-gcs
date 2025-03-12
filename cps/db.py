@@ -858,6 +858,25 @@ class CalibreDB:
                        join_archive_read=False, config_read_column=0, *join):
         return self.fill_indexpage_with_archived_books(page, database, pagesize, db_filter, order, False,
                                                        join_archive_read, config_read_column, *join)
+        
+    def fill_bookpage(self, database, type):
+        owner_subquery = (self.session.query(ub.User.id).filter(or_(ub.User.role.op('&')(1), ub.User.id == current_user.id)).subquery())
+        query = (self.session.query(database)
+                 .join(ub.BookShelf, database.id == ub.BookShelf.book_id)
+                 .join(ub.Shelf, ub.Shelf.id == ub.BookShelf.shelf)
+                 .join(ub.User, ub.User.id == ub.Shelf.user_id)
+                 .filter(database.owner.in_(owner_subquery)))
+        result = query.all()
+        if type == 'home':
+            pass
+        elif type == 'books':
+            pass
+        elif type == 'audiobooks':
+            pass
+        else :
+            pass
+        
+        return result
 
     def fill_indexpage_with_archived_books(self, page, database, pagesize, db_filter, order, allow_show_archived,
                                            join_archive_read, config_read_column, *join):
