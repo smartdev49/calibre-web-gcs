@@ -852,6 +852,12 @@ def render_archived_books(page, sort_param):
 
 # ################################### View Books list ##################################################################
 
+@web.route("/mybooks")
+def mybooks():
+    pass
+@web.route("/myaudiobooks")
+def myaudiobooks():
+    pass
 
 @web.route("/", defaults={'page': 1})
 @web.route('/page/<int:page>')
