@@ -850,15 +850,24 @@ def render_archived_books(page, sort_param):
                                  title=name, page=page_name, order=sort_param[1])
 
 
-# ################################### View Books list ##################################################################
+
+# ################################### View Books ##################################################################
+
 
 @web.route("/mybooks")
 def mybooks():
-    pass
+    return render_title_template('index.html', 
+                                     title=_("My Books"), page="My Books", is_paid = calibre_db.get_user_is_paid())
+
+
+# ################################### View Books list ##################################################################
 @web.route("/myaudiobooks")
 def myaudiobooks():
-    pass
+    return render_title_template('index.html', 
+                                     title=_("My Audiobooks"), page="My Audiobooks", is_paid = calibre_db.get_user_is_paid())
 
+
+# ################################### View Books list ##################################################################
 @web.route("/", defaults={'page': 1})
 @web.route('/page/<int:page>')
 @login_required_if_no_ano
