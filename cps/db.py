@@ -865,7 +865,6 @@ class CalibreDB:
                  .join(ub.BookShelf, database.id == ub.BookShelf.book_id)
                  .join(ub.Shelf, ub.Shelf.id == ub.BookShelf.shelf)
                  .join(ub.User, ub.User.id == ub.Shelf.user_id))
-        result = query.all()
         if type == 'home':
             print('\nHome')
         elif type == 'books':
@@ -879,6 +878,7 @@ class CalibreDB:
         
         if not current_user.role_admin():
             query = query.filter(database.owner.in_(owner_subquery))
+        result = query.all()
         return result
 
     def fill_indexpage_with_archived_books(self, page, database, pagesize, db_filter, order, allow_show_archived,
