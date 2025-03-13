@@ -864,15 +864,16 @@ class CalibreDB:
         query = (self.session.query(database)
                  .join(ub.BookShelf, database.id == ub.BookShelf.book_id)
                  .join(ub.Shelf, ub.Shelf.id == ub.BookShelf.shelf)
-                 .join(ub.User, ub.User.id == ub.Shelf.user_id)
-                 .filter(database.owner.in_(owner_subquery)))
+                 .join(ub.User, ub.User.id == ub.Shelf.user_id))
+        if not current_user.role_admin():
+            query = query.filter(database.owner.in_(owner_subquery))
         result = query.all()
         if type == 'home':
-            pass
+            print('Home')
         elif type == 'books':
-            pass
+            print(query.data, "books")
         elif type == 'audiobooks':
-            pass
+            print(query.data, "audiobooks")
         else :
             pass
         
