@@ -870,7 +870,7 @@ class CalibreDB:
             print('Home')
         elif type == 'books':
             query = query.join(Data, and_(Data.book == database.id, Data.format == "EPUB"))
-        elif type == 'audiobooks':            
+        elif type == 'audiobooks':
             query = query.join(Data, and_(Data.book == database.id, Data.format == "M4B"))
         else :
             pass

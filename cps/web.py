@@ -865,7 +865,7 @@ def mybooks():
 # ################################### View Books list ##################################################################
 @web.route("/myaudiobooks")
 def myaudiobooks():
-    entries = calibre_db.fill_bookpage(db.Books, "books")
+    entries = calibre_db.fill_bookpage(db.Books, "audiobooks")
     print(entries)
     return render_title_template('index.html', entries=entries,
                                      title=_("My Audiobooks"), page="My Audiobooks", is_paid = calibre_db.get_user_is_paid())
