@@ -865,18 +865,18 @@ class CalibreDB:
                  .join(ub.BookShelf, database.id == ub.BookShelf.book_id)
                  .join(ub.Shelf, ub.Shelf.id == ub.BookShelf.shelf)
                  .join(ub.User, ub.User.id == ub.Shelf.user_id))
-        if not current_user.role_admin():
-            query = query.filter(database.owner.in_(owner_subquery))
         result = query.all()
         if type == 'home':
             print('Home')
         elif type == 'books':
-            print(query[0].data, "books")
-        elif type == 'audiobooks':
-            print(query[0].data, "audiobooks")
+            query = query.join(Data, and_(Data.book == database.id, Data.format == "EPUB"))
+        elif type == 'audiobooks':            
+            query = query.join(Data, and_(Data.book == database.id, Data.format == "M4B"))
         else :
             pass
         
+        if not current_user.role_admin():
+            query = query.filter(database.owner.in_(owner_subquery))
         return result
 
     def fill_indexpage_with_archived_books(self, page, database, pagesize, db_filter, order, allow_show_archived,
