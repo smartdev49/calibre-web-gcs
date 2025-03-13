@@ -871,9 +871,9 @@ class CalibreDB:
         if type == 'home':
             print('Home')
         elif type == 'books':
-            print(query.data, "books")
+            print(query[0].data, "books")
         elif type == 'audiobooks':
-            print(query.data, "audiobooks")
+            print(query[0].data, "audiobooks")
         else :
             pass
         
