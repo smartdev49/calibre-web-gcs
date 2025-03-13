@@ -867,10 +867,12 @@ class CalibreDB:
                  .join(ub.User, ub.User.id == ub.Shelf.user_id))
         result = query.all()
         if type == 'home':
-            print('Home')
+            print('\nHome')
         elif type == 'books':
+            print('\nbooks')
             query = query.join(Data, and_(Data.book == database.id, Data.format == "EPUB"))
         elif type == 'audiobooks':
+            print('\naudiobooks')
             query = query.join(Data, and_(Data.book == database.id, Data.format == "M4B"))
         else :
             pass
