@@ -872,7 +872,7 @@ def myaudiobooks():
 
 # ################################### View Books list ##################################################################
 @web.route("/")
-def myaudiobooks():
+def home():
     entries = calibre_db.fill_bookpage(db.Books, "home")
     print(entries)
     return render_title_template('index.html', entries=entries,
