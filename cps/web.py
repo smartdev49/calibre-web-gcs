@@ -855,6 +855,7 @@ def render_archived_books(page, sort_param):
 
 
 @web.route("/mybooks")
+@login_required_if_no_ano
 def mybooks():
     entries = calibre_db.fill_bookpage(db.Books, "books")
     print(entries)
@@ -864,6 +865,7 @@ def mybooks():
 
 # ################################### View Books list ##################################################################
 @web.route("/myaudiobooks")
+@login_required_if_no_ano
 def myaudiobooks():
     entries = calibre_db.fill_bookpage(db.Books, "audiobooks")
     print(entries)
@@ -872,6 +874,7 @@ def myaudiobooks():
 
 # ################################### View Books list ##################################################################
 @web.route("/")
+@login_required_if_no_ano
 def index():
     entries = calibre_db.fill_bookpage(db.Books, "home")
     print(entries)
