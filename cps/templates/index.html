@@ -9,70 +9,7 @@
     {% if entry.books is defined and entry.books[0] %}
     {% for book in entry.books %}
     <div>{{book}}</div>
-    <!-- <div class="col-sm-3 col-lg-2 col-xs-6 book session" id="books">
-      <div class="cover">
-        <a href="{{ url_for('web.show_book', book_id=book.id) }}" {% if simple==false %}data-toggle="modal"
-          data-target="#bookDetailsModal" data-remote="false" {% endif %}>
-          <span class="img" title="{{ book.title }}">
-            {{ image.book_cover(entry) }}
-            {% if entry[2] == True %}<span class="badge read glyphicon glyphicon-ok"></span>{% endif %}
-          </span>
-        </a>
-      </div>
-      <div class="meta">
-        <a href="{{ url_for('web.show_book', book_id=book.id) }}" {% if simple==false %}data-toggle="modal"
-          data-target="#bookDetailsModal" data-remote="false" {% endif %}>
-          <p title="{{ book.title }}" class="title">{{book.title|shortentitle}}</p>
-        </a>
-        <p class="author">
-          {% for author in book.authors %}
-          {% if loop.index > g.config_authors_max and g.config_authors_max != 0 %}
-          {% if not loop.first %}
-          <span class="author-hidden-divider">&amp;</span>
-          {% endif %}
-          <a class="author-name author-hidden"
-            href="{{url_for('web.books_list', data='author', book_id=author.id, sort_param='stored') }}">{{author.name.replace('|',',')|shortentitle(30)}}</a>
-          {% if loop.last %}
-          <a href="#" class="author-expand" data-authors-max="{{g.config_authors_max}}"
-            data-collapse-caption="({{_('reduce')}})">(...)</a>
-          {% endif %}
-          {% else %}
-          {% if not loop.first %}
-          <span>&amp;</span>
-          {% endif %}
-          <a class="author-name"
-            href="{{url_for('web.books_list', data='author', book_id=author.id, sort_param='stored') }}">{{author.name.replace('|',',')|shortentitle(30)}}</a>
-          {% endif %}
-          {% endfor %}
-          {% if book.data|music %}
-          <span class="glyphicon glyphicon-music"></span>
-          {% endif %}
-        </p>
-        {% if book.series.__len__() > 0 %}
-        <p class="series">
-          {% if page != "series" %}
-          <a href="{{url_for('web.books_list', data='series', sort_param='stored', book_id=book.series[0].id )}}">
-            {{book.series[0].name}}
-          </a>
-          {% else %}
-          <span>{{book.series[0].name}}</span>
-          {% endif %}
-          ({{book.series_index|formatseriesindex}})
-        </p>
-        {% endif %}
-        {% if book.ratings.__len__() > 0 %}
-        <div class="rating">
-          {% for number in range((book.ratings[0].rating/2)|int(2)) %}
-          <span class="glyphicon glyphicon-star good"></span>
-          {% if loop.last and loop.index < 5 %} {% for numer in range(5 - loop.index) %} <span
-            class="glyphicon glyphicon-star-empty"></span>
-            {% endfor %}
-            {% endif %}
-            {% endfor %}
-        </div>
-        {% endif %}
-      </div>
-    </div> -->
+    
     {% endfor %}
     {% endif %}
   </div>
