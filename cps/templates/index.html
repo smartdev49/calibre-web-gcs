@@ -8,7 +8,7 @@
   <div class="row display-flex">
     {% if entry.books is defined and entry.books[0] %}
     {% for book in entry.books %}
-    <div>{{book}}</div>
+    <div>{{book.id}}</div>
     
     {% endfor %}
     {% endif %}

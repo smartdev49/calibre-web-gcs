@@ -417,9 +417,9 @@ class Books(Base):
         self.chapters = ""
 
     def __repr__(self):
-        return "<Books('{0},{1}{2}{3}{4}{5}{6}{7}{8}')>".format(self.title, self.sort, self.author_sort,
+        return "<Books('{9},{0},{1}{2}{3}{4}{5}{6}{7}{8}')>".format(self.title, self.sort, self.author_sort,
                                                                 self.timestamp, self.pubdate, self.series_index,
-                                                                self.last_modified, self.path, self.has_cover)
+                                                                self.last_modified, self.path, self.has_cover, self.id)
 
     @property
     def atom_timestamp(self):
