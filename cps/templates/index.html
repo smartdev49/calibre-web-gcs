@@ -23,7 +23,42 @@
           data-target="#bookDetailsModal" data-remote="false" {% endif %}>
           <p title="{{ book.title }}" class="title">{{book.title|shortentitle}}</p>
         </a>
-        
+        <p class="author">
+          {% for author in book.authors %}
+          {% if loop.index > g.config_authors_max and g.config_authors_max != 0 %}
+          {% if not loop.first %}
+          <span class="author-hidden-divider">&amp;</span>
+          {% endif %}
+          <a class="author-name author-hidden"
+            href="">{{author.name.replace('|',',')|shortentitle(30)}}</a>
+          {% if loop.last %}
+          <a href="#" class="author-expand" data-authors-max="{{g.config_authors_max}}"
+            data-collapse-caption="({{_('reduce')}})">(...)</a>
+          {% endif %}
+          {% else %}
+          {% if not loop.first %}
+          <span>&amp;</span>
+          {% endif %}
+          <a class="author-name"
+            href="">{{author.name.replace('|',',')|shortentitle(30)}}</a>
+          {% endif %}
+          {% endfor %}
+          {% if book.data|music %}
+          <span class="glyphicon glyphicon-music"></span>
+          {% endif %}
+        </p>
+        {% if book.series.__len__() > 0 %}
+        <p class="series">
+          {% if page != "series" %}
+          <a href="">
+            {{book.series[0].name}}
+          </a>
+          {% else %}
+          <span>{{book.series[0].name}}</span>
+          {% endif %}
+          ({{book.series_index|formatseriesindex}})
+        </p>
+        {% endif %}
         {% if book.ratings.__len__() > 0 %}
         <div class="rating">
           {% for number in range((book.ratings[0].rating/2)|int(2)) %}
