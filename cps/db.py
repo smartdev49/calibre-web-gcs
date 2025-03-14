@@ -874,7 +874,7 @@ class CalibreDB:
                 books = (self.session.query(database)
                         .join(ub.BookShelf, and_(database.id == ub.BookShelf.book_id, ub.BookShelf.shelf == shelf.id))
                         .join(ub.User, ub.User.id == database.owner)).all()
-                result.append({shelf:shelf.name, books: books})
+                result.append({"shelf": shelf.name, "books": books})
             # then get books for each shelf
             # then return with structure
             print('\nHome')
@@ -883,13 +883,13 @@ class CalibreDB:
             query = query.join(Data, and_(Data.book == database.id, Data.format == "EPUB"))
             if not current_user.role_admin():
                 query = query.filter(database.owner.in_(owner_subquery))
-            result.append({shelf:"Books", books:query.all()})
+            result.append({"shelf":"Books", "books":query.all()})
         elif type == 'audiobooks':
             print('\naudiobooks')
             query = query.join(Data, and_(Data.book == database.id, Data.format == "M4B"))
             if not current_user.role_admin():
                 query = query.filter(database.owner.in_(owner_subquery))
-            result.append({shelf:"Audiobooks", books:query.all()})
+            result.append({"shelf":"Audiobooks", "books":query.all()})
         else :
             pass
         
