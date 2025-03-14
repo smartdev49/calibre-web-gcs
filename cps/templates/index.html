@@ -30,7 +30,7 @@
           <span class="author-hidden-divider">&amp;</span>
           {% endif %}
           <a class="author-name author-hidden"
-            href="">{{author.name.replace('|',',')|shortentitle(30)}}</a>
+            href="{{url_for('web.books_list', data='author', book_id=author.id, sort_param='stored') }}">{{author.name.replace('|',',')|shortentitle(30)}}</a>
           {% if loop.last %}
           <a href="#" class="author-expand" data-authors-max="{{g.config_authors_max}}"
             data-collapse-caption="({{_('reduce')}})">(...)</a>
@@ -40,7 +40,7 @@
           <span>&amp;</span>
           {% endif %}
           <a class="author-name"
-            href="">{{author.name.replace('|',',')|shortentitle(30)}}</a>
+            href="{{url_for('web.books_list', data='author', book_id=author.id, sort_param='stored') }}">{{author.name.replace('|',',')|shortentitle(30)}}</a>
           {% endif %}
           {% endfor %}
           {% if book.data|music %}
@@ -50,7 +50,7 @@
         {% if book.series.__len__() > 0 %}
         <p class="series">
           {% if page != "series" %}
-          <a href="">
+          <a href="{{url_for('web.books_list', data='series', sort_param='stored', book_id=book.series[0].id )}}">
             {{book.series[0].name}}
           </a>
           {% else %}
