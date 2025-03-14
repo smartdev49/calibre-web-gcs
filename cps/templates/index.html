@@ -10,21 +10,21 @@
     {% for book in entry.books %}
     <div class="col-sm-3 col-lg-2 col-xs-6 book session" id="books">
       <div class="cover">
-        <a href="{{ url_for('web.show_book', book_id=book.id) }}" {% if simple==false %}data-toggle="modal"
+        <a href="{{ url_for('web.show_book', book_id=book.Books.id) }}" {% if simple==false %}data-toggle="modal"
           data-target="#bookDetailsModal" data-remote="false" {% endif %}>
-          <span class="img" title="{{ book.title }}">
+          <span class="img" title="{{ book.Books.title }}">
             {{ image.book_cover(entry) }}
             {% if entry[2] == True %}<span class="badge read glyphicon glyphicon-ok"></span>{% endif %}
           </span>
         </a>
       </div>
       <div class="meta">
-        <a href="{{ url_for('web.show_book', book_id=book.id) }}" {% if simple==false %}data-toggle="modal"
+        <a href="{{ url_for('web.show_book', book_id=book.Books.id) }}" {% if simple==false %}data-toggle="modal"
           data-target="#bookDetailsModal" data-remote="false" {% endif %}>
-          <p title="{{ book.title }}" class="title">{{book.title|shortentitle}}</p>
+          <p title="{{ book.Books.title }}" class="title">{{book.Books.title|shortentitle}}</p>
         </a>
         <p class="author">
-          {% for author in book.authors %}
+          {% for author in book.Books.authors %}
           {% if loop.index > g.config_authors_max and g.config_authors_max != 0 %}
           {% if not loop.first %}
           <span class="author-hidden-divider">&amp;</span>
@@ -43,25 +43,25 @@
             href="{{url_for('web.books_list', data='author', book_id=author.id, sort_param='stored') }}">{{author.name.replace('|',',')|shortentitle(30)}}</a>
           {% endif %}
           {% endfor %}
-          {% if book.data|music %}
+          {% if book.Books.data|music %}
           <span class="glyphicon glyphicon-music"></span>
           {% endif %}
         </p>
-        {% if book.series.__len__() > 0 %}
+        {% if book.Books.series.__len__() > 0 %}
         <p class="series">
           {% if page != "series" %}
-          <a href="{{url_for('web.books_list', data='series', sort_param='stored', book_id=book.series[0].id )}}">
-            {{book.series[0].name}}
+          <a href="{{url_for('web.books_list', data='series', sort_param='stored', book_id=book.Books.series[0].id )}}">
+            {{book.Books.series[0].name}}
           </a>
           {% else %}
-          <span>{{book.series[0].name}}</span>
+          <span>{{book.Books.series[0].name}}</span>
           {% endif %}
-          ({{book.series_index|formatseriesindex}})
+          ({{book.Books.series_index|formatseriesindex}})
         </p>
         {% endif %}
-        {% if book.ratings.__len__() > 0 %}
+        {% if book.Books.ratings.__len__() > 0 %}
         <div class="rating">
-          {% for number in range((book.ratings[0].rating/2)|int(2)) %}
+          {% for number in range((book.Books.ratings[0].rating/2)|int(2)) %}
           <span class="glyphicon glyphicon-star good"></span>
           {% if loop.last and loop.index < 5 %} {% for numer in range(5 - loop.index) %} <span
             class="glyphicon glyphicon-star-empty"></span>
