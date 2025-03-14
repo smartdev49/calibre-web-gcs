@@ -4,7 +4,7 @@
 <div class="discover load-more">
   {% if entries is defined and entries[0] %}
   {% for entry in entries %}
-  <h2 class="{{title}}">{{entry.shelf.title}}</h2>
+  <h2 class="{{title}}">{{entry.shelf}}</h2>
   <div class="row display-flex">
     {% if entry.books is defined and entry.books[0] %}
     {% for book in entry.books %}

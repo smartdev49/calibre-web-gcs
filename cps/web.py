@@ -870,20 +870,29 @@ def myaudiobooks():
     return render_title_template('index.html', entries=entries,
                                      title=_("My Audiobooks"), page="My Audiobooks", is_paid = calibre_db.get_user_is_paid())
 
+# ################################### View Books list ##################################################################
+@web.route("/")
+def myaudiobooks():
+    entries = calibre_db.fill_bookpage(db.Books, "home")
+    print(entries)
+    return render_title_template('index.html', entries=entries,
+                                     title=_("Home"), page="Home", is_paid = calibre_db.get_user_is_paid())
+
 
 # ################################### View Books list ##################################################################
-@web.route("/", defaults={'page': 1})
-@web.route('/page/<int:page>')
-@login_required_if_no_ano
-def index(page):
-    sort_param = (request.args.get('sort') or 'stored').lower()
-    return render_books_list("newest", sort_param, 1, page)
+# @web.route("/", defaults={'page': 1})
+# @web.route('/page/<int:page>')
+# @login_required_if_no_ano
+# def index(page):
+#     sort_param = (request.args.get('sort') or 'stored').lower()
+#     return render_books_list("newest", sort_param, 1, page)
 
 
-@web.route('/<data>/<sort_param>', defaults={'page': 1, 'book_id': 1})
-@web.route('/<data>/<sort_param>/', defaults={'page': 1, 'book_id': 1})
-@web.route('/<data>/<sort_param>/<book_id>', defaults={'page': 1})
-@web.route('/<data>/<sort_param>/<book_id>/<int:page>')
+# @web.route('/<data>/<sort_param>', defaults={'page': 1, 'book_id': 1})
+# @web.route('/<data>/<sort_param>/', defaults={'page': 1, 'book_id': 1})
+# @web.route('/<data>/<sort_param>/<book_id>', defaults={'page': 1})
+# @web.route('/<data>/<sort_param>/<book_id>/<int:page>')
+
 @login_required_if_no_ano
 def books_list(data, sort_param, book_id, page):
     return render_books_list(data, sort_param, book_id, page)

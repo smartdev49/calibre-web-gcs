@@ -860,6 +860,7 @@ class CalibreDB:
                                                        join_archive_read, config_read_column, *join)
         
     def fill_bookpage(self, database, type):
+        result = []
         owner_subquery = (self.session.query(ub.User.id).filter(or_(ub.User.role.op('&')(1), ub.User.id == current_user.id)).subquery())
         query = (self.session.query(database)
                  .join(ub.BookShelf, database.id == ub.BookShelf.book_id)
@@ -867,29 +868,31 @@ class CalibreDB:
                  .join(ub.User, ub.User.id == ub.Shelf.user_id))
         if type == 'home':
             # get all shelf id, title,
-            result = []
+            
             shelfs = (self.session.query(ub.Shelf).filter(ub.User.id == current_user.id)).all()
             for shelf in shelfs:
                 books = (self.session.query(database)
                         .join(ub.BookShelf, and_(database.id == ub.BookShelf.book_id, ub.BookShelf.shelf == shelf))
                         .join(ub.User, ub.User.id == ub.Shelf.user_id)).all()
-                result.append({shelf:shelf, books: books})
+                result.append({shelf:shelf.title, books: books})
             # then get books for each shelf
             # then return with structure
             print('\nHome')
-            return result
         elif type == 'books':
             print('\nbooks')
             query = query.join(Data, and_(Data.book == database.id, Data.format == "EPUB"))
+            if not current_user.role_admin():
+                query = query.filter(database.owner.in_(owner_subquery))
+            result.append({shelf:"Books", books:query.all()})
         elif type == 'audiobooks':
             print('\naudiobooks')
             query = query.join(Data, and_(Data.book == database.id, Data.format == "M4B"))
+            if not current_user.role_admin():
+                query = query.filter(database.owner.in_(owner_subquery))
+            result.append({shelf:"Audiobooks", books:query.all()})
         else :
             pass
         
-        if not current_user.role_admin():
-            query = query.filter(database.owner.in_(owner_subquery))
-        result = query.all()
         return result
 
     def fill_indexpage_with_archived_books(self, page, database, pagesize, db_filter, order, allow_show_archived,
