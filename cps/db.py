@@ -866,7 +866,18 @@ class CalibreDB:
                  .join(ub.Shelf, ub.Shelf.id == ub.BookShelf.shelf)
                  .join(ub.User, ub.User.id == ub.Shelf.user_id))
         if type == 'home':
+            # get all shelf id, title,
+            result = []
+            shelfs = (self.session.query(ub.Shelf).filter(ub.User.id == current_user.id)).all()
+            for shelf in shelfs:
+                books = (self.session.query(database)
+                        .join(ub.BookShelf, and_(database.id == ub.BookShelf.book_id, ub.BookShelf.shelf == shelf))
+                        .join(ub.User, ub.User.id == ub.Shelf.user_id)).all()
+                result.append({shelf:shelf, books: books})
+            # then get books for each shelf
+            # then return with structure
             print('\nHome')
+            return result
         elif type == 'books':
             print('\nbooks')
             query = query.join(Data, and_(Data.book == database.id, Data.format == "EPUB"))
