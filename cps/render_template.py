@@ -110,8 +110,9 @@ def get_sidebar_config(kwargs=None):
     #         {"glyph": "glyphicon-th-list", "text": _('Books List'), "link": 'web.books_table', "id": "list",
     #          "visibility": constants.SIDEBAR_LIST, 'public': (not current_user.is_anonymous), "page": "list",
     #          "show_text": _('Show Books List'), "config_show": content})
+    
     g.shelves_access = ub.session.query(ub.Shelf).filter(
-        or_(ub.Shelf.is_public == 1, ub.Shelf.user_id == current_user.id)).order_by(ub.Shelf.name).all()
+        or_(ub.Shelf.user_id == current_user.id)).order_by(ub.Shelf.name).all()
 
     return sidebar, simple
 
