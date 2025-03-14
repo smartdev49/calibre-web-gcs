@@ -872,7 +872,7 @@ class CalibreDB:
             shelfs = (self.session.query(ub.Shelf).filter(ub.User.id == current_user.id)).all()
             for shelf in shelfs:
                 books = (self.session.query(database)
-                        .join(ub.BookShelf, and_(database.id == ub.BookShelf.book_id, ub.BookShelf.shelf == shelf))
+                        .join(ub.BookShelf, and_(database.id == ub.BookShelf.book_id, ub.BookShelf.shelf == shelf.id))
                         .join(ub.User, ub.User.id == ub.Shelf.user_id)).all()
                 result.append({shelf:shelf.title, books: books})
             # then get books for each shelf
