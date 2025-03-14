@@ -38,13 +38,13 @@ def get_sidebar_config(kwargs=None):
     else:
         content = 'conf' in kwargs
     sidebar = list()
-    sidebar.append({"glyph": "glyphicon-home", "text": _('Home'), "link": 'web.index', "id": "new",
+    sidebar.append({"glyph": "glyphicon-home", "text": _('Home'), "link": 'web.index', "id": "home",
                     "visibility": True, 'public': True, "page": "home",
                     "show_text": _('Show Books with Shelf'), "config_show":False})
-    sidebar.append({"glyph": "glyphicon-book", "text": _('My Books'), "link": 'web.mybooks', "id": "new",
+    sidebar.append({"glyph": "glyphicon-book", "text": _('My Books'), "link": 'web.mybooks', "id": "books",
                     "visibility": True, 'public': True, "page": "books",
                     "show_text": _('Show My Books'), "config_show":False})
-    sidebar.append({"glyph": "glyphicon-headphones", "text": _('My Audiobooks'), "link": 'web.myaudiobooks', "id": "new",
+    sidebar.append({"glyph": "glyphicon-headphones", "text": _('My Audiobooks'), "link": 'web.myaudiobooks', "id": "audiobooks",
                     "visibility": True, 'public': True, "page": "audiobooks",
                     "show_text": _('Show My Audiobooks'), "config_show":False})
     
