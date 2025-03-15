@@ -44,13 +44,13 @@ class TaskClean(CalibreTask):
         self.log.debug("Deleted expired session_keys" )
         expiry = int(datetime.datetime.now().timestamp())
         try:
-            calibre_db.session.query(ub.User_Sessions).filter(or_(ub.User_Sessions.expiry < expiry,
+            ub.session.query(ub.User_Sessions).filter(or_(ub.User_Sessions.expiry < expiry,
                                                                ub.User_Sessions.expiry == None)).delete()
-            calibre_db.session.commit()
+            ub.session.commit()
         except Exception as ex:
             self.log.debug('Error deleting expired session keys: ' + str(ex))
             self._handleError('Error deleting expired session keys: ' + str(ex))
-            calibre_db.session.rollback()
+            ub.session.rollback()
             return
 
         # self._handleSuccess()
