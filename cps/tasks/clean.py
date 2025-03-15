@@ -30,7 +30,7 @@ class TaskClean(CalibreTask):
         super(TaskClean, self).__init__(task_message)
         self.log = logger.create()
         # self.app_db_session = ub.get_new_session_instance()
-        self.app_db_session = calibre_db.session
+        # self.app_db_session = calibre_db.session
 
     def run(self, worker_thread):
         # delete temp folder
@@ -44,17 +44,17 @@ class TaskClean(CalibreTask):
         self.log.debug("Deleted expired session_keys" )
         expiry = int(datetime.datetime.now().timestamp())
         try:
-            self.app_db_session.query(ub.User_Sessions).filter(or_(ub.User_Sessions.expiry < expiry,
+            calibre_db.session.query(ub.User_Sessions).filter(or_(ub.User_Sessions.expiry < expiry,
                                                                ub.User_Sessions.expiry == None)).delete()
-            self.app_db_session.commit()
+            calibre_db.session.commit()
         except Exception as ex:
             self.log.debug('Error deleting expired session keys: ' + str(ex))
             self._handleError('Error deleting expired session keys: ' + str(ex))
-            self.app_db_session.rollback()
+            calibre_db.session.rollback()
             return
 
-        self._handleSuccess()
-        self.app_db_session.remove()
+        # self._handleSuccess()
+        # self.app_db_session.remove()
 
     @property
     def name(self):
