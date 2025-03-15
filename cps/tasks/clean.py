@@ -21,7 +21,7 @@ import datetime
 from flask_babel import lazy_gettext as N_
 from sqlalchemy.sql.expression import or_
 
-from cps import logger, file_helper, ub
+from cps import logger, file_helper, ub, calibre_db
 from cps.services.worker import CalibreTask
 
 
@@ -29,7 +29,8 @@ class TaskClean(CalibreTask):
     def __init__(self, task_message=N_('Delete temp folder contents')):
         super(TaskClean, self).__init__(task_message)
         self.log = logger.create()
-        self.app_db_session = ub.get_new_session_instance()
+        # self.app_db_session = ub.get_new_session_instance()
+        self.app_db_session = calibre_db.session
 
     def run(self, worker_thread):
         # delete temp folder
