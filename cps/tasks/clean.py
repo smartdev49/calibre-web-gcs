@@ -21,7 +21,7 @@ import datetime
 from flask_babel import lazy_gettext as N_
 from sqlalchemy.sql.expression import or_
 
-from cps import logger, file_helper, ub, calibre_db
+from cps import logger, file_helper, ub
 from cps.services.worker import CalibreTask
 
 
@@ -29,8 +29,7 @@ class TaskClean(CalibreTask):
     def __init__(self, task_message=N_('Delete temp folder contents')):
         super(TaskClean, self).__init__(task_message)
         self.log = logger.create()
-        # self.app_db_session = ub.get_new_session_instance()
-        # self.app_db_session = calibre_db.session
+        self.app_db_session = ub.get_new_session_instance()
 
     def run(self, worker_thread):
         # delete temp folder
@@ -44,17 +43,17 @@ class TaskClean(CalibreTask):
         self.log.debug("Deleted expired session_keys" )
         expiry = int(datetime.datetime.now().timestamp())
         try:
-            ub.session.query(ub.User_Sessions).filter(or_(ub.User_Sessions.expiry < expiry,
+            self.app_db_session.query(ub.User_Sessions).filter(or_(ub.User_Sessions.expiry < expiry,
                                                                ub.User_Sessions.expiry == None)).delete()
-            ub.session.commit()
+            self.app_db_session.commit()
         except Exception as ex:
             self.log.debug('Error deleting expired session keys: ' + str(ex))
             self._handleError('Error deleting expired session keys: ' + str(ex))
-            ub.session.rollback()
+            self.app_db_session.rollback()
             return
 
-        # self._handleSuccess()
-        # self.app_db_session.remove()
+        self._handleSuccess()
+        self.app_db_session.remove()
 
     @property
     def name(self):

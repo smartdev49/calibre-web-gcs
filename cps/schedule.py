@@ -33,7 +33,7 @@ def get_scheduled_tasks(reconnect=True):
         tasks.append([lambda: TaskReconnectDatabase(), 'reconnect', False])
 
     # Delete temp folder
-    tasks.append([lambda: TaskClean(), 'delete temp', True])
+    # tasks.append([lambda: TaskClean(), 'delete temp', True])
 
     # Generate metadata.opf file for each changed book
     if config.schedule_metadata_backup:
