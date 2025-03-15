@@ -40,20 +40,20 @@ class TaskClean(CalibreTask):
         except (PermissionError, OSError) as e:
             self.log.error("Error deleting temp folder: {}".format(e))
         # delete expired session keys
-        self.log.debug("Deleted expired session_keys" )
-        expiry = int(datetime.datetime.now().timestamp())
-        try:
-            self.app_db_session.query(ub.User_Sessions).filter(or_(ub.User_Sessions.expiry < expiry,
-                                                               ub.User_Sessions.expiry == None)).delete()
-            self.app_db_session.commit()
-        except Exception as ex:
-            self.log.debug('Error deleting expired session keys: ' + str(ex))
-            self._handleError('Error deleting expired session keys: ' + str(ex))
-            self.app_db_session.rollback()
-            return
+        # self.log.debug("Deleted expired session_keys" )
+        # expiry = int(datetime.datetime.now().timestamp())
+        # try:
+        #     self.app_db_session.query(ub.User_Sessions).filter(or_(ub.User_Sessions.expiry < expiry,
+        #                                                        ub.User_Sessions.expiry == None)).delete()
+        #     self.app_db_session.commit()
+        # except Exception as ex:
+        #     self.log.debug('Error deleting expired session keys: ' + str(ex))
+        #     self._handleError('Error deleting expired session keys: ' + str(ex))
+        #     self.app_db_session.rollback()
+        #     return
 
-        self._handleSuccess()
-        self.app_db_session.remove()
+        # self._handleSuccess()
+        # self.app_db_session.remove()
 
     @property
     def name(self):
