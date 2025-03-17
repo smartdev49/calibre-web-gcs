@@ -1,83 +1,124 @@
 {% import 'image.html' as image %}
 {% extends "layout.html" %}
 {% block body %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+<style>
+  .swiper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
 <div class="discover load-more">
   {% if entries is defined and entries[0] %}
   {% for entry in entries %}
   <h2 class="{{title}}">{{entry.shelf}}</h2>
-  <div class="row display-flex">
-    {% if entry.books is defined and entry.books[0] %}
-    {% for book in entry.books %}
-    <div class="col-sm-3 col-lg-2 col-xs-6 book session" id="books">
-      <div class="cover">
-        <a href="{{ url_for('web.show_book', book_id=book.id) }}" {% if simple==false %}data-toggle="modal"
-          data-target="#bookDetailsModal" data-remote="false" {% endif %}>
-          <span class="img" title="{{ book.title }}">
-            {{ image.book_cover(book) }}
-            {% if book[2] == True %}<span class="badge read glyphicon glyphicon-ok"></span>{% endif %}
-          </span>
-        </a>
-      </div>
-      <div class="meta">
-        <a href="{{ url_for('web.show_book', book_id=book.id) }}" {% if simple==false %}data-toggle="modal"
-          data-target="#bookDetailsModal" data-remote="false" {% endif %}>
-          <p title="{{ book.title }}" class="title">{{book.title|shortentitle}}</p>
-        </a>
-        <p class="author">
-          {% for author in book.authors %}
-          {% if loop.index > g.config_authors_max and g.config_authors_max != 0 %}
-          {% if not loop.first %}
-          <span class="author-hidden-divider">&amp;</span>
-          {% endif %}
-          <a class="author-name author-hidden"
-            href="{{url_for('web.books_list', data='author', book_id=author.id, sort_param='stored') }}">{{author.name.replace('|',',')|shortentitle(30)}}</a>
-          {% if loop.last %}
-          <a href="#" class="author-expand" data-authors-max="{{g.config_authors_max}}"
-            data-collapse-caption="({{_('reduce')}})">(...)</a>
-          {% endif %}
-          {% else %}
-          {% if not loop.first %}
-          <span>&amp;</span>
-          {% endif %}
-          <a class="author-name"
-            href="{{url_for('web.books_list', data='author', book_id=author.id, sort_param='stored') }}">{{author.name.replace('|',',')|shortentitle(30)}}</a>
-          {% endif %}
-          {% endfor %}
-          {% if book.data|music %}
-          <span class="glyphicon glyphicon-music"></span>
-          {% endif %}
-        </p>
-        {% if book.series.__len__() > 0 %}
-        <p class="series">
-          {% if page != "series" %}
-          <a href="{{url_for('web.books_list', data='series', sort_param='stored', book_id=book.series[0].id )}}">
-            {{book.series[0].name}}
+  <div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+      {% if entry.books is defined and entry.books[0] %}
+      {% for book in entry.books %}
+      <div class="swiper-slide book session" id="books">
+        <div class="cover">
+          <a href="{{ url_for('web.show_book', book_id=book.id) }}" {% if simple==false %}data-toggle="modal"
+            data-target="#bookDetailsModal" data-remote="false" {% endif %}>
+            <span class="img" title="{{ book.title }}">
+              {{ image.book_cover(book) }}
+              {% if book[2] == True %}<span class="badge read glyphicon glyphicon-ok"></span>{% endif %}
+            </span>
           </a>
-          {% else %}
-          <span>{{book.series[0].name}}</span>
-          {% endif %}
-          ({{book.series_index|formatseriesindex}})
-        </p>
-        {% endif %}
-        {% if book.ratings.__len__() > 0 %}
-        <div class="rating">
-          {% for number in range((book.ratings[0].rating/2)|int(2)) %}
-          <span class="glyphicon glyphicon-star good"></span>
-          {% if loop.last and loop.index < 5 %} {% for numer in range(5 - loop.index) %} <span
-            class="glyphicon glyphicon-star-empty"></span>
-            {% endfor %}
+        </div>
+        <div class="meta">
+          <a href="{{ url_for('web.show_book', book_id=book.id) }}" {% if simple==false %}data-toggle="modal"
+            data-target="#bookDetailsModal" data-remote="false" {% endif %}>
+            <p title="{{ book.title }}" class="title">{{book.title|shortentitle}}</p>
+          </a>
+          <p class="author">
+            {% for author in book.authors %}
+            {% if loop.index > g.config_authors_max and g.config_authors_max != 0 %}
+            {% if not loop.first %}
+            <span class="author-hidden-divider">&amp;</span>
+            {% endif %}
+            <a class="author-name author-hidden"
+              href="{{url_for('web.books_list', data='author', book_id=author.id, sort_param='stored') }}">{{author.name.replace('|',',')|shortentitle(30)}}</a>
+            {% if loop.last %}
+            <a href="#" class="author-expand" data-authors-max="{{g.config_authors_max}}"
+              data-collapse-caption="({{_('reduce')}})">(...)</a>
+            {% endif %}
+            {% else %}
+            {% if not loop.first %}
+            <span>&amp;</span>
+            {% endif %}
+            <a class="author-name"
+              href="{{url_for('web.books_list', data='author', book_id=author.id, sort_param='stored') }}">{{author.name.replace('|',',')|shortentitle(30)}}</a>
             {% endif %}
             {% endfor %}
+            {% if book.data|music %}
+            <span class="glyphicon glyphicon-music"></span>
+            {% endif %}
+          </p>
+          {% if book.series.__len__() > 0 %}
+          <p class="series">
+            {% if page != "series" %}
+            <a href="{{url_for('web.books_list', data='series', sort_param='stored', book_id=book.series[0].id )}}">
+              {{book.series[0].name}}
+            </a>
+            {% else %}
+            <span>{{book.series[0].name}}</span>
+            {% endif %}
+            ({{book.series_index|formatseriesindex}})
+          </p>
+          {% endif %}
+          {% if book.ratings.__len__() > 0 %}
+          <div class="rating">
+            {% for number in range((book.ratings[0].rating/2)|int(2)) %}
+            <span class="glyphicon glyphicon-star good"></span>
+            {% if loop.last and loop.index < 5 %} {% for numer in range(5 - loop.index) %} <span
+              class="glyphicon glyphicon-star-empty"></span>
+              {% endfor %}
+              {% endif %}
+              {% endfor %}
+          </div>
+          {% endif %}
         </div>
-        {% endif %}
       </div>
+
+      {% endfor %}
+      {% endif %}
     </div>
-
-    {% endfor %}
-    {% endif %}
+    <div class="swiper-pagination"></div>
   </div>
-
   {% endfor %}
   {% endif %}
 </div>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<!-- Initialize Swiper -->
+<script>
+  var swiper = new Swiper(".mySwiper", {
+    slidesPerView: 3,
+    spaceBetween: 30,
+    freeMode: true,
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true,
+    },
+  });
+</script>
+
 {% endblock %}
