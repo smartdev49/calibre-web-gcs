@@ -160,10 +160,8 @@ def upload():
                     modify_date |= edit_book_comments(Markup(meta.description).unescape(), db_book)
 
                     book_id = db_book.id
-                    if current_user.role_admin():
-                        db_book.owner = 0           # public book
-                    else :
-                        db_book.owner = current_user
+                    
+                    db_book.owner = current_user
                     title = db_book.title
                     if config.config_use_google_drive:
                         helper.upload_new_file_gdrive(book_id,
